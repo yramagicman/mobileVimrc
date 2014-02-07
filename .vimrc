@@ -2,10 +2,8 @@
 set autoread
 "set spell spelllang=en_us
 "set updatetime=1000
-"pathogen call stuff
-execute pathogen#infect()
 " best color scheme ever
-colorscheme basicDark
+colorscheme darkblue
 set t_Co=256
 " Make Vim more useful
 set nocompatible
@@ -108,39 +106,6 @@ function! StripWhitespace()
     call setpos('.', save_cursor)
     call setreg('/', old_query)
 endfunction
-"}}}
-"{{{ Automatic commands
-if has("autocmd")
-    " Enable file type detection
-    filetype on
-    " Treat .json files as .js
-    au BufRead,BufNewFile *.scss set filetype=css
-    au BufNewFile,BufRead *.json setfiletype json syntax=javascript
-    " use 2 spaces  for css and related files
-    au Bufenter *.scss set tabstop=2
-    au Bufenter *.css set tabstop=2
-    au Bufenter *.scss set shiftwidth=2
-    au Bufenter *.css set shiftwidth=2
-    " automattically add semicolons in css
-    au Bufenter *.scss ino : :;<esc>i
-    au Bufenter *.css ino : :;<esc>i
-    " save on focus lost
-    au FocusLost * :silent! wall
-    " leave insert mode on focus lost
-    au FocusLost * call feedkeys("\<ESC>")
-    " open nerdtree when vim opens
-    au Bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-    au vimenter * if !argc() | NERDTree | endif
-    " fold method marker for vimrc and zshrc
-    au Bufenter .vimrc set foldmethod=marker
-    au Bufenter *.zsh set foldmethod=marker
-    " always reload files when changed outside vim
-    au CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
-    " use absolute line numbering in insert mode and relative numbers elsewhere
-    au InsertEnter * :set nu
-    au InsertLeave * :set rnu
-
-endif
 "}}}
 "{{{ kill arrow keys
 no <down> <C-d>zz
@@ -269,20 +234,6 @@ noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
 vnoremap <C-F> <ESC>:%s/find/replace/it
 " }}}
-"{{{ indent guides
-let g:indentguides_state = 0
-function! IndentGuides()
-    if g:indentguides_state
-        let g:indentguides_state = 0
-        2match None
-    else
-        let g:indentguides_state = 1
-        execute '2match IndentGuides /\%(\_^\s*\)\@<=\%(\%'.(0*&sw+1).'v\|\%'.(1*&sw+1).'v\|\%'.(2*&sw+1).'v\|\%'.(3*&sw+1).'v\|\%'.(4*&sw+1).'v\|\%'.(5*&sw+1).'v\|\%'.(6*&sw+1).'v\|\%'.(7*&sw+1).'v\)\s/'
-    endif
-endfunction
-nnoremap <silent> <leader>I :call IndentGuides()<CR>
-"call IndentGuides()
-"}}}
 "{{{ Indenting
 "bind \] to indent
 nmap <localleader>] >>
@@ -292,19 +243,6 @@ imap <localleader>] <C-O>>>
 nmap <localleader>[ <<
 vmap <localleader>[ <gv
 imap <localleader>[ <C-O><<
-"}}}
-"{{{file navigation shortcuts
-nno <silent> <leader>ev :e ~/.vimrc<CR>
-nno <silent> <leader>wr :cd ~/Sites/wordpress/wp-content/themes<CR>:NERDTreeToggle<CR>
-nno <silent> <leader>git :cd ~/Gits<CR>:NERDTreeToggle<CR>
-nno <silent> <leader>dt :cd ~/Desktop<CR>:NERDTreeToggle<CR>
-no <leader>rl <ESC>:source ~/.vimrc<CR>
-"}}}
-"{{{wordpress wrap function in 'function_exists()' check
-function! WpWrap()
-    normal ^vf(hyOif(function_exists(',p'){`jo}
-endfunction
-nno <c-w><c-w> :call WpWrap()<CR>
 "}}}
 "{{{ Fix Line Endings
 function! LineEndings()
@@ -337,10 +275,6 @@ nno Q gqip
 vno Q gq
 " Reformat line.
 nno Ql gqq
-"}}}
-"{{{ switch colorschemes
-nno <silent> <localleader><leader>l :colorscheme basicLight<CR>
-nno <silent> <localleader><leader>d :colorscheme basicDark<CR>
 "}}}
 "{{{ Convenience bindings
 " Save a file as root ('W)
