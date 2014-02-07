@@ -4,7 +4,6 @@ set autoread
 "set updatetime=1000
 " best color scheme ever
 colorscheme darkblue
-set t_Co=256
 " Make Vim more useful
 set nocompatible
 "text-width
@@ -25,9 +24,6 @@ set gdefault
 set encoding=utf-8
 set binary
 set eol
-" Centralize backups, swapfiles and undo history
-set backupdir=~/.vim/backups
-"set directory=~/.vim/swaps
 "I hate swap files
 set noswapfile
 if exists("&undodir")
@@ -74,15 +70,6 @@ set synmaxcol=80
 set scrolloff=5
 set nowrap sidescrolloff=15
 " sensible completion
-set completeopt=longest,menuone
-set ofu=syntaxcomplete#Complete
-"fugitive statusline
-set statusline=%{fugitive#statusline()}
-" Show “invisible” characters
-set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
-set list
-" Enable line numbers
-set relativenumber
 " Change mapleader
 let mapleader=","
 let localleader="\\"
