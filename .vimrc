@@ -263,7 +263,7 @@ endfunction
 "}}}
 "{{{ save, kill whitespace at end of lines, and end of file, convert tabs
 function Save()
-    $retab
+    %retab
     call StripWhitespace()
     call Knl()
     w
