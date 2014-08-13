@@ -105,7 +105,6 @@ set statusline+=\ \|
 nno <leader>m  <ESC>
 vno <leader>m <ESC>
 ino <leader>m <ESC>
-
 nno <CR> za
 nno <leader><CR> zO
 nno <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
@@ -182,13 +181,11 @@ if has("autocmd")
     au BufEnter * if match( getline(1) , '^\#!') == 0 |
     \ execute("let b:interpreter = getline(1)[2:]") |
     \endif
-
     fun! CallInterpreter()
         if exists("b:interpreter")
              exec ("!".b:interpreter." %")
         endif
     endfun
-
     nmap <Leader>R :call CallInterpreter()<CR>
 endif
 function! HighlightRepeats() range
@@ -208,7 +205,6 @@ function! HighlightRepeats() range
     endif
   endfor
 endfunction
-
 command! -range=% HighlightRepeats <line1>,<line2>call HighlightRepeats()
 nmap <silent><LocalLeader>r :HighlightRepeats<CR>
 nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
@@ -294,7 +290,6 @@ vno <leader>ss <ESC>:call Save()<CR>
 nno <leader><leader>ss :call SaveNoRt()<CR>
 ino <leader><leader>ss <ESC>:call SaveNoRt()<CR>
 vno <leader><leader>ss <ESC>:call SaveNoRt()<CR>
-
 nno <silent><leader>ww :call Save()<CR>:close<CR>
 ino <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
 vno <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
@@ -304,7 +299,6 @@ vno <leader>cl <ESC>:close!
 nno <silent><leader>wq :call Save()<CR>:qall<CR>
 ino <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
 vno <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
-
 nno <leader>\ :q!
 ino <leader>\ <ESC>:q!
 vno <leader>\ <ESC>:q!
@@ -313,7 +307,6 @@ nno <C-w> :close<CR>
 nno <silent><leader>q :q<CR>
 ino <silent><leader>q :q<CR>
 vno <silent><leader>q :q<CR>
-
 nno qq :wq
 nno qw :wq
 nno cl :close
