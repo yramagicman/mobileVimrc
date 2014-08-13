@@ -39,6 +39,7 @@ if has("autocmd")
     autocmd FileType make set noexpandtab
     autocmd BufNewFile,BufRead *.md set filetype=markdown
 endif
+set background=dark
 noremap ; :
 set autoread
 set spelllang=en_us
