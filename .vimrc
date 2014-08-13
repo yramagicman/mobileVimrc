@@ -26,6 +26,10 @@ if has("autocmd")
     au FocusLost * :silent! wall
     " leave insert mode on focus lost
     au FocusLost * call feedkeys("\<ESC>")
+    "{{{ open nerdtree when vim opens
+    "au Bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+    "au vimenter * if !argc() | NERDTree | endif
+    "}}}
     "{{{ fold method marker for vimrc and zshrc
     au Bufenter,BufRead *.vim set foldmethod=marker
     au Bufenter *.zsh set foldmethod=marker
@@ -64,12 +68,14 @@ if has("autocmd")
     autocmd BufNewFile,BufRead *.md set filetype=markdown
 endif
 "{{{ Defaults probably won't change... ever
-set background=dark
+noremap ; :
 set autoread
 set spelllang=en_us
 "set updatetime=1000
+"pathogen call stuff
+"execute pathogen#infect()
 " best color scheme ever
-colorscheme darkblue
+colorscheme muttclone
 set t_Co=256
 " Make Vim more useful
 set nocompatible
@@ -112,8 +118,6 @@ set hlsearch
 set ignorecase
 " Highlight dynamically as pattern is typed
 set incsearch
-" Always show status line
-set laststatus=2
 " Enable mouse in all modes
 set mouse=a
 " Disable error bells
@@ -143,12 +147,6 @@ set nolist wrap linebreak sidescrolloff=15
 " sensible completion
 set completeopt=longest,menuone
 set ofu=syntaxcomplete#Complete
-"fugitive statusline
-set statusline=::\ %f\ \%y
-set statusline+=%=
-set statusline+=Current\ line:
-set statusline+=%4l/%-4L
-set statusline+=\ ::
 " Show “invisible” characters
 set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 "set list " breaks set linebreak
@@ -166,12 +164,31 @@ set smartindent
 set shiftwidth=4
 "tabs to spaces
 set expandtab
-noremap ; :
+"}}}
+"{{{ set compiler
+let g:syntastic_cpp_compiler = 'clang++'
+let g:syntastic_c_compiler = 'clang'
+let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
+"}}}
+"{{{ set status line
+" Always show status line
+set laststatus=2
+set statusline=\|\ %m%f%r\ \%y
+set statusline+=%=
+set statusline+=Line:
+set statusline+=%4l/%-4L
+set statusline+=Column\ %2c
+set statusline+=\ \|
+"}}}
 "{{{ remap escape for easier access
+"nno <ESC> <Nop>
+"ino <ESC> <Nop>
+"vno <ESC> <Nop>
 nno <leader>m  <ESC>
 vno <leader>m <ESC>
 ino <leader>m <ESC>
 "}}}
+
 "{{{ folding
 "{{{Open folds on enter
 nno <CR> za
@@ -204,8 +221,7 @@ noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
 vnoremap <C-F> <ESC>:%s/find/replace/it
 " }}}
-" }}}
-"{{{ Strip trailing whitespace (,ss)
+" }}}"{{{ Strip trailing whitespace (,ss)
 function! StripWhitespace()
     let save_cursor = getpos(".")
     let old_query = getreg('/')
@@ -282,11 +298,13 @@ if has("autocmd")
     au BufEnter * if match( getline(1) , '^\#!') == 0 |
     \ execute("let b:interpreter = getline(1)[2:]") |
     \endif
+
     fun! CallInterpreter()
         if exists("b:interpreter")
              exec ("!".b:interpreter." %")
         endif
     endfun
+
     nmap <Leader>R :call CallInterpreter()<CR>
 endif
 " }}}
@@ -308,6 +326,7 @@ function! HighlightRepeats() range
     endif
   endfor
 endfunction
+
 command! -range=% HighlightRepeats <line1>,<line2>call HighlightRepeats()
 nmap <silent><LocalLeader>r :HighlightRepeats<CR>
 nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
@@ -329,9 +348,9 @@ imap <localleader>[ <C-O><<
 "}}}
 "{{{file navigation shortcuts
 nno <silent> <leader>ev :e ~/.vim/config/<CR>
-nno <silent> <leader>wr :cd ~/Sites/wordpress/wp-content/themes<CR>:NERDTreeToggle<CR>
-nno <silent> <leader>git :cd ~/Gits<CR>:NERDTreeToggle<CR>
-nno <silent> <leader>dt :cd ~/Desktop<CR>:NERDTreeToggle<CR>
+nno <silent> <leader>wr :cd ~/Sites/wordpress/wp-content/themes<CR>:Explore<CR>
+nno <silent> <leader>git :cd ~/Gits<CR>:Explore<CR>
+nno <silent> <leader>dt :cd ~/Desktop<CR>:Explore<CR>
 no <leader>rl <ESC>:source ~/.vimrc<CR>
 "}}}
 "{{{ Make Vim work logically
@@ -362,8 +381,9 @@ no <silent><leader>w <ESC>:set wrap!<CR>
 ino <silent><leader>w <ESC>:set wrap!<CR>i
 "toggle nerdtree
 no <silent><leader>nt <ESC>:Explore<CR>
+no <silent><leader>e <ESC>:Explore<CR>
 "retab
-no <leader>r <ESC>:%retab<CRh
+no <leader>r <ESC>:%retab<CR>
 "kill search highlighting
 no <leader>sh <ESC>:noh<CR>
 no <silent><leader><space> <ESC>:let @/ = ""<CR>
@@ -379,6 +399,7 @@ nno CC 0f_x~
 ino <C-c> <ESC>I//
 vno <C-c> I//
 nno <leader>c :%!column -t<CR>
+nno <leader>s :source %<CR>
 "}}}
 "{{{ spelling mappings
 nno <C-s><C-s> :set spell!<cr>
@@ -436,6 +457,7 @@ vno <leader>ss <ESC>:call Save()<CR>
 nno <leader><leader>ss :call SaveNoRt()<CR>
 ino <leader><leader>ss <ESC>:call SaveNoRt()<CR>
 vno <leader><leader>ss <ESC>:call SaveNoRt()<CR>
+
 "save and close
 nno <silent><leader>ww :call Save()<CR>:close<CR>
 ino <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
@@ -448,15 +470,23 @@ vno <leader>cl <ESC>:close!
 nno <silent><leader>wq :call Save()<CR>:qall<CR>
 ino <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
 vno <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
+
 "ruthelessly kill vim without a care in the world for what breaks
 " quit without saving
 nno <leader>\ :q!
 ino <leader>\ <ESC>:q!
 vno <leader>\ <ESC>:q!
+""stay in or enter insert mode after current character on save
+"ino <C-s> <ESC>:call StripWhitespace()<CR>:w<CR>a
+"vno <C-s> <ESC>:call StripWhitespace()<CR>:w<CR>a
+"nno <C-s> <ESC>:call StripWhitespace()<CR>:w<CR>a
+"
 nno <C-q> :q<CR>
+nno <C-w> :close<CR>
 nno <silent><leader>q :q<CR>
 ino <silent><leader>q :q<CR>
 vno <silent><leader>q :q<CR>
+
 nno qq :wq
 nno qw :wq
 nno cl :close
@@ -485,14 +515,9 @@ set splitright
 " }}}
 "{{{
 nno <C-t> :tabnew<CR>
-"nno <C-n> :tabn<CR>
 nno <C-p> :tabp<CR>
 no <S-right> <C-w>>
 no <S-up> <C-w>+
 no <S-left> <C-w><
 no <S-down> <C-w>-
 "}}}
-hi ColorColumn ctermbg=235
-hi def IndentGuides ctermbg=235
-hi StatusLine ctermbg=16 ctermfg=246
-hi StatusLineNC ctermbg=16 ctermfg=233
