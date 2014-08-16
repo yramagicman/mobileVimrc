@@ -51,11 +51,11 @@ if has("autocmd")
     au Bufenter,BufRead * set expandtab
     "}}}
     "{{{ drupal coding standards
-    au Bufenter,BufRead */drupal-7.28/* set tabstop=2
-    au Bufenter,BufRead */drupal-7.28/* set smartindent
-    au Bufenter,BufRead */drupal-7.28/* set shiftwidth=2
-    au Bufenter,BufRead */drupal-7.28/* set expandtab
-    au BufRead */drupal-7.28/* call IndentGuides()
+    au Bufenter,BufRead */drupal*/* set tabstop=2
+    au Bufenter,BufRead */drupal*/* set smartindent
+    au Bufenter,BufRead */drupal*/* set shiftwidth=2
+    au Bufenter,BufRead */drupal*/* set expandtab
+    au BufRead */drupal*/* call IndentGuides()
     "}}}
     "{{{ ratiochristi coding standards
     au Bufenter,BufRead */ratiochristi/* set tabstop=4
@@ -515,3 +515,8 @@ no <S-up> <C-w>+
 no <S-left> <C-w><
 no <S-down> <C-w>-
 "}}}
+let @c = "/\/\/d"
+let @f = "/function Äkbf{i,ss"
+let @r = "/returnO,mjo,m"
+let @e = "/^}aRÄkb,m"
+let @z = "^vf(hyOif(function_exists(',p'){`jo}"
