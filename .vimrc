@@ -55,7 +55,7 @@ if has("autocmd")
     au Bufenter,BufRead */drupal*/* set smartindent
     au Bufenter,BufRead */drupal*/* set shiftwidth=2
     au Bufenter,BufRead */drupal*/* set expandtab
-    au BufRead */drupal*/* call IndentGuides()
+    "au BufRead */drupal*/* call IndentGuides()
     "}}}
     "{{{ ratiochristi coding standards
     au Bufenter,BufRead */ratiochristi/* set tabstop=4
@@ -221,7 +221,7 @@ noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
 vnoremap <C-F> <ESC>:%s/find/replace/it
 " }}}
-" }}}"{{{ Strip trailing whitespace (,ss)
+" }}}"{{{ Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
     let old_query = getreg('/')
@@ -257,7 +257,7 @@ nno <silent><leader>le :call LineEndings()<CR>
 function! WpWrap()
     normal ^vf(hyOif(function_exists(',p'){`jo}
 endfunction
-nno <c-w><c-w> :call WpWrap()<CR>
+nno <c-v><c-w> :call WpWrap()<CR>
 "}}}
 "{{{ create new tabs on <C-n> if no tabs exist
 function TabBind()
@@ -279,6 +279,8 @@ endfunction
 "}}}
 "{{{ save, kill whitespace at end of lines, and end of file, convert tabs
 function Save()
+    syntax sync fromstart
+    redraw!
     %retab
     call StripWhitespace()
     call Knl()
@@ -372,7 +374,8 @@ nno Ql gqq
 " Save a file as root ('W)
 no <leader>W :w !sudo tee % > /dev/null<CR>
 "delete blank lines
-no <leader>db :g/^$/d<ESC>:let @/ = ""<CR>
+"no <leader>db :g/^$/d<ESC>:let @/ = ""<CR>
+no <leader>db :%!cat -s<CR>
 " toggle word wrap
 no <silent><leader>w <ESC>:set wrap!<CR>
 ino <silent><leader>w <ESC>:set wrap!<CR>i
@@ -445,7 +448,7 @@ no <S-h> ^
 no <S-k> ggzz
 "}}}
 no <tab> %
-"{{{Saving and closing
+"{{{ Saving and closing
 "control whitespace and tabs on save
 nno <leader>ss :call Save()<CR>
 ino <leader>ss <ESC>:call Save()<CR>
@@ -468,14 +471,13 @@ ino <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
 vno <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
 "ruthelessly kill vim without a care in the world for what breaks
 " quit without saving
-nno <leader>\ :q!
-ino <leader>\ <ESC>:q!
-vno <leader>\ <ESC>:q!
+nno <leader><ESC> :q!
+ino <leader><ESC> <ESC>:q!
+vno <leader><ESC> <ESC>:q!
 ""stay in or enter insert mode after current character on save
-"ino <C-s> <ESC>:call StripWhitespace()<CR>:w<CR>a
-"vno <C-s> <ESC>:call StripWhitespace()<CR>:w<CR>a
-"nno <C-s> <ESC>:call StripWhitespace()<CR>:w<CR>a
-"
+ino <C-s> <ESC>:call Save()<CR>a
+vno <C-s> <ESC>:call Save()<CR>a
+nno <C-s> <ESC>:call Save()<CR>a
 nno <C-q> :q<CR>
 nno <C-w> :close<CR>
 nno <silent><leader>q :q<CR>
