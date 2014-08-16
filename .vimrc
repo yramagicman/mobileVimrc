@@ -181,6 +181,7 @@ set statusline+=%4l/%-4L
 set statusline+=\ Column\ %2c
 set statusline+=\ \|
 "}}}
+let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 "{{{ remap escape for easier access
 "nno <ESC> <Nop>
 "ino <ESC> <Nop>
