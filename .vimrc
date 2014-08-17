@@ -287,10 +287,6 @@ no <S-j> Gzz
 no <S-h> ^
 no <S-k> ggzz
 no <tab> %
-let @c = "/\/\/d"
-let @r = "/returnO,mjo,m"
-let @e = "/^}aRÄkb,m"
-let @z = "^vf(hyOif(function_exists(',p'){`jo}""{{{ Saving and closing
 nno <leader>ss :call Save()<CR>
 ino <leader>ss <ESC>:call Save()<CR>
 vno <leader>ss <ESC>:call Save()<CR>
