@@ -96,7 +96,7 @@ set backspace=indent,eol,start
 " Optimize for fast terminal connections
 set ttyfast
 " Add the g flag to search/replace by default
-set gdefault
+" set gdefault
 " Use UTF-8
 set encoding=utf-8
 set binary
@@ -377,7 +377,8 @@ nno Ql gqq
 " Save a file as root ('W)
 no <leader>W :w !sudo tee % > /dev/null<CR>
 "delete blank lines
-"no <leader>db :g/^$/d<ESC>:let @/ = ""<CR>
+no <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
+" delete duplicate blank lines
 no <leader>db :%!cat -s<CR>
 " toggle word wrap
 no <silent><leader>w <ESC>:set wrap!<CR>
