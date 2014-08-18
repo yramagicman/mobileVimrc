@@ -1,3 +1,17 @@
+"match pairs
+ino ' ''<ESC>i
+ino " ""<ESC>i
+ino ( ()<ESC>i
+ino { {}<ESC>i
+ino [ []<ESC>i
+ino [<CR> [<CR>]<ESC>O
+ino (<CR> ()<ESC>a
+ino {<CR> {<CR>}<ESC>O
+vmap ' xi'<ESC>pa<ESC>'f'a
+vmap " xi"<ESC>pa<ESC>"f"a
+vmap { xi{<ESC>pa<ESC>la
+vmap [ xi[<ESC>pa<ESC>la
+vmap ( xi(<ESC>pa<ESC>la
 " Automatic commands
 if has("autocmd")
     " Enable file type detection
@@ -17,8 +31,8 @@ if has("autocmd")
     au Bufleave *.js iabbr 90 90
     "}}}
     "{{{ automattically add semicolons in css
-    au Bufenter *.scss ino : :;<esc>i
-    au Bufenter *.css ino : :;<esc>i
+    au Bufenter *.scss ino : :;<ESC>i
+    au Bufenter *.css ino : :;<ESC>i
     au Bufleave *.scss ino : :
     au Bufleave *.css ino : :
     "}}}
@@ -221,7 +235,8 @@ noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
 vnoremap <C-F> <ESC>:%s/find/replace/it
 " }}}
-" }}}"{{{ Strip trailing whitespace
+" }}}
+"{{{ Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
     let old_query = getreg('/')
@@ -362,7 +377,7 @@ nno cc cc<ESC>
 vno cc cc<ESC>
 " delete till the beginning of a line
 no <leader>D d0
-ino <leader>D <esc>d0xi
+ino <leader>D <ESC>d0xi
 "}}}
 "!{{{ Formatting, TextMate-style
 nno Q gqip
@@ -389,12 +404,12 @@ no <leader>r <ESC>:%retab<CR>
 no <leader>sh <ESC>:noh<CR>
 no <silent><leader><space> <ESC>:let @/ = ""<CR>
 "uppercase words
-ino <C-u> <esc>mzgUiwza
-nno <C-u> <esc>mzgUiwza
+ino <C-u> <ESC>mzgUiwza
+nno <C-u> <ESC>mzgUiwza
 " Toggle [i]nvisible characters
-nno <silent><leader>i :set list!<cr>
+nno <silent><leader>i :set list!<CR>
 " reset color scheme
-nno U :syntax sync fromstart<cr>:redraw!<cr>
+nno U :syntax sync fromstart<CR>:redraw!<cr>
 " make this_style into cammelCase
 nno CC 0f_x~
 ino <C-c> <ESC>I//
@@ -403,7 +418,7 @@ nno <leader>c :%!column -t<CR>
 nno <leader>s :source %<CR>
 "}}}
 "{{{ spelling mappings
-nno <C-s><C-s> :set spell!<cr>
+nno <C-s><C-s> :set spell!<CR>
 nno <C-s>a zG
 nno <C-s>n ]szo
 nno <C-s>p [szo
@@ -453,7 +468,8 @@ let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
 let @e = "/^}aRÄkb,m"
-let @z = "^vf(hyOif(function_exists(',p'){`jo}""{{{ Saving and closing
+let @z = "^vf(hyOif(function_exists(',p'){`jo}"
+"{{{ Saving and closing
 "control whitespace and tabs on save
 nno <leader>ss :call Save()<CR>
 ino <leader>ss <ESC>:call Save()<CR>
