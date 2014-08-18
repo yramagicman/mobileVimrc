@@ -84,7 +84,6 @@ if has("autocmd")
 endif
 " Defaults probably won't change... ever
 set background=dark
-noremap ; :
 set autoread
 set spelllang=en_us
 "set updatetime=1000
@@ -197,6 +196,8 @@ let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 nno <leader>m  <ESC>
 vno <leader>m <ESC>
 ino <leader>m <ESC>
+" map colon to semi-colon. Life is just easier that way.
+noremap ; :
 " folding
 "Open folds on enter
 nno <CR> za
@@ -326,6 +327,7 @@ nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
 no <silent> <leader>nn :set nonumber<CR>
 no <silent> <leader>an :set number<CR>
 no <silent> <leader>rn :set relativenumber!<CR>
+noremap ; :
 " Indenting
 "bind \] to indent
 nmap <localleader>] >>
