@@ -409,7 +409,7 @@ nno <C-u> <ESC>mzgUiwza
 " Toggle [i]nvisible characters
 nno <silent><leader>i :set list!<CR>
 " reset color scheme
-nno U :syntax sync fromstart<CR>:redraw!<cr>
+nno U :syntax sync fromstart<CR>:redraw!<CR>
 " make this_style into cammelCase
 nno CC 0f_x~
 ino <C-c> <ESC>I//
