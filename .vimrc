@@ -2,34 +2,6 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-"match pairs
-ino ' ''<ESC>i
-ino " ""<ESC>i
-ino ( ()<ESC>i
-ino { {}<ESC>i
-ino [ []<ESC>i
-ino < <><ESC>i
-ino [<CR> [<CR>]<ESC>O
-ino (<CR> (<Cr>)<ESC>O
-ino {<CR> {<CR>}<ESC>O
-" If inserted quickly, don't reinsert matching character
-ino <> <>
-ino () ()
-ino [] []
-ino {} {}
-ino '' ''
-ino "" ""
-" This sequence (xi'...) surrounds a selected block in whatever character it's
-" mapped to work with by copying and pasting the selected text inside the block
-" and then appending the character at the end.
-vmap ' xi'<ESC>pa<ESC>'f'a
-vmap " xi"<ESC>pa<ESC>"f"a
-" For some odd reason I don't need the closing character in these mappings. I
-" guess the previous insert mode mappings take care of it, which is odd because
-" that wasn't true with the single and double quote mappings
-vmap { xi{<ESC>pa<ESC>la
-vmap [ xi[<ESC>pa<ESC>la
-vmap ( xi(<ESC>pa<ESC>la
 " Automatic commands
 if has("autocmd")
     " Enable file type detection
@@ -72,6 +44,7 @@ if has("autocmd")
     au Bufenter,BufRead */drupal*/* set shiftwidth=2
     au Bufenter,BufRead */drupal*/* set expandtab
     au Bufenter,BufRead *.module set filetype=php
+    au Bufenter,BufRead *.inc set filetype=php
     au Bufenter,BufRead *.install set filetype=php
     "au BufRead */drupal*/* call IndentGuides()
     " ratiochristi coding standards
@@ -345,7 +318,6 @@ endfunction
 no <silent> <leader>nn :set nonumber<CR>
 no <silent> <leader>an :set number<CR>
 no <silent> <leader>rn :set relativenumber!<CR>
-noremap ; :
 " Indenting
 "bind \] to indent
 nmap <localleader>] >>
@@ -419,6 +391,35 @@ nno <C-s>s z=
 nno R q
 " there, now q won't do dumb stuff
 nno q <NOP>
+noremap ; :
+"match pairs
+ino ' ''<ESC>i
+ino " ""<ESC>i
+ino ( ()<ESC>i
+ino { {}<ESC>i
+ino [ []<ESC>i
+ino < <><ESC>i
+ino [<CR> [<CR>]<ESC>O
+ino (<CR> (<Cr>)<ESC>O
+ino {<CR> {<CR>}<ESC>O
+" If inserted quickly, don't reinsert matching character
+ino <> <>
+ino () ()
+ino [] []
+ino {} {}
+ino '' ''
+ino "" ""
+" This sequence (xi'...) surrounds a selected block in whatever character it's
+" mapped to work with by copying and pasting the selected text inside the block
+" and then appending the character at the end.
+vno ' xi'<ESC>pa<ESC>'f'a
+vno " xi"<ESC>pa<ESC>"f"a
+" For some odd reason I don't need the closing character in these mappings. I
+" guess the previous insert mode mappings take care of it, which is odd because
+" that wasn't true with the single and double quote mappings
+vno { xi{<ESC>pa<ESC>la
+vno [ xi[<ESC>pa<ESC>la
+vno ( xi(<ESC>pa<ESC>la
 " kill arrow keys
 no <down> <C-d>zz
 no <left> <Nop>
@@ -449,7 +450,8 @@ no <S-l> $
 no <S-j> Gzz
 no <S-h> ^
 no <S-k> ggzz
-no <tab> %
+nno <tab> %
+vno <tab> %
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
