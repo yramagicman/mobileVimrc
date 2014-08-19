@@ -8,9 +8,17 @@ ino " ""<ESC>i
 ino ( ()<ESC>i
 ino { {}<ESC>i
 ino [ []<ESC>i
+ino < <><ESC>i
 ino [<CR> [<CR>]<ESC>O
-ino (<CR> ()<ESC>a
+ino (<CR> (<Cr>)<ESC>O
 ino {<CR> {<CR>}<ESC>O
+" If inserted quickly, don't reinsert matching character
+ino <> <>
+ino () ()
+ino [] []
+ino {} {}
+ino '' ''
+ino "" ""
 " This sequence (xi'...) surrounds a selected block in whatever character it's
 " mapped to work with by copying and pasting the selected text inside the block
 " and then appending the character at the end.
@@ -255,13 +263,13 @@ function! LineEndings()
     :w
 endfunction
 nno <silent><leader>le :call LineEndings()<CR>
-"wordpress wrap function in 'function_exists()' check
+"wordpress wrap function! in 'function_exists()' check
 function! WpWrap()
     normal ^vf(hyOif(function_exists(',p'){`jo}
 endfunction
 nno <c-v><c-w> :call WpWrap()<CR>
 " create new tabs on <C-n> if no tabs exist
-function TabBind()
+function! TabBind()
     if tabpagenr('$') < 2
         tabnew
     else
@@ -270,26 +278,28 @@ function TabBind()
 endfunction
 nno <C-n> :call TabBind()<CR>
 " kill extra newlines
-function Knl ()
+function! Knl ()
     try
         %s#\($\n\s*\)\+\%$##
     catch
     endtry
 endfunction
 " save, kill whitespace at end of lines, and end of file, convert tabs
-function Save()
+function! Save()
     syntax sync fromstart
     redraw!
     %retab
     call StripWhitespace()
     call Knl()
     w
+    call CheckErrorFn()
 endfunction
 " save, kill whitespace at end of lines, and end of file, don't convert tabs
-function SaveNoRt()
+function! SaveNoRt()
     call StripWhitespace()
     call Knl()
     w
+    call CheckErrorFn()
 endfunction
 " Shortcut: F7 = Run anything with a shebang
 " Source: http://superuser.com/a/21503/48014
@@ -325,6 +335,12 @@ endfunction
 command! -range=% HighlightRepeats <line1>,<line2>call HighlightRepeats()
 nmap <silent><LocalLeader>r :HighlightRepeats<CR>
 nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
+" Check for :Error command so it can be run on save
+function! CheckErrorFn()
+    if exists(':Error')
+        Error
+    endif
+endfunction
 "line numbering
 no <silent> <leader>nn :set nonumber<CR>
 no <silent> <leader>an :set number<CR>
