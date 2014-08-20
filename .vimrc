@@ -6,52 +6,61 @@
 if has("autocmd")
     " Enable file type detection
     filetype on
+    augroup js
     " Treat .json files as .js
-    au BufRead,BufNewFile *.scss set filetype=css
-    au BufNewFile,BufRead *.json setfiletype json syntax=javascript
-    " use 2 spaces  for css and related files
-    au Bufenter *.scss set tabstop=2
-    au Bufenter *.css set tabstop=2
-    au Bufenter *.scss set shiftwidth=2
-    au Bufenter *.css set shiftwidth=2
+        autocmd!
+        au BufRead,BufNewFile *.scss set filetype=css
+        au BufNewFile,BufRead *.json setfiletype json syntax=javascript
     " fix my fat fingers, change 90 to () in js
-    au Bufenter *.js iabbr 90 ()
-    au Bufleave *.js iabbr 90 90
+        au Bufenter *.js iabbr 90 ()
+        au Bufleave *.js iabbr 90 90
+    augroup end
+    augroup css
+        autocmd!
+    " use 2 spaces  for css and related files
+        au Bufenter *.scss set tabstop=2
+        au Bufenter *.css set tabstop=2
+        au Bufenter *.scss set shiftwidth=2
+        au Bufenter *.css set shiftwidth=2
     " automattically add semicolons in css
-    au Bufenter *.scss ino : :;<ESC>i
-    au Bufenter *.css ino : :;<ESC>i
-    au Bufleave *.scss ino : :
-    au Bufleave *.css ino : :
-    " open nerdtree when vim opens
-    "au Bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
-    "au vimenter * if !argc() | NERDTree | endif
+        au Bufenter *.scss ino : :;<ESC>i
+        au Bufenter *.css ino : :;<ESC>i
+        au Bufleave *.scss ino : :
+        au Bufleave *.css ino : :
+    augroup end
+    augroup general
+        autocmd!
     " fold method marker for vimrc and zshrc
-    au Bufenter,BufRead *.vim set foldmethod=marker
-    au Bufenter *.zsh set foldmethod=marker
+        au Bufenter,BufRead *.vim set foldmethod=marker
+        au Bufenter *.zsh set foldmethod=marker
     " use absolute line numbering in insert mode and relative numbers elsewhere
-    au InsertLeave * :set nonumber
-    au InsertLeave * :set relativenumber
-    au InsertEnter * :set number
-    au InsertEnter * :set norelativenumber
+        au InsertLeave * :set nonumber
+        au InsertLeave * :set relativenumber
+        au InsertEnter * :set number
+        au InsertEnter * :set norelativenumber
     " tabs to spaces, four spaces per tab
-    au Bufenter,BufRead * set tabstop=4
-    au Bufenter,BufRead * set smartindent
-    au Bufenter,BufRead * set shiftwidth=4
-    au Bufenter,BufRead * set expandtab
+        au Bufenter,BufRead * set tabstop=4
+        au Bufenter,BufRead * set smartindent
+        au Bufenter,BufRead * set shiftwidth=4
+        au Bufenter,BufRead * set expandtab
+    augroup end
+    augroup coding
+        autocmd!
     " drupal coding standards
-    au Bufenter,BufRead */drupal*/* set tabstop=2
-    au Bufenter,BufRead */drupal*/* set smartindent
-    au Bufenter,BufRead */drupal*/* set shiftwidth=2
-    au Bufenter,BufRead */drupal*/* set expandtab
-    au Bufenter,BufRead *.module set filetype=php
-    au Bufenter,BufRead *.inc set filetype=php
-    au Bufenter,BufRead *.install set filetype=php
-    "au BufRead */drupal*/* call IndentGuides()
+        au Bufenter,BufRead */drupal*/* set tabstop=2
+        au Bufenter,BufRead */drupal*/* set smartindent
+        au Bufenter,BufRead */drupal*/* set shiftwidth=2
+        au Bufenter,BufRead */drupal*/* set expandtab
+        au Bufenter,BufRead *.module set filetype=php
+        au Bufenter,BufRead *.inc set filetype=php
+        au Bufenter,BufRead *.install set filetype=php
+        "au BufRead */drupal*/* call IndentGuides()
     " ratiochristi coding standards
-    au Bufenter,BufRead */ratiochristi/* set tabstop=4
-    au Bufenter,BufRead */ratiochristi/* set smartindent
-    au Bufenter,BufRead */ratiochristi/* set shiftwidth=4
-    au Bufenter,BufRead */ratiochristi/* set expandtab
+        au Bufenter,BufRead */ratiochristi/* set tabstop=4
+        au Bufenter,BufRead */ratiochristi/* set smartindent
+        au Bufenter,BufRead */ratiochristi/* set shiftwidth=4
+        au Bufenter,BufRead */ratiochristi/* set expandtab
+    augroup end
     " Misc. individual commands that don't merrit their own fold group
     au BufEnter,BufRead mutt* set spell
     autocmd FileType make set noexpandtab
@@ -420,10 +429,13 @@ vno " xi"<ESC>pa<ESC>"f"a
 vno { xi{<ESC>pa<ESC>la
 vno [ xi[<ESC>pa<ESC>la
 vno ( xi(<ESC>pa<ESC>la
-iabbrev api API
-iabbrev etap Etapestry
-iabbrev durpal Drupal
-iabbrev drupal Drupal
+augroup abbrevs
+    autocmd!
+    au BufEnter mutt* iabbrev api API
+    au BufEnter mutt* iabbrev etap Etapestry
+    au BufEnter mutt* iabbrev durpal Drupal
+    au BufEnter mutt* iabbrev drupal Drupal
+augroup end
 " kill arrow keys
 no <down> <C-d>zz
 no <left> <Nop>
