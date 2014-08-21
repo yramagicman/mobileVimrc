@@ -347,6 +347,10 @@ no <leader>rl <ESC>:source ~/.vimrc<CR>
 nnoremap * *<c-o>
 "paste in insert mode
 ino <leader>p <ESC>pa
+"paste from x clipboard
+nno <leader><leader>p <ESC>"+p
+ino <leader><leader>p <ESC>"+p
+vno <leader><leader>p <ESC>"+p
 "don't enter insert mode when cutting lines
 nno cc cc<ESC>
 vno cc cc<ESC>
