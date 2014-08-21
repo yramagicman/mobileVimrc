@@ -381,8 +381,8 @@ no <leader>r <ESC>:%retab<CR>
 no <leader>sh <ESC>:noh<CR>
 no <silent><leader><space> <ESC>:let @/ = ""<CR>
 "uppercase words
-ino <C-u> <ESC>mzgUiwza
-nno <C-u> <ESC>mzgUiwza
+ino <C-u> <ESC>mzgUiw
+nno <C-u> <ESC>mzgUiw
 " Toggle [i]nvisible characters
 nno <silent><leader>i :set list!<CR>
 " reset color scheme
@@ -394,11 +394,11 @@ vno <C-c> I//
 nno <leader>c :%!column -t<CR>
 nno <leader>s :source %<CR>
 " spelling mappings
-nno <C-s><C-s> :set spell!<CR>
-nno <C-s>a zG
-nno <C-s>n ]szo
-nno <C-s>p [szo
-nno <C-s>s z=
+nno <C-a>s :set spell!<CR>
+nno <C-a>a zG
+nno <C-a>n ]szo
+nno <C-a>p [szo
+nno <C-a>w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
 nno R q
@@ -507,17 +507,17 @@ nno <leader><ESC> :q!
 ino <leader><ESC> <ESC>:q!
 vno <leader><ESC> <ESC>:q!
 ""stay in or enter insert mode after current character on save
-ino <C-s> <ESC>:call Save()<CR>a
-vno <C-s> <ESC>:call Save()<CR>a
-nno <C-s> <ESC>:call Save()<CR>a
+""ino <C-s> <ESC>:call Save()<CR>a
+""vno <C-s> <ESC>:call Save()<CR>a
+""nno <C-s> <ESC>:call Save()<CR>a
 nno <C-q> :q<CR>
-nno <C-w> :close<CR>
+""nno <C-w> :close<CR>
 nno <silent><leader>q :q<CR>
 ino <silent><leader>q :q<CR>
 vno <silent><leader>q :q<CR>
 nno qq :wq
 nno qw :wq
-nno cl :close
+nno cl :close<CR>
 ino q q
 ino qq qq
 "window navigation & and splits
@@ -541,7 +541,7 @@ set splitright
 " tab mappings
 nno <C-t> :tabnew<CR>
 nno <C-p> :tabp<CR>
-no <S-right> <C-w>>
-no <S-up> <C-w>+
-no <S-left> <C-w><
-no <S-down> <C-w>-
+nno <C-d> <C-w>>
+nno <C-w> <C-w>+
+nno <C-a> <C-w><
+nno <C-s> <C-w>-
