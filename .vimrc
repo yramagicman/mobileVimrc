@@ -56,7 +56,7 @@ if has("autocmd")
     " Misc. individual commands that don't merrit their own fold group
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
-        autocmd FileType gitcommit !ring
+        autocmd BufRead /usr/local/MERGE_MSG !ring
         autocmd BufNewFile,BufRead *.md set filetype=markdown
         " make vim edit cron again
         autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
