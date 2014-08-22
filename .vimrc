@@ -16,16 +16,10 @@ if has("autocmd")
         au InsertLeave * :set relativenumber
         au InsertEnter * :set number
         au InsertEnter * :set norelativenumber
-    " tabs to spaces, four spaces per tab
-        au Bufenter,BufRead * set tabstop=4
-        au Bufenter,BufRead * set smartindent
-        au Bufenter,BufRead * set shiftwidth=4
-        au Bufenter,BufRead * set expandtab
     augroup end
     augroup js
     " Treat .json files as .js
         autocmd!
-        au BufRead,BufNewFile *.scss set filetype=css
         au BufNewFile,BufRead *.json setfiletype json syntax=javascript
     " fix my fat fingers, change 90 to () in js
         au Bufenter *.js iabbr 90 ()
@@ -33,16 +27,13 @@ if has("autocmd")
     augroup end
     augroup css
         autocmd!
+        au BufRead,BufNewFile *.scss set filetype=css
+        au BufRead,BufNewFile *.css set filetype=css
     " use 2 spaces  for css and related files
-        au Bufenter *.scss set tabstop=2
-        au Bufenter *.css set tabstop=2
-        au Bufenter *.scss set shiftwidth=2
-        au Bufenter *.css set shiftwidth=2
+        au FileType css setlocal tabstop=2
+        au FileType css setlocal shiftwidth=2
     " automattically add semicolons in css
-        au Bufenter *.scss ino : :;<ESC>i
-        au Bufenter *.css ino : :;<ESC>i
-        au Bufleave *.scss ino : :
-        au Bufleave *.css ino : :
+        au FileType css ino <buffer> : :;<ESC>i
     augroup end
     augroup coding
         autocmd!
@@ -62,7 +53,7 @@ if has("autocmd")
         au Bufenter,BufRead */ratiochristi/* set expandtab
     augroup end
     " Misc. individual commands that don't merrit their own fold group
-    au BufEnter,BufRead mutt* set spell
+    au FileType mail set spell
     autocmd FileType make set noexpandtab
     autocmd BufNewFile,BufRead *.md set filetype=markdown
     " make vim edit cron again
@@ -70,9 +61,9 @@ if has("autocmd")
     " always reload files when changed outside vim
     au CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
     " save on focus lost
-    au FocusLost * :silent! wall
+    au FocusLost,BufLeave * :silent! wall
     " leave insert mode on focus lost
-    au FocusLost * call feedkeys("\<ESC>")
+    au FocusLost,BufLeave * call feedkeys("\<ESC>")
 endif
 " Defaults probably won't change... ever
 set background=dark
@@ -411,7 +402,6 @@ ino " ""<ESC>i
 ino ( ()<ESC>i
 ino { {}<ESC>i
 ino [ []<ESC>i
-ino < <><ESC>i
 ino [<CR> [<CR>]<ESC>O
 ino (<CR> (<Cr>)<ESC>O
 ino {<CR> {<CR>}<ESC>O
@@ -434,14 +424,14 @@ vno [ xi[<ESC>pa<ESC>la
 vno ( xi(<ESC>pa<ESC>la
 augroup abbrevs
     autocmd!
-    au BufReadPost mail iabbrev api API
-    au BufReadPost mail iabbrev etap Etapestry
-    au BufReadPost mail iabbrev durpal Drupal
-    au BufReadPost mail iabbrev drupal Drupal
-    au BufReadPost mail ino ' '
-    au FileType html ino <> <>
-    au FileType html ino < <><ESC>i
-    au FileType html vno < xi<<ESC>pa<ESC>la
+    au FileType mail iabbrev <buffer> api API
+    au FileType mail iabbrev <buffer> etap Etapestry
+    au FileType mail iabbrev <buffer> durpal Drupal
+    au FileType mail iabbrev <buffer> drupal Drupal
+    au FileType mail ino <buffer> ' '
+    au FileType html ino <buffer> <> <>
+    au FileType html ino <buffer> < <><ESC>i
+    au FileType html vno <buffer> < xi<<ESC>pa<ESC>la
 augroup end
 " kill arrow keys
 no <down> <C-d>zz
