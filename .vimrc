@@ -478,18 +478,15 @@ inoremap [] []
 inoremap {} {}
 inoremap '' ''
 inoremap "" ""
-" This sequence (xi'...) surrounds a selected block in whatever character it's
-" mapped to work with by copying and pasting the selected text inside the block
-" and then appending the character at the end.
-vnoremap ' xi'<ESC>pa<ESC>'f'a
-vnoremap " xi"<ESC>pa<ESC>"f"a
-" For some odd reason I don't need the closing character in these mappings. I
-" guess the previous insert mode mappings take care of it, which is odd because
-" that wasn't true with the single and double quote mappings
-vnoremap { xi{<ESC>pa<ESC>la
-vnoremap [ xi[<ESC>pa<ESC>la
-vnoremap ( xi(<ESC>pa<ESC>la
+" visual mode surround text
+vnoremap ' xi''<ESC>hp<ESC>la
+vnoremap " xi""<ESC>hp<ESC>la
+vnoremap { xi{}<ESC>hp<ESC>la
+vnoremap [ xi[]<ESC>hp<ESC>la
+vnoremap ( xi()<ESC>hp<ESC>la
+"
 augroup abbrevs
+    " filetype specific mappings for characters and shortcuts
     autocmd!
     autocmd FileType mail iabbrev <buffer> api API
     autocmd FileType mail iabbrev <buffer> etap Etapestry
