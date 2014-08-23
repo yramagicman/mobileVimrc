@@ -12,37 +12,30 @@ if has("autocmd")
         autocmd FileType vim setlocal foldmethod=marker
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
-        
         " use absolute line numbering in insert mode and relative numbers elsewhere
         autocmd InsertLeave * :set nonumber
         autocmd InsertLeave * :set relativenumber
         autocmd InsertEnter * :set number
         autocmd InsertEnter * :set norelativenumber
-        
     augroup end
     augroup js
         " Treat .json files as .js
         autocmd!
         autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-        
         " fix my fat fingers, change 90 to () in js
         autocmd Bufenter *.js iabbr 90 ()
         autocmd Bufleave *.js iabbr 90 90
-        
     augroup end
     augroup css
         " filetype stuff
         autocmd!
         autocmd BufRead,BufNewFile *.scss set filetype=css
         autocmd BufRead,BufNewFile *.css set filetype=css
-        
         " use 2 spaces  for css and related files
         autocmd FileType css setlocal tabstop=2
         autocmd FileType css setlocal shiftwidth=2
-        
         " automattically add semicolons in css
         autocmd FileType css inoremap <buffer> : :;<ESC>i
-        
     augroup end
     augroup coding
         autocmd!
@@ -55,13 +48,11 @@ if has("autocmd")
         autocmd Bufenter,BufRead *.inc set filetype=php
         autocmd Bufenter,BufRead *.install set filetype=php
         "autocmd BufRead */drupal*/* call IndentGuides()
-        
         " ratiochristi coding standards
         autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
         autocmd Bufenter,BufRead */ratiochristi/* set smartindent
         autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
         autocmd Bufenter,BufRead */ratiochristi/* set expandtab
-        
     augroup end
     augroup extra
         " Misc. individual commands that don't merrit their own fold group
@@ -78,7 +69,6 @@ if has("autocmd")
         autocmd FocusLost,BufLeave * :silent! wall
         " leave insert mode on focus lost
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
-        
     augroup end
 endif
 " Defaults probably won't change... ever
@@ -92,7 +82,6 @@ set t_Co=256
 set nocompatible
 "text-width
 set textwidth=82
-set cc=81
 " Don't use os clipboard with tmux can't yank between buffers
 set clipboard=unnamed
 " Enhance command-line completion
