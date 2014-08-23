@@ -8,36 +8,45 @@ if has("autocmd")
     filetype on
     augroup general
         autocmd!
-    " fold method marker for vimrc and zshrc
+        " fold method marker for vimrc and zshrc
         autocmd FileType vim setlocal foldmethod=marker
-        autocmd FileType zsh set foldmethod=marker
-    " use absolute line numbering in insert mode and relative numbers elsewhere
+        autocmd FileType zsh setlocal foldmethod=marker
+        autocmd FileType lua setlocal foldmethod=marker
+        
+        " use absolute line numbering in insert mode and relative numbers elsewhere
         autocmd InsertLeave * :set nonumber
         autocmd InsertLeave * :set relativenumber
         autocmd InsertEnter * :set number
         autocmd InsertEnter * :set norelativenumber
+        
     augroup end
     augroup js
-    " Treat .json files as .js
+        " Treat .json files as .js
         autocmd!
         autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-    " fix my fat fingers, change 90 to () in js
+        
+        " fix my fat fingers, change 90 to () in js
         autocmd Bufenter *.js iabbr 90 ()
         autocmd Bufleave *.js iabbr 90 90
+        
     augroup end
     augroup css
+        " filetype stuff
         autocmd!
         autocmd BufRead,BufNewFile *.scss set filetype=css
         autocmd BufRead,BufNewFile *.css set filetype=css
-    " use 2 spaces  for css and related files
+        
+        " use 2 spaces  for css and related files
         autocmd FileType css setlocal tabstop=2
         autocmd FileType css setlocal shiftwidth=2
-    " automattically add semicolons in css
+        
+        " automattically add semicolons in css
         autocmd FileType css ino <buffer> : :;<ESC>i
+        
     augroup end
     augroup coding
         autocmd!
-    " drupal coding standards
+        " drupal coding standards
         autocmd Bufenter,BufRead */drupal*/* set tabstop=2
         autocmd Bufenter,BufRead */drupal*/* set smartindent
         autocmd Bufenter,BufRead */drupal*/* set shiftwidth=2
@@ -46,14 +55,16 @@ if has("autocmd")
         autocmd Bufenter,BufRead *.inc set filetype=php
         autocmd Bufenter,BufRead *.install set filetype=php
         "autocmd BufRead */drupal*/* call IndentGuides()
-    " ratiochristi coding standards
+        
+        " ratiochristi coding standards
         autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
         autocmd Bufenter,BufRead */ratiochristi/* set smartindent
         autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
         autocmd Bufenter,BufRead */ratiochristi/* set expandtab
+        
     augroup end
     augroup extra
-    " Misc. individual commands that don't merrit their own fold group
+        " Misc. individual commands that don't merrit their own fold group
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
         autocmd FileType snippets set noexpandtab
@@ -67,15 +78,13 @@ if has("autocmd")
         autocmd FocusLost,BufLeave * :silent! wall
         " leave insert mode on focus lost
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
+        
     augroup end
 endif
 " Defaults probably won't change... ever
 set background=dark
 set autoread
 set spelllang=en_us
-"set updatetime=1000
-"pathogen call stuff
-"execute pathogen#infect()
 " best color scheme ever
 colorscheme darkblue
 set t_Co=256
@@ -153,6 +162,7 @@ set ofu=syntaxcomplete#Complete
 set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 "set list " breaks set linebreak
 " Enable line numbers
+set nonumber
 set relativenumber
 " Change mapleader
 let mapleader=","
@@ -165,6 +175,7 @@ set smartindent
 set shiftwidth=4
 "tabs to spaces
 set expandtab
+set lazyredraw
 " set compiler
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_c_compiler = 'clang'
@@ -199,18 +210,13 @@ ino <leader><leader><CR> <ESC>zR<ESC>
 vno <leader><leader><CR> <ESC>zR<ESC>
 "folding options
 set foldmethod=indent
-set foldcolumn=2
+set foldcolumn=1
 "Close folds locally
 nno <localleader><CR> zC
-" completion
-ino <leader>f <C-x><C-i>
-ino <leader>l <C-x><C-l>
-ino <leader>o <C-x><C-o>
-ino <leader>c <C-x><C-p>
 " find and replace with control f
 noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
-vnoremap <C-F> <ESC>:%s/find/replace/it
+vnoremap <C-F> :s/find/replace/g
 " Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
@@ -278,7 +284,7 @@ function! SaveNoRt()
     w
     call CheckErrorFn()
 endfunction
-" Shortcut: F7 = Run anything with a shebang
+" Shortcut: <leader>R = Run anything with a shebang
 " Source: http://superuser.com/a/21503/48014
 if has("autocmd")
     au BufEnter * if match( getline(1) , '^\#!') == 0 |
@@ -318,43 +324,112 @@ function! CheckErrorFn()
         Error
     endif
 endfunction
-"line numbering
-no <silent> <leader>nn :set nonumber<CR>
-no <silent> <leader>an :set number<CR>
-no <silent> <leader>rn :set relativenumber!<CR>
+" presentation mode
+let g:presmode = 1
+function! PresMode()
+    if  g:presmode == 0
+        "normal opperation
+        set relativenumber
+        set nonumber
+        autocmd!
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertLeave * :set relativenumber
+        autocmd InsertEnter * :set number
+        autocmd InsertEnter * :set norelativenumber
+        let g:presmode = 1
+        return g:presmode
+    else
+        let g:presmode = 0
+        "when people are watching
+        set norelativenumber
+        set number
+        autocmd!
+        autocmd InsertEnter * :set number
+        autocmd InsertLeave * :set number
+        autocmd InsertEnter * :set norelativenumber
+        autocmd InsertLeave * :set norelativenumber
+        return g:presmode
+    endif
+endfunction
+" line numbers on or off
+let g:numoff = 1
+function! NumOff()
+    if  g:numoff == 0
+        "normal opperation
+        set relativenumber
+        set nonumber
+        autocmd!
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertLeave * :set relativenumber
+        autocmd InsertEnter * :set number
+        autocmd InsertEnter * :set norelativenumber
+        let g:numoff = 1
+        return g:numoff
+    else
+        echom g:numoff
+        let g:numoff = 0
+        "when people are watching
+        set norelativenumber
+        set nonumber
+        autocmd!
+        autocmd InsertEnter * :set nonumber
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertEnter * :set norelativenumber
+        autocmd InsertLeave * :set norelativenumber
+        return g:numoff
+    endif
+endfunction
+noremap <silent> <leader>nn :call NumOff()<CR>
+noremap <silent> <leader>ns :call PresMode()<CR>
+" get stuff off my screen
+let g:clean = 1
+function! CleanScreen()
+    if  g:clean == 0
+        let g:numoff = 0
+        set laststatus=2
+        call NumOff()
+        let g:clean=1
+        return g:clean
+    else
+        let g:numoff = 1
+        set laststatus=0
+        set showmode!
+        call NumOff()
+        let g:clean=0
+        return g:clean
+    endif
+endfunction
+"
 " Indenting
 "bind \] to indent
-nmap <localleader>] >>
-vmap <localleader>] >gv
-imap <localleader>] <C-O>>>
+nnoremap <localleader>] >>
+vnoremap <localleader>] >gv
+inoremap <localleader>] <C-O>>>
 "bind \[ to outdent
-nmap <localleader>[ <<
-vmap <localleader>[ <gv
-imap <localleader>[ <C-O><<
+nnoremap <localleader>[ <<
+vnoremap <localleader>[ <gv
+inoremap <localleader>[ <C-O><<
 "file navigation shortcuts
 nno <silent> <leader>ev :e ~/.vim/config/<CR>
-nno <silent> <leader>wr :cd ~/Sites/wordpress/wp-content/themes<CR>:Explore<CR>
-nno <silent> <leader>git :cd ~/Gits<CR>:Explore<CR>
-nno <silent> <leader>dt :cd ~/Desktop<CR>:Explore<CR>
 no <leader>rl <ESC>:source ~/.vimrc<CR>
 " Make Vim work logically
 " Don't move on *
 nnoremap * *<c-o>
 "paste in insert mode
-ino <leader>p <ESC>pa
+inoremap <leader>p <ESC>pa
 "paste from x clipboard
-nno <leader><leader>p <ESC>"+p
-ino <leader><leader>p <ESC>"+p
-vno <leader><leader>p <ESC>"+p
+nnoremap <leader><leader>p <ESC>"+p
+inoremap <leader><leader>p <ESC>"+p
+vnoremap <leader><leader>p <ESC>"+p
 "don't enter insert mode when cutting lines
-nno cc cc<ESC>
-vno cc cc<ESC>
+nnoremap cc cc<ESC>
+vnoremap cc cc<ESC>
 " delete till the beginning of a line
-no <leader>D d0
-ino <leader>D <ESC>d0xi
+nnoremap <leader>D d0
+inoremap <leader>D <ESC>d0xi
 " Formatting, TextMate-style
-nno Q gqip
-vno Q gq
+nnoremap Q gqip
+vnoremap Q gq
 " Reformat line.
 nno Ql gqq
 " Convenience bindings
@@ -367,13 +442,11 @@ no <leader>db :%!cat -s<CR>
 " toggle word wrap
 no <silent><leader>w <ESC>:set wrap!<CR>
 ino <silent><leader>w <ESC>:set wrap!<CR>i
-"toggle nerdtree
-no <silent><leader>nt <ESC>:Explore<CR>
+"toggle file explorer
 no <silent><leader>e <ESC>:Explore<CR>
 "retab
 no <leader>r <ESC>:%retab<CR>
 "kill search highlighting
-no <leader>sh <ESC>:noh<CR>
 no <silent><leader><space> <ESC>:let @/ = ""<CR>
 "uppercase words
 ino <C-u> <ESC>mzgUiw
@@ -399,7 +472,6 @@ nno <C-a>w z=
 nno R q
 " there, now q won't do dumb stuff
 nno q <NOP>
-noremap ; :
 "match pairs
 ino ' ''<ESC>i
 ino " ""<ESC>i
