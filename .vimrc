@@ -510,104 +510,98 @@ augroup abbrevs
     autocmd FileType html vno <buffer> < xi<<ESC>pa<ESC>la
 augroup end
 " kill arrow keys
-no <down> <C-d>zz
-no <left> <Nop>
-ino <left> <Nop>
-no <up> <C-u>zz
-no <right> <Nop>
-ino <right> <Nop>
-ino <down> <Nop>
-ino <up> <Nop>
-vno <left> <Nop>
-vno <down> <C-d>zz
-vno <right> <Nop>
-vno <up> <C-u>zz
+nnoremap <down> <C-d>zz
+nnoremap <left> <Nop>
+nnoremap <up> <C-u>zz
+nnoremap <right> <Nop>
+inoremap <right> <Nop>
+inoremap <down> <Nop>
+inoremap <left> <Nop>
+inoremap <up> <Nop>
+vnoremap <left> <Nop>
+vnoremap <down> <C-d>zz
+vnoremap <right> <Nop>
+vnoremap <up> <C-u>zz
 "always center when navigating
-no j gjzz
-no k gkzz
-no G Gzz
-no { {zz
-no ( (zz
-no } }zz
-no ) )zz
-no n nzzzO
-no N NzzzO
-vno j jzz
-vno k kzz
+noremap j gjzz
+noremap k gkzz
+noremap G Gzz
+noremap { {zz
+noremap ( (zz
+noremap } }zz
+noremap ) )zz
+noremap n nzzzO
+noremap N NzzzO
+vnoremap j jzz
+vnoremap k kzz
 "jump to ...
-no <S-l> $
-no <S-j> Gzz
-no <S-h> ^
-no <S-k> ggzz
-nno <tab> %
-vno <tab> %
+noremap <S-l> $
+noremap <S-j> Gzz
+noremap <S-h> ^
+noremap <S-k> ggzz
+nnoremap <tab> %
+vnoremap <tab> %
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
 let @e = "/^}aRÄkb,m"
 let @z = "^vf(hyOif(function_exists(',p'){`jo}"
-" Saving and closing
-"control whitespace and tabs on save
-nno <leader>ss :call Save()<CR>
-ino <leader>ss <ESC>:call Save()<CR>
-vno <leader>ss <ESC>:call Save()<CR>
-"save but don't retab
-nno <leader><leader>ss :call SaveNoRt()<CR>
-ino <leader><leader>ss <ESC>:call SaveNoRt()<CR>
-vno <leader><leader>ss <ESC>:call SaveNoRt()<CR>
-"save and close
-nno <silent><leader>ww :call Save()<CR>:close<CR>
-ino <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
-vno <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
-"close but don't save
-nno <leader>cl <ESC>:close!
-ino <leader>cl <ESC>:close!
-vno <leader>cl <ESC>:close!
-"save and quit
-nno <silent><leader>wq :call Save()<CR>:qall<CR>
-ino <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
-vno <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
-"ruthelessly kill vim without a care in the world for what breaks
+" control whitespace and tabs on save
+nnoremap <leader>ss :call Save()<CR>
+inoremap <leader>ss <ESC>:call Save()<CR>
+vnoremap <leader>ss <ESC>:call Save()<CR>
+" save but don't retab
+nnoremap <leader><leader>ss :call SaveNoRt()<CR>
+inoremap <leader><leader>ss <ESC>:call SaveNoRt()<CR>
+vnoremap <leader><leader>ss <ESC>:call SaveNoRt()<CR>
+" save and close
+nnoremap <silent><leader>ww :call Save()<CR>:close<CR>
+inoremap <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
+vnoremap <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
+" close but don't save
+nnoremap <leader>cl <ESC>:close!
+inoremap <leader>cl <ESC>:close!
+vnoremap <leader>cl <ESC>:close!
+" save and quit
+nnoremap <silent><leader>wq :call Save()<CR>:qall<CR>
+inoremap <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
+vnoremap <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
 " quit without saving
-nno <leader><ESC> :q!
-ino <leader><ESC> <ESC>:q!
-vno <leader><ESC> <ESC>:q!
-""stay in or enter insert mode after current character on save
-""ino <C-s> <ESC>:call Save()<CR>a
-""vno <C-s> <ESC>:call Save()<CR>a
-""nno <C-s> <ESC>:call Save()<CR>a
-nno <C-q> :q<CR>
-""nno <C-w> :close<CR>
-nno <silent><leader>q :q<CR>
-ino <silent><leader>q :q<CR>
-vno <silent><leader>q :q<CR>
-nno qq :wq
-nno qw :wq
-nno cl :close<CR>
-ino q q
-ino qq qq
+nnoremap <leader>Q :q!
+inoremap <leader>Q <ESC>:q!
+vnoremap <leader>Q <ESC>:q!
+" nice quit
+nnoremap <silent><leader>q :q<CR>
+inoremap <silent><leader>q :q<CR>
+vnoremap <silent><leader>q :q<CR>
+" sanity mappings
+nnoremap qq :wq
+nnoremap qw :wq
+nnoremap cl :close<CR>
+inoremap q q
+inoremap qq qq
 "window navigation & and splits
-no <C-l> <C-w>l
-no <C-j> <C-w>j
-no <C-h> <C-w>h
-no <C-k> <C-w>k
-ino <C-l> <ESC><C-w>li
-ino <C-j> <ESC><C-w>ji
-ino <C-h> <ESC><C-w>hi
-ino <C-k> <ESC><C-w>ki
+noremap <C-l> <C-w>l
+noremap <C-j> <C-w>j
+noremap <C-h> <C-w>h
+noremap <C-k> <C-w>k
+inoremap <C-l> <ESC><C-w>li
+inoremap <C-j> <ESC><C-w>ji
+inoremap <C-h> <ESC><C-w>hi
+inoremap <C-k> <ESC><C-w>ki
 "splitting
-no <leader>sn <ESC>:new<CR>
-no <leader>sv <ESC>:vnew<CR>
+noremap <leader>sn <ESC>:new<CR>
+noremap <leader>sv <ESC>:vnew<CR>
 "window stuff
 set equalalways
-no <localleader>= <C-w>=
+noremap <localleader>= <C-w>=
 " put splits in a logical place
 set splitbelow
 set splitright
 " tab mappings
-nno <C-t> :tabnew<CR>
-nno <C-p> :tabp<CR>
-nno <C-d> <C-w>>
-nno <C-w> <C-w>+
-nno <C-a> <C-w><
-nno <C-s> <C-w>-
+nnoremap <C-t> :tabnew<CR>
+nnoremap <C-p> :tabp<CR>
+nnoremap <C-d> <C-w>>
+nnoremap <C-w> <C-w>+
+nnoremap <C-a> <C-w><
+nnoremap <C-s> <C-w>-
