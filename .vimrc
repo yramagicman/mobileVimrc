@@ -41,7 +41,7 @@ if has("autocmd")
         autocmd FileType css setlocal shiftwidth=2
         
         " automattically add semicolons in css
-        autocmd FileType css ino <buffer> : :;<ESC>i
+        autocmd FileType css inoremap <buffer> : :;<ESC>i
         
     augroup end
     augroup coding
@@ -191,28 +191,28 @@ set statusline+=\ Column\ %2c
 set statusline+=\ \|
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 " remap escape for easier access
-nno <leader>m  <ESC>
-vno <leader>m <ESC>
-ino <leader>m <ESC>
+nnoremap <leader>m  <ESC>
+vnoremap <leader>m <ESC>
+inoremap <leader>m <ESC>
 " map colon to semi-colon. Life is just easier that way.
 noremap ; :
 " folding
 "Open folds on enter
-nno <CR> za
-nno <leader><CR> zO
+nnoremap <CR> za
+nnoremap <leader><CR> zO
 "close all folds
-nno <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-ino <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-vno <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
+nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
+inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
+vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 "open all folds
-nno <leader><leader><CR> <ESC>zR<ESC>
-ino <leader><leader><CR> <ESC>zR<ESC>
-vno <leader><leader><CR> <ESC>zR<ESC>
+nnoremap <leader><leader><CR> <ESC>zR<ESC>
+inoremap <leader><leader><CR> <ESC>zR<ESC>
+vnoremap <leader><leader><CR> <ESC>zR<ESC>
 "folding options
 set foldmethod=indent
 set foldcolumn=1
 "Close folds locally
-nno <localleader><CR> zC
+nnoremap <localleader><CR> zC
 " find and replace with control f
 noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
@@ -245,13 +245,13 @@ function! LineEndings()
     setlocal ff=unix
     :w
 endfunction
-nno <silent><leader>le :call LineEndings()<CR>
+nnoremap <silent><leader>le :call LineEndings()<CR>
 "wordpress wrap function! in 'function_exists()' check
 function! WpWrap()
     normal ^vf(hyOif(function_exists(',p'){`jo}
 endfunction
-nno <c-v><c-w> :call WpWrap()<CR>
-" create new tabs on <C-n> if no tabs exist
+nnoremap <c-v><c-w> :call WpWrap()<CR>
+" create new tabs on <C-n> if noremap tabs exist
 function! TabBind()
     if tabpagenr('$') < 2
         tabnew
@@ -259,7 +259,7 @@ function! TabBind()
         tabn
     endif
 endfunction
-nno <C-n> :call TabBind()<CR>
+nnoremap <C-n> :call TabBind()<CR>
 " kill extra newlines
 function! Knl ()
     try
@@ -351,6 +351,7 @@ function! PresMode()
         return g:presmode
     endif
 endfunction
+noremap <leader>x :call PresMode()
 " line numbers on or off
 let g:numoff = 1
 function! NumOff()
@@ -410,8 +411,8 @@ nnoremap <localleader>[ <<
 vnoremap <localleader>[ <gv
 inoremap <localleader>[ <C-O><<
 "file navigation shortcuts
-nno <silent> <leader>ev :e ~/.vim/config/<CR>
-no <leader>rl <ESC>:source ~/.vimrc<CR>
+nnoremap <silent> <leader>ev :e ~/.vim/config/<CR>
+noremap <leader>rl <ESC>:source ~/.vimrc<CR>
 " Make Vim work logically
 " Don't move on *
 nnoremap * *<c-o>
@@ -431,83 +432,83 @@ inoremap <leader>D <ESC>d0xi
 nnoremap Q gqip
 vnoremap Q gq
 " Reformat line.
-nno Ql gqq
+nnoremap Ql gqq
 " Convenience bindings
 " Save a file as root ('W)
-no <leader>W :w !sudo tee % > /dev/null<CR>
+noremap <leader>W :w !sudo tee % > /dev/null<CR>
 "delete blank lines
-no <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
+noremap <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
 " delete duplicate blank lines
-no <leader>db :%!cat -s<CR>
+noremap <leader>db :%!cat -s<CR>
 " toggle word wrap
-no <silent><leader>w <ESC>:set wrap!<CR>
-ino <silent><leader>w <ESC>:set wrap!<CR>i
+noremap <silent><leader>w <ESC>:set wrap!<CR>
+inoremap <silent><leader>w <ESC>:set wrap!<CR>i
 "toggle file explorer
-no <silent><leader>e <ESC>:Explore<CR>
+noremap <silent><leader>e <ESC>:Explore<CR>
 "retab
-no <leader>r <ESC>:%retab<CR>
+noremap <leader>r <ESC>:%retab<CR>
 "kill search highlighting
-no <silent><leader><space> <ESC>:let @/ = ""<CR>
+noremap <silent><leader><space> <ESC>:let @/ = ""<CR>
 "uppercase words
-ino <C-u> <ESC>mzgUiw
-nno <C-u> <ESC>mzgUiw
+inoremap <C-u> <ESC>mzgUiw
+nnoremap <C-u> <ESC>mzgUiw
 " Toggle [i]nvisible characters
-nno <silent><leader>i :set list!<CR>
+nnoremap <silent><leader>i :set list!<CR>
 " reset color scheme
-nno U :syntax sync fromstart<CR>:redraw!<CR>
+nnoremap U :syntax sync fromstart<CR>:redraw!<CR>
 " make this_style into cammelCase
-nno CC 0f_x~
-ino <C-c> <ESC>I//
-vno <C-c> I//
-nno <leader>c :%!column -t<CR>
-nno <leader>s :source %<CR>
+nnoremap CC 0f_x~
+inoremap <C-c> <ESC>I//
+vnoremap <C-c> I//
+nnoremap <leader>c :%!column -t<CR>
+nnoremap <leader>s :source %<CR>
 " spelling mappings
-nno <C-a>s :set spell!<CR>
-nno <C-a>a zG
-nno <C-a>n ]szo
-nno <C-a>p [szo
-nno <C-a>w z=
+nnoremap <C-a>s :set spell!<CR>
+nnoremap <C-a>a zG
+nnoremap <C-a>n ]szo
+nnoremap <C-a>p [szo
+nnoremap <C-a>w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
-nno R q
+nnoremap R q
 " there, now q won't do dumb stuff
-nno q <NOP>
+nnoremap q <NOP>
 "match pairs
-ino ' ''<ESC>i
-ino " ""<ESC>i
-ino ( ()<ESC>i
-ino { {}<ESC>i
-ino [ []<ESC>i
-ino [<CR> [<CR>]<ESC>O
-ino (<CR> (<Cr>)<ESC>O
-ino {<CR> {<CR>}<ESC>O
+inoremap ' ''<ESC>i
+inoremap " ""<ESC>i
+inoremap ( ()<ESC>i
+inoremap { {}<ESC>i
+inoremap [ []<ESC>i
+inoremap [<CR> [<CR>]<ESC>O
+inoremap (<CR> (<Cr>)<ESC>O
+inoremap {<CR> {<CR>}<ESC>O
 " If inserted quickly, don't reinsert matching character
-ino () ()
-ino [] []
-ino {} {}
-ino '' ''
-ino "" ""
+inoremap () ()
+inoremap [] []
+inoremap {} {}
+inoremap '' ''
+inoremap "" ""
 " This sequence (xi'...) surrounds a selected block in whatever character it's
 " mapped to work with by copying and pasting the selected text inside the block
 " and then appending the character at the end.
-vno ' xi'<ESC>pa<ESC>'f'a
-vno " xi"<ESC>pa<ESC>"f"a
+vnoremap ' xi'<ESC>pa<ESC>'f'a
+vnoremap " xi"<ESC>pa<ESC>"f"a
 " For some odd reason I don't need the closing character in these mappings. I
 " guess the previous insert mode mappings take care of it, which is odd because
 " that wasn't true with the single and double quote mappings
-vno { xi{<ESC>pa<ESC>la
-vno [ xi[<ESC>pa<ESC>la
-vno ( xi(<ESC>pa<ESC>la
+vnoremap { xi{<ESC>pa<ESC>la
+vnoremap [ xi[<ESC>pa<ESC>la
+vnoremap ( xi(<ESC>pa<ESC>la
 augroup abbrevs
     autocmd!
     autocmd FileType mail iabbrev <buffer> api API
     autocmd FileType mail iabbrev <buffer> etap Etapestry
     autocmd FileType mail iabbrev <buffer> durpal Drupal
     autocmd FileType mail iabbrev <buffer> drupal Drupal
-    autocmd FileType mail ino <buffer> ' '
-    autocmd FileType html ino <buffer> <> <>
-    autocmd FileType html ino <buffer> < <><ESC>i
-    autocmd FileType html vno <buffer> < xi<<ESC>pa<ESC>la
+    autocmd FileType mail inoremap <buffer> ' '
+    autocmd FileType html inoremap <buffer> <> <>
+    autocmd FileType html inoremap <buffer> < <><ESC>i
+    autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
 augroup end
 " kill arrow keys
 nnoremap <down> <C-d>zz
