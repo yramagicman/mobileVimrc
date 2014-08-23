@@ -72,7 +72,7 @@ if has("autocmd")
     augroup end
 endif
 " Defaults probably won't change... ever
-set background=dark
+set background=light
 set autoread
 set spelllang=en_us
 " best color scheme ever
@@ -82,6 +82,7 @@ set t_Co=256
 set nocompatible
 "text-width
 set textwidth=82
+set cc=0
 " Don't use os clipboard with tmux can't yank between buffers
 set clipboard=unnamed
 " Enhance command-line completion
