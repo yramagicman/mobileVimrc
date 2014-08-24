@@ -8,6 +8,9 @@ if has("autocmd")
     filetype on
     augroup general
         autocmd!
+        autocmd BufWritePost $HOME/.vim/config/* :source %
+        au VimResized * exe "normal! \<c-w>="
+        autocmd VimEnter * set vb t_vb=
         " fold method marker for vimrc and zshrc
         autocmd FileType vim setlocal foldmethod=marker
         autocmd FileType zsh setlocal foldmethod=marker
@@ -55,15 +58,15 @@ if has("autocmd")
         autocmd Bufenter,BufRead */ratiochristi/* set expandtab
     augroup end
     augroup extra
-        " Misc. individual commands that don't merrit their own fold group
+        " Misc. individual commands that don't merit their own fold group
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
         autocmd FileType snippets set noexpandtab
         autocmd BufRead /usr/local/MERGE_MSG !ring
         autocmd BufNewFile,BufRead *.md set filetype=markdown
-        " make vim edit cron again
+        " make Vim edit cron again
         autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
-        " always reload files when changed outside vim
+        " always reload files when changed outside Vim
         autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
         " save on focus lost
         autocmd FocusLost,BufLeave * :silent! wall
@@ -105,6 +108,7 @@ set backupdir=~/.vim/backups//
 "I hate swap files
 set noswapfile
 if exists("&undodir")
+    set udf
     set undodir=~/.vim/undo
 endif
 " Respect modeline in files
@@ -122,7 +126,8 @@ set incsearch
 " Enable mouse in all modes
 set mouse=a
 " Disable error bells
-"set visualbell
+set novisualbell
+set noerrorbells
 " Don’t reset cursor to start of line when moving around.
 set nostartofline
 " Show the cursor position
@@ -179,19 +184,25 @@ set statusline+=Line:
 set statusline+=%4l/%-4L
 set statusline+=\ Column\ %2c
 set statusline+=\ \|
-let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 " buffer sanity
-set bufhidden=unload
 set hidden
+"
+let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 " remap escape for easier access
-nnoremap <leader>m  <ESC>
-vnoremap <leader>m <ESC>
-inoremap <leader>m <ESC>
+nnoremap <leader>m <ESC>l
+vnoremap <leader>m <ESC>l
+inoremap <leader>m <ESC>l
+nnoremap <m <ESC>l
+vnoremap <m <ESC>l
+inoremap <m <ESC>l
+inoremap <M <ESC>l
 " map colon to semi-colon. Life is just easier that way.
 noremap ; :
+nnoremap <leader>; :!
 "Open folds on enter
 nnoremap <CR> za
 nnoremap <leader><CR> zO
+nnoremap <Leader>z zMzvzz
 "close all folds
 nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
@@ -200,15 +211,11 @@ vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 nnoremap <leader><leader><CR> <ESC>zR<ESC>
 inoremap <leader><leader><CR> <ESC>zR<ESC>
 vnoremap <leader><leader><CR> <ESC>zR<ESC>
-"folding options
+" folding options
 set foldmethod=indent
 set foldcolumn=2
 "Close folds locally
 nnoremap <localleader><CR> zC
-" find and replace with control f
-noremap <C-F> :%s/find/replace/I
-inoremap <C-F> <ESC>:%s/find/replace/I
-vnoremap <C-F> :s/find/replace/g
 " Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
@@ -343,7 +350,8 @@ function! PresMode()
         return g:presmode
     endif
 endfunction
-noremap <leader>x :call PresMode()
+noremap <leader>x :call PresMode()<CR>
+command! Pres :call PresMode()
 " line numbers on or off
 let g:numoff = 1
 function! NumOff()
@@ -392,6 +400,7 @@ function! CleanScreen()
         return g:clean
     endif
 endfunction
+command! Clean :call CleanScreen()
 "
 " open scratch buffer
 function! Scratch()
@@ -402,6 +411,7 @@ function! Scratch()
     setlocal nobuflisted
     resize -15
 endfunction
+command! Scratch :call Scratch()
 " open new buffer without creating extra split
 function! NewBuffer()
     new
@@ -409,6 +419,23 @@ function! NewBuffer()
     close
 endfunction
 nnoremap <silent><leader>n :call NewBuffer()<CR>
+cnoreabbrev new New
+command! New :call NewBuffer()
+" toggle fold column markers
+let g:foldon=1
+function! FoldColumn()
+    if g:foldon == 1
+        hi      FoldColumn       ctermbg=234     ctermfg=247    guifg=#1c1c1c  guibg=#1c1c1c
+        let g:foldon=0
+        return g:foldon
+    else
+        hi      FoldColumn       ctermbg=234     ctermfg=234    guifg=#1c1c1c  guibg=#1c1c1c
+        let g:foldon=1
+        return g:foldon
+    endif
+endfunction
+command! Fc :call FoldColumn()
+nnoremap <Leader>fc :call FoldColumn()<CR>
 " Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
@@ -471,16 +498,21 @@ vnoremap <C-c> I//
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
 " spelling mappings
-nnoremap <C-m>s :set spell!<CR>
-nnoremap <C-m>a zG
-nnoremap <C-m>n ]szo
-nnoremap <C-m>p [szo
-nnoremap <C-m>w z=
+nnoremap -s :set spell!<CR>
+nnoremap -a zG
+nnoremap -] ]szo
+nnoremap -[ [szo
+nnoremap -w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
 nnoremap R q
 " there, now q won't do dumb stuff
 nnoremap q <NOP>
+" I've needed these mappings forever. Map '; to ; and ": to , also quickfix
+" last search
+nnoremap  qs :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
+nnoremap '; ;
+nnoremap ": ,
 "match pairs
 inoremap ' ''<ESC>i
 inoremap " ""<ESC>i
@@ -540,13 +572,37 @@ noremap n nzzzO
 noremap N NzzzO
 vnoremap j jzz
 vnoremap k kzz
-"jump to ...
+" jump to ...
 noremap <S-l> $
 noremap <S-j> Gzz
 noremap <S-h> ^
 noremap <S-k> ggzz
 nnoremap <tab> %
 vnoremap <tab> %
+" command line movement mappings
+cnoremap <C-a>  <Home>
+cnoremap <C-b>  <Left>
+cnoremap <C-f>  <Right>
+cnoremap <C-d>  <Delete>
+cnoremap <Esc>b <S-Left>
+cnoremap <Esc>f <S-Right>
+cnoremap <Esc>d <S-right><Delete>
+cnoremap <C-e>  <End>
+" Substitute word under cursor globally
+nnoremap --r :%s/\<<C-r><C-w>\>//g<Left><Left>
+" ask for confirmation
+nnoremap -r :%s/\<<C-r><C-w>\>//gc<Left><Left><Left>
+" Substitute selection globally
+vnoremap --r y<Esc>:%s/<C-r>"//g<Left><Left>
+" ask for confirmation
+vnoremap -r y<Esc>:%s/<C-r>"//gc<Left><Left><Left>
+" find and replace with control f
+noremap <C-F> :%s/find/replace/I
+inoremap <C-F> <ESC>:%s/find/replace/I
+vnoremap <C-F> :s/find/replace/g
+" visual line mode is better that visual mode
+nnoremap v V
+nnoremap V v
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
@@ -614,6 +670,11 @@ nnoremap <C-s> <C-w>-
 " buffer management <c-z>
 nnoremap <c-z> <NOP>
 nnoremap <c-z><c-z> :suspend<CR>
+nnoremap <C-Space> :ls<CR>:b<space>
+nnoremap <C-@> <C-Space>
+nnoremap <Space><Space> :ls<CR>:b<space>
+nnoremap <leader><Space><Space> :ls<CR>:b<space>
+inoremap <leader><leader><Space> <ESC>:ls<CR>:b<Space>
 " next buffer n
 nnoremap <C-z>n :bn<CR>
 vnoremap <C-z>n <ESC>:bn<CR>
