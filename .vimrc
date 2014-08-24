@@ -180,13 +180,15 @@ set statusline+=%4l/%-4L
 set statusline+=\ Column\ %2c
 set statusline+=\ \|
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
+" buffer sanity
+set bufhidden=unload
+set hidden
 " remap escape for easier access
 nnoremap <leader>m  <ESC>
 vnoremap <leader>m <ESC>
 inoremap <leader>m <ESC>
 " map colon to semi-colon. Life is just easier that way.
 noremap ; :
-" folding
 "Open folds on enter
 nnoremap <CR> za
 nnoremap <leader><CR> zO
@@ -200,7 +202,7 @@ inoremap <leader><leader><CR> <ESC>zR<ESC>
 vnoremap <leader><leader><CR> <ESC>zR<ESC>
 "folding options
 set foldmethod=indent
-set foldcolumn=1
+set foldcolumn=2
 "Close folds locally
 nnoremap <localleader><CR> zC
 " find and replace with control f
@@ -391,6 +393,22 @@ function! CleanScreen()
     endif
 endfunction
 "
+" open scratch buffer
+function! Scratch()
+    new
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal nobuflisted
+    resize -15
+endfunction
+" open new buffer without creating extra split
+function! NewBuffer()
+    new
+    wincmd k
+    close
+endfunction
+nnoremap <silent><leader>n :call NewBuffer()<CR>
 " Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
@@ -453,11 +471,11 @@ vnoremap <C-c> I//
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
 " spelling mappings
-nnoremap <C-a>s :set spell!<CR>
-nnoremap <C-a>a zG
-nnoremap <C-a>n ]szo
-nnoremap <C-a>p [szo
-nnoremap <C-a>w z=
+nnoremap <C-m>s :set spell!<CR>
+nnoremap <C-m>a zG
+nnoremap <C-m>n ]szo
+nnoremap <C-m>p [szo
+nnoremap <C-m>w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
 nnoremap R q
@@ -560,7 +578,7 @@ inoremap <leader>Q <ESC>:q!
 vnoremap <leader>Q <ESC>:q!
 " nice quit
 nnoremap <silent><leader>q :q<CR>
-inoremap <silent><leader>q :q<CR>
+inoremap <silent><leader>q <ESC>:q<CR>
 vnoremap <silent><leader>q :q<CR>
 " sanity mappings
 nnoremap qq :wq
@@ -593,3 +611,51 @@ nnoremap <C-d> <C-w>>
 nnoremap <C-w> <C-w>+
 nnoremap <C-a> <C-w><
 nnoremap <C-s> <C-w>-
+" buffer management <c-z>
+nnoremap <c-z> <NOP>
+nnoremap <c-z><c-z> :suspend<CR>
+" next buffer n
+nnoremap <C-z>n :bn<CR>
+vnoremap <C-z>n <ESC>:bn<CR>
+inoremap <C-z>n <ESC>:bn<CR>
+" previous buffer p
+nnoremap <C-z>p :bp<CR>
+vnoremap <C-z>p <ESC>:bp<CR>
+inoremap <C-z>p <ESC>:bp<CR>
+" list buffers l
+nnoremap <c-z>l :ls<CR>
+vnoremap <c-z>l <ESC>:ls<CR>
+inoremap <c-z>l <ESC>:ls<CR>
+" show all buffers a
+nnoremap <c-z>a :ls!<CR>
+vnoremap <c-z>a <ESC>:ls!<CR>
+inoremap <c-z>a <ESC>:ls!<CR>
+" jump to a specific buffer b
+nnoremap <c-z>b :ls<CR>:buffer<space>
+vnoremap <c-z>b <ESC>:ls<CR>:buffer<space>
+inoremap <c-z>b <ESC>:ls<CR>:buffer<space>
+" delete buffer d
+nnoremap <c-z>d :ls!<CR>:bdelete<space>
+vnoremap <c-z>d <ESC>:ls!<CR>:bdelete<space>
+inoremap <c-z>d <ESC>:ls!<CR>:bdelete<space>
+" unload buffer u
+nnoremap <c-z>u :ls!<CR>:bunload<space>
+vnoremap <c-z>u <ESC>:ls!<CR>:bunload<space>
+inoremap <c-z>u <ESC>:ls!<CR>:bunload<space>
+" wipe out buffer w
+nnoremap <c-z>w :ls!<CR>:bwipeout<space>
+vnoremap <c-z>w <ESC>:ls!<CR>:bwipeout<space>
+inoremap <c-z>w <ESC>:ls!<CR>:bwipeout<space>
+" unload current buffer k
+nnoremap <c-z>k :bunload %<CR>
+vnoremap <c-z>k <ESC>:bunload %<CR>
+inoremap <c-z>k <ESC>:bunload %<CR>
+" open all buffers vertically
+nnoremap <c-z>v :vert sball<CR>
+vnoremap <c-z>v <ESC>:vert sball<CR>
+inoremap <c-z>v <ESC>:vert sball<CR>
+"
+" open all buffers horizontally
+nnoremap <c-z>h :sball<CR>
+vnoremap <c-z>h <ESC>:sball<CR>
+inoremap <c-z>h <ESC>:sball<CR>
