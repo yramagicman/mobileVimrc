@@ -568,8 +568,8 @@ noremap { {zz
 noremap ( (zz
 noremap } }zz
 noremap ) )zz
-noremap n nzzzO
-noremap N NzzzO
+noremap n nzz
+noremap N Nzz
 vnoremap j jzz
 vnoremap k kzz
 " jump to ...
