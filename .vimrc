@@ -47,6 +47,7 @@ if has("autocmd")
         autocmd Bufenter,BufRead */drupal*/* set smartindent
         autocmd Bufenter,BufRead */drupal*/* set shiftwidth=2
         autocmd Bufenter,BufRead */drupal*/* set expandtab
+        autocmd Bufenter,BufRead */drupal*/* set foldmethod=marker
         autocmd Bufenter,BufRead *.module set filetype=php
         autocmd Bufenter,BufRead *.inc set filetype=php
         autocmd Bufenter,BufRead *.install set filetype=php
@@ -435,7 +436,7 @@ function! FoldColumn()
     endif
 endfunction
 command! Fc :call FoldColumn()
-nnoremap <Leader>fc :call FoldColumn()<CR>
+nnoremap <LocalLeader>f :call FoldColumn()<CR>
 " Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
@@ -510,7 +511,7 @@ nnoremap R q
 nnoremap q <NOP>
 " I've needed these mappings forever. Map '; to ; and ": to , also quickfix
 " last search
-nnoremap  qs :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
+nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
 "match pairs
