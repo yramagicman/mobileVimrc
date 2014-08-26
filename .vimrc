@@ -498,11 +498,11 @@ inoremap <C-c> <ESC>I//
 vnoremap <C-c> I//
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
-" spelling mappings
-nnoremap -s :set spell!<CR>
-nnoremap -a zG
-nnoremap -] ]szo
-nnoremap -[ [szo
+" spelling mappings 
+nnoremap --s :set spell!<CR>
+nnoremap -s zG
+nnoremap -d ]szo
+nnoremap -a [szo
 nnoremap -w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
@@ -601,9 +601,9 @@ vnoremap -r y<Esc>:%s/<C-r>"//gc<Left><Left><Left>
 noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
 vnoremap <C-F> :s/find/replace/g
-" visual line mode is better that visual mode
-nnoremap v V
-nnoremap V v
+" visual block mode is better that visual mode
+nnoremap v <c-v>
+nnoremap <c-v> v
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
