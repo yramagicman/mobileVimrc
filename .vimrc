@@ -8,10 +8,14 @@ if has("autocmd")
     filetype on
     augroup general
         autocmd!
+        " show cursorline on current buffer only
+        autocmd BufEnter * set cursorline
+        autocmd BufLeave * set nocursorline
+        " auto-reload vim files, auto resize splits on window resize
         autocmd BufWritePost $HOME/.vim/config/* :source %
         au VimResized * exe "normal! \<c-w>="
         autocmd VimEnter * set vb t_vb=
-        " fold method marker for vimrc and zshrc
+        " fold method marker for specific files
         autocmd FileType vim setlocal foldmethod=marker
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
@@ -86,7 +90,10 @@ set t_Co=256
 set nocompatible
 "text-width
 set textwidth=82
+" set color column to 0
 set cc=0
+" highlight long lines
+call matchadd('ColorColumn', '\%81v', 100)
 " Don't use os clipboard with tmux can't yank between buffers
 set clipboard=unnamed
 " Enhance command-line completion
@@ -140,7 +147,7 @@ set showmode
 " Show the filename in the window titlebar
 set title
 " Highlight current line
-set cursorline
+""set cursorline
 " Show the (partial) command as it’s being typed
 set showcmd
 " Enable syntax highlighting
@@ -604,6 +611,8 @@ vnoremap <C-F> :s/find/replace/g
 " visual block mode is better that visual mode
 nnoremap v <c-v>
 nnoremap <c-v> v
+vnoremap    v   <C-V>
+vnoremap <C-V>     v
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
