@@ -116,8 +116,9 @@ set backupdir=~/.vim/backups//
 "I hate swap files
 set noswapfile
 if exists("&undodir")
-    set udf
+    set undolevels=5000
     set undodir=~/.vim/undo
+    set undofile
 endif
 " Respect modeline in files
 set modeline
@@ -156,7 +157,7 @@ syntax on
 set synmaxcol=800
 " Start scrolling five lines before the horizontal window border when will this
 " break
-set scrolloff=5
+set scrolloff=7
 set nolist wrap linebreak sidescrolloff=15
 " sensible completion
 set completeopt=longest,menuone
@@ -178,7 +179,7 @@ set smartindent
 set shiftwidth=4
 "tabs to spaces
 set expandtab
-set lazyredraw
+""set lazyredraw
 " set compiler
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_c_compiler = 'clang'
@@ -194,8 +195,8 @@ set statusline+=\ Column\ %2c
 set statusline+=\ \|
 " buffer sanity
 set hidden
-"
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
+"
 " remap escape for easier access
 nnoremap <leader>m <ESC>l
 vnoremap <leader>m <ESC>l
@@ -556,21 +557,21 @@ augroup abbrevs
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
 augroup end
 " kill arrow keys
-nnoremap <down> <C-d>zz
+nnoremap <down> <C-d>
 nnoremap <left> <Nop>
-nnoremap <up> <C-u>zz
+nnoremap <up> <C-u>
 nnoremap <right> <Nop>
 inoremap <right> <Nop>
 inoremap <down> <Nop>
 inoremap <left> <Nop>
 inoremap <up> <Nop>
 vnoremap <left> <Nop>
-vnoremap <down> <C-d>zz
+vnoremap <down> <C-d>
 vnoremap <right> <Nop>
-vnoremap <up> <C-u>zz
+vnoremap <up> <C-u>
 "always center when navigating
-noremap j gjzz
-noremap k gkzz
+noremap j gjzt
+noremap k gkzb
 noremap G Gzz
 noremap { {zz
 noremap ( (zz
@@ -578,13 +579,13 @@ noremap } }zz
 noremap ) )zz
 noremap n nzz
 noremap N Nzz
-vnoremap j jzz
-vnoremap k kzz
+vnoremap j jzt
+vnoremap k kzb
 " jump to ...
-noremap <S-l> $
-noremap <S-j> Gzz
+noremap <S-l> g_
+noremap <S-j> zb
 noremap <S-h> ^
-noremap <S-k> ggzz
+noremap <S-k> zt
 nnoremap <tab> %
 vnoremap <tab> %
 " command line movement mappings
@@ -611,8 +612,8 @@ vnoremap <C-F> :s/find/replace/g
 " visual block mode is better that visual mode
 nnoremap v <c-v>
 nnoremap <c-v> v
-vnoremap    v   <C-V>
-vnoremap <C-V>     v
+vnoremap v <C-V>
+vnoremap <C-V> v
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
@@ -679,7 +680,7 @@ nnoremap <C-a> <C-w><
 nnoremap <C-s> <C-w>-
 " buffer management <c-z>
 nnoremap <c-z> <NOP>
-nnoremap <c-z><c-z> :suspend<CR>
+nnoremap <c-z><c-z> :suspend
 nnoremap <C-Space> :ls<CR>:b<space>
 nnoremap <C-@> <C-Space>
 nnoremap <Space><Space> :ls<CR>:b<space>
