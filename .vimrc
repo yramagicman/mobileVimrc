@@ -2,6 +2,7 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
+" autocmds.vim
 " Automatic commands
 if has("autocmd")
     " Enable file type detection
@@ -79,6 +80,7 @@ if has("autocmd")
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
     augroup end
 endif
+"defaults.vim
 " Defaults probably won't change... ever
 set background=light
 set autoread
@@ -197,6 +199,7 @@ set statusline+=\ \|
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 "
+"escape.vim"
 " remap escape for easier access
 nnoremap <leader>m <ESC>l
 vnoremap <leader>m <ESC>l
@@ -208,6 +211,7 @@ inoremap <M <ESC>l
 " map colon to semi-colon. Life is just easier that way.
 noremap ; :
 nnoremap <leader>; :!
+"folding.vim"
 "Open folds on enter
 nnoremap <CR> za
 nnoremap <leader><CR> zO
@@ -225,6 +229,7 @@ set foldmethod=indent
 set foldcolumn=2
 "Close folds locally
 nnoremap <localleader><CR> zC
+"functions.vim
 " Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
@@ -445,6 +450,7 @@ function! FoldColumn()
 endfunction
 command! Fc :call FoldColumn()
 nnoremap <LocalLeader>f :call FoldColumn()<CR>
+"mappings.vim
 " Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
@@ -522,6 +528,7 @@ nnoremap q <NOP>
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
+"matchbrackets.vim
 "match pairs
 inoremap ' ''<ESC>i
 inoremap " ""<ESC>i
@@ -556,6 +563,7 @@ augroup abbrevs
     autocmd FileType html inoremap <buffer> < <><ESC>i
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
 augroup end
+"motions.vim
 " kill arrow keys
 nnoremap <down> <C-d>
 nnoremap <left> <Nop>
@@ -614,11 +622,13 @@ nnoremap v <c-v>
 nnoremap <c-v> v
 vnoremap v <C-V>
 vnoremap <C-V> v
+"reg.vim"
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
 let @r = "/returnO,mjo,m"
 let @e = "/^}aRÄkb,m"
 let @z = "^vf(hyOif(function_exists(',p'){`jo}"
+"saving.vim
 " control whitespace and tabs on save
 nnoremap <leader>ss :call Save()<CR>
 inoremap <leader>ss <ESC>:call Save()<CR>
@@ -653,6 +663,7 @@ nnoremap qw :wq
 nnoremap cl :close<CR>
 inoremap q q
 inoremap qq qq
+"splits.vim
 "window navigation & and splits
 noremap <C-l> <C-w>l
 noremap <C-j> <C-w>j
