@@ -476,6 +476,7 @@ vnoremap Q gq
 nnoremap Ql gqq
 " Convenience bindings
 " Save a file as root ('W)
+nnoremap <c-\> :so $VIMRUNTIME/syntax/hitest.vim<CR>
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
 "delete blank lines
 noremap <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
