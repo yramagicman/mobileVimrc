@@ -68,7 +68,7 @@ if has("autocmd")
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
         autocmd FileType snippets set noexpandtab
-        autocmd BufRead /usr/local/MERGE_MSG !ring
+        autocmd BufRead /usr/local/* !ring
         autocmd BufNewFile,BufRead *.md set filetype=markdown
         " make Vim edit cron again
         autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
