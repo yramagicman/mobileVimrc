@@ -264,15 +264,6 @@ function! WpWrap()
     normal ^vf(hyOif(function_exists(',p'){`jo}
 endfunction
 nnoremap <c-v><c-w> :call WpWrap()<CR>
-" create new tabs on <C-n> if noremap tabs exist
-function! TabBind()
-    if tabpagenr('$') < 2
-        tabnew
-    else
-        tabn
-    endif
-endfunction
-nnoremap <C-n> :call TabBind()<CR>
 " kill extra newlines
 function! Knl ()
     try
@@ -683,8 +674,6 @@ noremap <localleader>= <C-w>=
 set splitbelow
 set splitright
 " tab mappings
-nnoremap <C-t> :tabnew<CR>
-nnoremap <C-p> :tabp<CR>
 nnoremap <C-d> <C-w>>
 nnoremap <C-w> <C-w>+
 nnoremap <C-a> <C-w><
