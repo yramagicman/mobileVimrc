@@ -159,7 +159,7 @@ syntax on
 set synmaxcol=800
 " Start scrolling five lines before the horizontal window border when will this
 " break
-set scrolloff=7
+set scrolloff=2
 set nolist wrap linebreak sidescrolloff=15
 " sensible completion
 set completeopt=longest,menuone
@@ -175,6 +175,7 @@ let mapleader=","
 let localleader="/"
 set tags=tags;
 set autochdir
+set nowrapscan
 " Make tabs as wide as four spaces
 set tabstop=4
 set smartindent
@@ -188,7 +189,7 @@ let g:syntastic_c_compiler = 'clang'
 let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
 " set status line
 " Always show status line
-set laststatus=2
+set laststatus=1
 set statusline=\|\ %m%f%r\ \%y
 set statusline+=%=
 set statusline+=Line:
@@ -392,14 +393,17 @@ let g:clean = 1
 function! CleanScreen()
     if  g:clean == 0
         let g:numoff = 0
-        set laststatus=2
+        set laststatus=1
+        set foldcolumn=2
         call NumOff()
+        set showmode
         let g:clean=1
         return g:clean
     else
         let g:numoff = 1
         set laststatus=0
-        set showmode!
+        set noshowmode
+        set foldcolumn=12
         call NumOff()
         let g:clean=0
         return g:clean
