@@ -410,7 +410,6 @@ function! CleanScreen()
     endif
 endfunction
 command! Clean :call CleanScreen()
-"
 " open scratch buffer
 function! Scratch()
     new
@@ -682,7 +681,7 @@ noremap <localleader>= <C-w>=
 " put splits in a logical place
 set splitbelow
 set splitright
-" tab mappings
+" window size mappings
 nnoremap <C-d> <C-w>>
 nnoremap <C-w> <C-w>+
 nnoremap <C-a> <C-w><
@@ -735,7 +734,6 @@ inoremap <c-z>k <ESC>:bunload %<CR>
 nnoremap <c-z>v :vert sball<CR>
 vnoremap <c-z>v <ESC>:vert sball<CR>
 inoremap <c-z>v <ESC>:vert sball<CR>
-"
 " open all buffers horizontally
 nnoremap <c-z>h :sball<CR>
 vnoremap <c-z>h <ESC>:sball<CR>
