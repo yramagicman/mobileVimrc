@@ -561,6 +561,9 @@ augroup abbrevs
     autocmd FileType html inoremap <buffer> <> <>
     autocmd FileType html inoremap <buffer> < <><ESC>i
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
+    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
+    autocmd FileType php  iabbrev <buffer> /pp> print '</pre>';
+    autocmd FileType php  iabbrev <buffer> dsm durpal_set_message()<Esc>hi
 augroup end
 "motions.vim
 " kill arrow keys
@@ -630,6 +633,7 @@ let @z = "^vf(hyOif(function_exists(',p'){`jo}"
 "saving.vim
 " control whitespace and tabs on save
 nnoremap <leader>ss :call Save()<CR>
+nnoremap ss :call Save()<CR>
 inoremap <leader>ss <ESC>:call Save()<CR>
 vnoremap <leader>ss <ESC>:call Save()<CR>
 " save but don't retab
@@ -702,6 +706,10 @@ inoremap <C-z>n <ESC>:bn<CR>
 nnoremap <C-z>p :bp<CR>
 vnoremap <C-z>p <ESC>:bp<CR>
 inoremap <C-z>p <ESC>:bp<CR>
+" maximize
+nnoremap <C-z>o :only<CR>
+vnoremap <C-z>o <ESC>:only<CR>
+inoremap <C-z>o <ESC>:only<CR>
 " list buffers l
 nnoremap <c-z>l :ls<CR>
 vnoremap <c-z>l <ESC>:ls<CR>
