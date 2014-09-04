@@ -563,7 +563,7 @@ augroup abbrevs
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
     autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
     autocmd FileType php  iabbrev <buffer> /pp> print '</pre>';
-    autocmd FileType php  iabbrev <buffer> dsm durpal_set_message()<Esc>hi
+    autocmd FileType php  iabbrev <buffer> dsm drupal_set_message()<Esc>hi
 augroup end
 "motions.vim
 " kill arrow keys
