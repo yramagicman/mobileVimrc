@@ -65,6 +65,7 @@ if has("autocmd")
     augroup end
     augroup extra
         " Misc. individual commands that don't merit their own fold group
+        autocmd!
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
         autocmd FileType snippets set noexpandtab
@@ -466,9 +467,6 @@ inoremap <leader>p <ESC>pa
 nnoremap <leader><leader>p <ESC>"+p
 inoremap <leader><leader>p <ESC>"+p
 vnoremap <leader><leader>p <ESC>"+p
-"don't enter insert mode when cutting lines
-nnoremap cc cc<ESC>
-vnoremap cc cc<ESC>
 " delete till the beginning of a line
 nnoremap <leader>D d0
 inoremap <leader>D <ESC>d0xi
@@ -495,16 +493,14 @@ noremap <leader>r <ESC>:%retab<CR>
 "kill search highlighting
 noremap <silent><leader><space> <ESC>:let @/ = ""<CR>
 "uppercase words
-inoremap <C-u> <ESC>mzgUiw
-nnoremap <C-u> <ESC>mzgUiw
+inoremap <C-u> <ESC>mzgUiwe
+nnoremap <C-u> <ESC>mzgUiwe
 " Toggle [i]nvisible characters
 nnoremap <silent><leader>i :set list!<CR>
 " reset color scheme
 nnoremap U :syntax sync fromstart<CR>:redraw!<CR>
 " make this_style into cammelCase
 nnoremap CC 0f_x~
-inoremap <C-c> <ESC>I//
-vnoremap <C-c> I//
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
 " spelling mappings
@@ -523,6 +519,8 @@ nnoremap q <NOP>
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
+nnoremap <leader>O O<ESC>
+nnoremap <leader>o o<ESC>
 "matchbrackets.vim
 "match pairs
 inoremap ' ''<ESC>i
@@ -539,6 +537,12 @@ inoremap [] []
 inoremap {} {}
 inoremap '' ''
 inoremap "" ""
+" If backspace hit, only insert one of the pair so (<BS> only inserts (.
+inoremap (<BS> (
+inoremap [<BS> [
+inoremap {<BS> {
+inoremap '<BS> '
+inoremap "<BS> "
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'a
 vnoremap " xi""<ESC>hp<ESC>f"a
@@ -553,16 +557,18 @@ nnoremap <Leader>' <ESC>vi"yda"a<space>''<ESC>h"0p
 augroup abbrevs
     " filetype specific mappings for characters and shortcuts
     autocmd!
-    autocmd FileType mail iabbrev <buffer> api API
-    autocmd FileType mail iabbrev <buffer> etap Etapestry
-    autocmd FileType mail iabbrev <buffer> durpal Drupal
-    autocmd FileType mail iabbrev <buffer> drupal Drupal
+    autocmd FileType * iabbrev <buffer> api API
+    autocmd FileType * iabbrev <buffer> iso ISO
+    autocmd FileType * iabbrev <buffer> csv CSV
+    autocmd FileType * iabbrev <buffer> etap Etapestry
+    autocmd FileType * iabbrev <buffer> durpal Drupal
+    autocmd FileType * iabbrev <buffer> drupal Drupal
     autocmd FileType mail inoremap <buffer> ' '
     autocmd FileType html inoremap <buffer> <> <>
     autocmd FileType html inoremap <buffer> < <><ESC>i
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
-    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
-    autocmd FileType php  iabbrev <buffer> /pp> print '</pre>';
+    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>xxi
+    autocmd FileType php  iabbrev <buffer> /pp> print '</pre>';<Esc>xxi
     autocmd FileType php  iabbrev <buffer> dsm drupal_set_message()<Esc>hi
 augroup end
 "motions.vim
