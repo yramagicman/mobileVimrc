@@ -444,7 +444,7 @@ function! FoldColumn()
     endif
 endfunction
 command! Fc :call FoldColumn()
-nnoremap <LocalLeader>f :call FoldColumn()<CR>
+nnoremap <Leader>f :call FoldColumn()<CR>
 "mappings.vim
 " Indenting
 "bind \] to indent
@@ -521,6 +521,7 @@ nnoremap '; ;
 nnoremap ": ,
 nnoremap <leader>O O<ESC>
 nnoremap <leader>o o<ESC>
+nnoremap <silent>-b :set buftype=<CR>
 "matchbrackets.vim
 "match pairs
 inoremap ' ''<ESC>i
