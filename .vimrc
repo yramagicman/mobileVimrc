@@ -97,7 +97,7 @@ set textwidth=82
 set cc=0
 " highlight long lines
 call matchadd('ColorColumn', '\%81v', 100)
-" Don't use os clipboard with tmux can't yank between buffers
+"Use os clipboard with
 set clipboard=unnamed
 " Enhance command-line completion
 set wildmenu
@@ -165,7 +165,7 @@ set nolist wrap linebreak sidescrolloff=15
 " sensible completion
 set completeopt=longest,menuone
 set ofu=syntaxcomplete#Complete
-" Show “invisible” characters
+" Show "invisible” characters
 set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 "set list " breaks set linebreak
 " Enable line numbers
@@ -183,7 +183,6 @@ set smartindent
 set shiftwidth=4
 "tabs to spaces
 set expandtab
-""set lazyredraw
 " set compiler
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_c_compiler = 'clang'
@@ -572,7 +571,7 @@ augroup abbrevs
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
     autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>xxi
     autocmd FileType php  iabbrev <buffer> /pp> print '</pre>';<Esc>xxi
-    autocmd FileType php  iabbrev <buffer> dsm drupal_set_message()<Esc>hi
+    autocmd FileType php  iabbrev <buffer> dsm() drupal_set_message()<Esc>hi
 augroup end
 "motions.vim
 " kill arrow keys
