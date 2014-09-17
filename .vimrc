@@ -512,8 +512,10 @@ nnoremap -w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
 nnoremap R q
+vnoremap R q
 " there, now q won't do dumb stuff
 nnoremap q <NOP>
+vnoremap q <NOP>
 " I've needed these mappings forever. Map '; to ; and ": to , also quickfix
 " last search
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
@@ -631,6 +633,9 @@ nnoremap v <c-v>
 nnoremap <c-v> v
 vnoremap v <C-V>
 vnoremap <C-V> v
+" Diff motions
+nnoremap <leader>dn ]c
+nnoremap <leader>dp [c
 "reg.vim"
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
