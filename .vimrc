@@ -670,6 +670,7 @@ vnoremap <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
 nnoremap <leader>Q :q!
 inoremap <leader>Q <ESC>:q!
 vnoremap <leader>Q <ESC>:q!
+nnoremap QQ :q!
 " nice quit
 nnoremap <silent><leader>q :q<CR>
 inoremap <silent><leader>q <ESC>:q<CR>
