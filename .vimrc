@@ -636,8 +636,8 @@ nnoremap <c-v> v
 vnoremap v <C-V>
 vnoremap <C-V> v
 " Diff motions
-nnoremap <leader>dn ]c
-nnoremap <leader>dp [c
+nnoremap <leader>dn ]czt
+nnoremap <leader>dp [czt
 "reg.vim"
 let @c = "/\/\/d"
 let @f = "/function Äkbf{i,ss"
