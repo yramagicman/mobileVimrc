@@ -464,9 +464,9 @@ nnoremap * *<c-o>
 "paste in insert mode
 inoremap <leader>p <ESC>pa
 "paste from x clipboard
-nnoremap <leader><leader>p <ESC>"+p
-inoremap <leader><leader>p <ESC>"+p
-vnoremap <leader><leader>p <ESC>"+p
+nnoremap -p <ESC>"+p
+inoremap -p <ESC>"+p
+vnoremap -p "+p
 " delete till the beginning of a line
 nnoremap <leader>D d0
 inoremap <leader>D <ESC>d0xi
