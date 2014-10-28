@@ -190,7 +190,7 @@ let g:syntastic_c_compiler = 'clang'
 let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
 " set status line
 " Always show status line
-set laststatus=1
+set laststatus=2
 set statusline=\|\ %m%f%r\ \%y
 set statusline+=%=
 set statusline+=Line:
@@ -553,10 +553,10 @@ vnoremap { xi{}<ESC>hp<ESC>la
 vnoremap [ xi[]<ESC>hp<ESC>la
 vnoremap ( xi()<ESC>hp<ESC>la
 " swap quotes not in insert mode, too likely to conflict with typing
-vnoremap <Leader>" yda'a<space>""<ESC>h"0p
-vnoremap <Leader>' yda"a<space>''<ESC>h"0p
-nnoremap <Leader>" <ESC>vi'yda'a<space>""<ESC>h"0p
-nnoremap <Leader>' <ESC>vi"yda"a<space>''<ESC>h"0p
+vnoremap <Leader>" yda'i""<ESC>"0pf"a<space><ESC>
+vnoremap <Leader>' yda"i''<ESC>"0pf"a<space><ESC>
+nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"a<space><ESC>
+nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf"a<space><ESC>
 augroup abbrevs
     " filetype specific mappings for characters and shortcuts
     autocmd!
