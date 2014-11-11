@@ -547,16 +547,19 @@ inoremap {<BS> {
 inoremap '<BS> '
 inoremap "<BS> "
 " visual mode surround text
-vnoremap ' xi''<ESC>hp<ESC>f'a
-vnoremap " xi""<ESC>hp<ESC>f"a
-vnoremap { xi{}<ESC>hp<ESC>la
-vnoremap [ xi[]<ESC>hp<ESC>la
-vnoremap ( xi()<ESC>hp<ESC>la
+vnoremap ' xi''<ESC>hp<ESC>f'
+vnoremap " xi""<ESC>hp<ESC>f"
+vnoremap { xi{}<ESC>hp<ESC>f}
+vnoremap [ xi[]<ESC>hp<ESC>f]
+vnoremap ( xi()<ESC>hp<ESC>F(
+vnoremap } xi{}<ESC>hp<ESC>f}
+vnoremap ] xi[]<ESC>hp<ESC>f]
+vnoremap ) xi()<ESC>hp<ESC>F(i
 " swap quotes not in insert mode, too likely to conflict with typing
-vnoremap <Leader>" yda'i""<ESC>"0pf"a<space><ESC>
-vnoremap <Leader>' yda"i''<ESC>"0pf"a<space><ESC>
-nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"a<space><ESC>
-nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf"a<space><ESC>
+vnoremap <Leader>" yda'i""<ESC>"0pf"
+vnoremap <Leader>' yda"i''<ESC>"0pf'
+nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
+nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
 augroup abbrevs
     " filetype specific mappings for characters and shortcuts
     autocmd!
