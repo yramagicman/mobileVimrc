@@ -174,7 +174,7 @@ set relativenumber
 " Change mapleader
 let mapleader=","
 let localleader="/"
-set tags=tags;
+""set tags=.git/tags;
 set autochdir
 set nowrapscan
 set cryptmethod=blowfish2
