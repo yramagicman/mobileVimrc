@@ -177,7 +177,7 @@ let localleader="/"
 ""set tags=.git/tags;
 set autochdir
 set nowrapscan
-set cryptmethod=blowfish2
+""set cryptmethod=blowfish2
 " Make tabs as wide as four spaces
 set tabstop=4
 set smartindent
