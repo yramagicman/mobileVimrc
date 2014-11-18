@@ -114,13 +114,13 @@ set encoding=utf-8
 set binary
 set eol
 " Centralize backups, swapfiles and undo history
-set backupdir=~/.vim/backups//
+set backupdir=~/.vim/backup//
 "set directory=~/.vim/swaps
 "I hate swap files
 set noswapfile
 if exists("&undodir")
     set undolevels=5000
-    set undodir=~/.vim/undo
+    set undodir=~/.vim/undo//
     set undofile
 endif
 " Respect modeline in files
