@@ -200,7 +200,7 @@ set statusline+=\ \|
 " buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
-" Wild ignore
+" Wild ignore, mostly stolen from Steve Losh
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
 set wildignore+=*.o,*.obj,*.exe,*.dll,*.manifest " compiled object files
