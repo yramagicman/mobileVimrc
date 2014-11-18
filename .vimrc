@@ -175,7 +175,7 @@ set relativenumber
 let mapleader=","
 let localleader="/"
 ""set tags=.git/tags;
-set autochdir
+""set autochdir
 set nowrapscan
 ""set cryptmethod=blowfish2
 " Make tabs as wide as four spaces
@@ -200,7 +200,18 @@ set statusline+=\ \|
 " buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
-"
+" Wild ignore
+set wildignore+=.hg,.git,.svn                    " Version control
+set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
+set wildignore+=*.o,*.obj,*.exe,*.dll,*.manifest " compiled object files
+set wildignore+=*.spl                            " compiled spelling word lists
+set wildignore+=*.sw?                            " Vim swap files
+set wildignore+=*.DS_Store                       " OSX bullshit
+set wildignore+=*.luac                           " Lua byte code
+set wildignore+=migrations                       " Django migrations
+set wildignore+=*.pyc                            " Python byte code
+set wildignore+=*.orig                           " Merge resolution files
+set wildignore+=node_modules,bower_components
 "escape.vim"
 " remap escape for easier access
 nnoremap <leader>m <ESC>l
