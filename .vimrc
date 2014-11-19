@@ -85,7 +85,7 @@ endif
 " set secondary editor
 if has('mac')
     let g:Gui_Editor = 'TextWrangler'
-elseif has('linux')
+else
     let g:Gui_Editor = 'geany'
 endif
 " Defaults probably won't change... ever
@@ -470,7 +470,7 @@ if gui_editor_defined:
     gui_editor = vim.eval('g:Gui_Editor')
     if platform == 'darwin':
         call(['open', '-a', gui_editor, cur_file])
-    if platform =='linux':
+    if platform =='linux' or platform == 'linux2':
         call([gui_editor, cur_file])
 else:
     print "Please set a secondary editor by adding let g:Gui_Editor='editor command' to your vimrc"
