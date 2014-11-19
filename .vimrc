@@ -463,10 +463,11 @@ function! Tw()
 python << endpython
 import sys, os, vim
 from subprocess import call
-gui_editor = vim.eval('g:Gui_Editor')
+gui_editor_defined = int(vim.eval('exists("g:Gui_Editor")'))
 cur_file = vim.eval('bufname("%")')
 platform = sys.platform
-if gui_editor:
+if gui_editor_defined:
+    gui_editor = vim.eval('g:Gui_Editor')
     if platform == 'darwin':
         call(['open', '-a', gui_editor, cur_file])
     if platform =='linux':
