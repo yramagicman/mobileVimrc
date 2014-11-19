@@ -272,11 +272,6 @@ function! LineEndings()
     :w
 endfunction
 nnoremap <silent><leader>le :call LineEndings()<CR>
-"wordpress wrap function! in 'function_exists()' check
-function! WpWrap()
-    normal ^vf(hyOif(function_exists(',p'){`jo}
-endfunction
-nnoremap <c-v><c-w> :call WpWrap()<CR>
 " kill extra newlines
 function! Knl ()
     try
