@@ -222,8 +222,8 @@ vnoremap <m <ESC>l
 inoremap <m <ESC>l
 inoremap <M <ESC>l
 " map colon to semi-colon. Life is just easier that way.
-noremap ; :
-nnoremap <leader>; :!
+""noremap ; :
+""nnoremap <leader>; :!
 "folding.vim"
 "Open folds on enter
 nnoremap <CR> za
