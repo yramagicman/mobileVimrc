@@ -6,7 +6,6 @@
 " Automatic commands
 if has("autocmd")
     " Enable file type detection
-    filetype on
     augroup general
         autocmd!
         " show cursorline on current buffer only
@@ -187,6 +186,7 @@ let localleader="/"
 ""set autochdir
 set nowrapscan
 ""set cryptmethod=blowfish2
+filetype plugin on
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
