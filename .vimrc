@@ -557,9 +557,14 @@ vnoremap q <NOP>
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
+" insert blank lines in normal mode
 nnoremap <leader>O O<ESC>
 nnoremap <leader>o o<ESC>
+" set buffer, also set foldmethod
 nnoremap <silent>-b :set buftype=<CR>
+nnoremap <silent>--fm :set foldmethod=marker<CR>
+nnoremap <silent>--fi :set foldmethod=indent<CR>
+nnoremap <silent>--fs :set foldmethod=syntax<CR>
 "matchbrackets.vim
 "match pairs
 inoremap ' ''<ESC>i
