@@ -186,6 +186,9 @@ let localleader="/"
 ""set autochdir
 set nowrapscan
 ""set cryptmethod=blowfish2
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+  runtime! macros/matchit.vim
+endif
 " Make tabs as wide as four spaces
 set tabstop=4
 set smartindent
@@ -737,11 +740,11 @@ nnoremap <C-s> <C-w>-
 " buffer management <c-z>
 nnoremap <c-z> <NOP>
 nnoremap <c-z><c-z> :suspend
-nnoremap <C-Space> :ls<CR>:b<space>
-nnoremap <C-@> <C-Space>
-nnoremap <Space><Space> :ls<CR>:b<space>
-nnoremap <leader><Space><Space> :ls<CR>:b<space>
-inoremap <leader><leader><Space> <ESC>:ls<CR>:b<Space>
+""nnoremap <C-Space> :ls<CR>:b<space>
+""nnoremap <C-@> <C-Space>
+""nnoremap <Space><Space> :ls<CR>:b<space>
+""nnoremap <leader><Space><Space> :ls<CR>:b<space>
+""inoremap <leader><leader><Space> <ESC>:ls<CR>:b<Space>
 " next buffer n
 nnoremap <C-z>n :bn<CR>
 vnoremap <C-z>n <ESC>:bn<CR>
