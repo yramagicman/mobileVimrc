@@ -14,6 +14,7 @@ if has("autocmd")
         autocmd BufLeave * set nocursorline
         " auto-reload vim files, auto resize splits on window resize
         autocmd BufWritePost $HOME/.vim/config/* :source %
+        autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
         au VimResized * exe "normal! \<c-w>="
         autocmd VimEnter * set vb t_vb=
         " fold method marker for specific files
