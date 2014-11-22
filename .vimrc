@@ -566,27 +566,6 @@ nnoremap <silent>--fm :set foldmethod=marker<CR>
 nnoremap <silent>--fi :set foldmethod=indent<CR>
 nnoremap <silent>--fs :set foldmethod=syntax<CR>
 "matchbrackets.vim
-"match pairs
-inoremap ' ''<ESC>i
-inoremap " ""<ESC>i
-inoremap ( ()<ESC>i
-inoremap { {}<ESC>i
-inoremap [ []<ESC>i
-inoremap [<CR> [<CR>]<ESC>O
-inoremap (<CR> (<Cr>)<ESC>O
-inoremap {<CR> {<CR>}<ESC>O
-" If inserted quickly, don't reinsert matching character
-inoremap () ()
-inoremap [] []
-inoremap {} {}
-inoremap '' ''
-inoremap "" ""
-" If backspace hit, only insert one of the pair so (<BS> only inserts (.
-inoremap (<BS> (
-inoremap [<BS> [
-inoremap {<BS> {
-inoremap '<BS> '
-inoremap "<BS> "
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
 vnoremap " xi""<ESC>hp<ESC>f"
@@ -615,7 +594,7 @@ augroup abbrevs
     autocmd FileType html inoremap <buffer> < <><ESC>i
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
     autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>$xxi;<ESC>xA
-    autocmd FileType php  iabbrev <buffer> /pp> print '</pre>';<Esc>$xxi;<ESC>xA
+    autocmd FileType php  iabbrev <buffer> gcpp> print '</pre>';<Esc>$xxi;<ESC>xA
     autocmd FileType php  iabbrev <buffer> dsm drupal_set_message()<Esc>i
 augroup end
 "motions.vim
