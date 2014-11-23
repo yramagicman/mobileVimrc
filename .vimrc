@@ -463,6 +463,7 @@ function! FoldColumn()
 endfunction
 command! Fc :call FoldColumn()
 nnoremap <Leader>f :call FoldColumn()<CR>
+" Open in secondary editor. I use TextWrangler on OS X so tw makes sense
 function! Tw()
 python << endpython
 import sys, os, vim
