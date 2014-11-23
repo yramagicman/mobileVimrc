@@ -539,6 +539,7 @@ nnoremap U :syntax sync fromstart<CR>:redraw!<CR>
 nnoremap CC 0f_x~
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
+nnoremap <leader>S :source %<CR>
 " spelling mappings
 nnoremap --s :set spell!<CR>
 nnoremap -s zg
