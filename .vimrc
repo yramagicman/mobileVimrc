@@ -205,6 +205,7 @@ let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
 " Always show status line
 set laststatus=2
 set statusline=\|\ %m%f%r\ \%y
+endif
 set statusline+=%=
 set statusline+=Line:
 set statusline+=%4l/%-4L
