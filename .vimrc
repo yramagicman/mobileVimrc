@@ -234,10 +234,13 @@ set wildignore+=node_modules,bower_components
 nnoremap <leader>m <ESC>l
 vnoremap <leader>m <ESC>l
 inoremap <leader>m <ESC>l
+onoremap <leader>m <ESC>
 nnoremap <m <ESC>l
 vnoremap <m <ESC>l
 inoremap <m <ESC>l
+onoremap <m <ESC>
 inoremap <M <ESC>l
+onoremap <M <ESC>
 " map colon to semi-colon. Life is just easier that way.
 noremap ; :
 nnoremap <leader>; :!
@@ -583,9 +586,9 @@ vnoremap } xi{}<ESC>hp<ESC>f}
 vnoremap ] xi[]<ESC>hp<ESC>f]
 vnoremap ) xi()<ESC>hp<ESC>F(i
 " autocomplete quotes and brackets
-inoremap        (  ()<Left>
-inoremap        [  []<Left>
-inoremap        {  {}<Left>
+inoremap (  ()<Left>
+inoremap [  []<Left>
+inoremap {  {}<Left>
 inoremap [<CR> [<CR>]<ESC>O
 inoremap (<CR> (<CR>)<ESC>O
 inoremap {<CR> {<CR>}<ESC>O
@@ -595,8 +598,8 @@ inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}
 inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
 inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
 " swap quotes not in insert mode, too likely to conflict with typing
-vnoremap <Leader>" yda'i""<ESC>"0pf"
-vnoremap <Leader>' yda"i''<ESC>"0pf'
+vnoremap <Leader>" yda'i""<ESC>h"0pf"
+vnoremap <Leader>' yda"i''<ESC>h"0pf'
 nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
 nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
 augroup abbrevs
@@ -616,6 +619,35 @@ augroup abbrevs
     autocmd FileType php  iabbrev <buffer> gcpp> print '</pre>';<Esc>$xxi;<ESC>xA
     autocmd FileType php  iabbrev <buffer> dsm drupal_set_message()<Esc>i
 augroup end
+" Make backspace work nicely with autopairs
+function! Backspace()
+    let l:current = strpart(getline('.'), col('.')-1, 1)
+    let l:prev = strpart(getline('.'), col('.')-2, 1)
+    if l:current == '"' || l:current == "'" || l:current == "]" || l:current == ")" || l:current == "}"
+        if l:current == l:prev
+            return "\<Right>\<BS>\<BS>"
+        elseif l:prev == '[' && l:current == ']'
+            return "\<Right>\<BS>\<BS>"
+        elseif l:prev == "{" && l:current == "}"
+            return "\<Right>\<BS>\<BS>"
+        elseif l:prev == "(" && l:current == ")"
+            return "\<Right>\<BS>\<BS>"
+        else
+            return "\<BS>"
+        endif
+    else
+        return "\<BS>"
+    endif
+endfunction
+inoremap <expr> <BS> Backspace()
+" Unwrap parens and brackets
+function! UnwrapParens()
+    let l:current = strpart(getline('.'), col('.')-1, 1)
+    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
+        norm ml%mkx`lx
+    endif
+endfunction
+noremap <leader><BS> :call UnwrapParens()<CR>
 "motions.vim
 " kill arrow keys
 nnoremap <down> <C-d>
