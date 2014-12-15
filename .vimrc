@@ -532,7 +532,7 @@ noremap <leader>db :%!cat -s<CR>
 noremap <silent><leader>w <ESC>:set wrap!<CR>
 inoremap <silent><leader>w <ESC>:set wrap!<CR>i
 "toggle file explorer
-noremap <silent><leader>e <ESC>:Explore<CR>
+noremap <silent><leader>e <ESC>:FileBeagle<CR>
 "retab
 noremap <leader>r <ESC>:%retab<CR>
 "kill search highlighting
