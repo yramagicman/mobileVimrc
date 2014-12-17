@@ -89,7 +89,7 @@ else
     let g:Gui_Editor = 'geany'
 endif
 "setup stuff, for install plugin
-let g:VundleHelper_Setup_Folders = ['autoload', 'backup', 'bundle', 'colors', 'config', 'doc', 'snippets', 'spell', 'swaps', 'syntax', 'tags', 'undo' ]
+let g:VundleHelper_Setup_Folders = ['after', 'autoload', 'backup', 'bundle', 'colors', 'config', 'doc', 'snippets', 'spell', 'swaps', 'syntax', 'tags', 'undo']
 let g:VundleHelper_Plugin_File =  '/.vim/config/extensions/vundle.vim'
 " Defaults probably won't change... ever
 set background=light
