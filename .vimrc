@@ -250,6 +250,7 @@ nnoremap <leader>; :!
 nnoremap <CR> za
 nnoremap <leader><CR> zO
 nnoremap <Leader>z zMzvzz
+nnoremap <Leader><Leader>z zMzOzz
 "close all folds
 nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
@@ -283,7 +284,7 @@ function! IndentGuides()
         execute '2match IndentGuides /\%(\_^\s*\)\@<=\%(\%'.(0*&sw+1).'v\|\%'.(1*&sw+1).'v\|\%'.(2*&sw+1).'v\|\%'.(3*&sw+1).'v\|\%'.(4*&sw+1).'v\|\%'.(5*&sw+1).'v\|\%'.(6*&sw+1).'v\|\%'.(7*&sw+1).'v\)\s/'
     endif
 endfunction
-nnoremap <silent> <leader>I :call IndentGuides()<CR>
+nnoremap <silent> <leader>i :call IndentGuides()<CR>
 "call IndentGuides()
 " Fix Line Endings
 function! LineEndings()
@@ -384,7 +385,7 @@ function! PresMode()
         return g:presmode
     endif
 endfunction
-noremap <leader>x :call PresMode()<CR>
+noremap <localleader>p :call PresMode()<CR>
 command! Pres :call PresMode()
 " line numbers on or off
 let g:numoff = 1
@@ -491,7 +492,7 @@ else:
 endpython
 endfunction
 command! Tw :call Tw()
-"mappings.vim
+"mappings.Vim
 " Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
@@ -542,7 +543,7 @@ noremap <silent><leader><space> <ESC>:let @/ = ""<CR>
 inoremap <C-u> <ESC>mzgUiwe
 nnoremap <C-u> <ESC>mzgUiwe
 " Toggle [i]nvisible characters
-nnoremap <silent><leader>i :set list!<CR>
+nnoremap <silent><leader>I :set list!<CR>
 " reset color scheme
 nnoremap U :syntax sync fromstart<CR>:redraw!<CR>
 " make this_style into cammelCase
@@ -555,7 +556,8 @@ nnoremap --s :set spell!<CR>
 nnoremap -s zg
 nnoremap -d ]szo
 nnoremap -a [szo
-nnoremap -w z=
+nnoremap -w 1z=
+nnoremap --w z=
 " No... I don't want to record a macro now
 "I never use replace mode anyway
 nnoremap R q
@@ -612,13 +614,12 @@ augroup abbrevs
     autocmd FileType * iabbrev <buffer> etap Etapestry
     autocmd FileType * iabbrev <buffer> durpal Drupal
     autocmd FileType * iabbrev <buffer> drupal Drupal
-    autocmd FileType mail inoremap <buffer> ' '
+    autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
     autocmd FileType html inoremap <buffer> <> <>
     autocmd FileType html inoremap <buffer> < <><ESC>i
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
     autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>$xxi;<ESC>xA
-    autocmd FileType php  iabbrev <buffer> gcpp> print '</pre>';<Esc>$xxi;<ESC>xA
-    autocmd FileType php  iabbrev <buffer> dsm drupal_set_message()<Esc>i
+    autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';<Esc>$xxi;<ESC>xA
 augroup end
 " Make backspace work nicely with autopairs
 function! Backspace()
@@ -647,8 +648,24 @@ function! UnwrapParens()
     if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
         norm ml%mkx`lx
     endif
+    if l:current == '"'
+        try
+            norm mlf"mkx`lx
+        catch
+            norm mlF"mkx`lx
+        endtry
+    endif
+    if l:current == "'"
+        try
+            norm mlf'mkx`lx
+        catch
+            norm mlF'mkx`lx
+        endtry
+    endif
 endfunction
-noremap <leader><BS> :call UnwrapParens()<CR>
+inoremap <localleader><BS> <Esc>:call UnwrapParens()<CR>
+noremap <leader>x :call UnwrapParens()<CR>
+autocmd! FileType vim inoremap " "
 "motions.vim
 " kill arrow keys
 nnoremap <down> <C-d>
@@ -671,6 +688,8 @@ noremap { {zz
 noremap ( (zz
 noremap } }zz
 noremap ) )zz
+noremap % %zz
+noremap <Tab> <Tab>zz
 noremap n nzz
 noremap N Nzz
 vnoremap j j
@@ -778,11 +797,6 @@ nnoremap <C-s> <C-w>-
 " buffer management <c-z>
 nnoremap <c-z> <NOP>
 nnoremap <c-z><c-z> :suspend
-""nnoremap <C-Space> :ls<CR>:b<space>
-""nnoremap <C-@> <C-Space>
-""nnoremap <Space><Space> :ls<CR>:b<space>
-""nnoremap <leader><Space><Space> :ls<CR>:b<space>
-""inoremap <leader><leader><Space> <ESC>:ls<CR>:b<Space>
 " next buffer n
 nnoremap <C-z>n :bn<CR>
 vnoremap <C-z>n <ESC>:bn<CR>
