@@ -578,6 +578,10 @@ nnoremap <silent>-b :set buftype=<CR>
 nnoremap <silent>--fm :set foldmethod=marker<CR>
 nnoremap <silent>--fi :set foldmethod=indent<CR>
 nnoremap <silent>--fs :set foldmethod=syntax<CR>
+" Command line abbreviations
+cnoreabbrev ack Ack
+cnoreabbrev push Git push
+cnoreabbrev pull Git pull
 "matchbrackets.vim
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
