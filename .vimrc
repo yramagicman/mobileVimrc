@@ -584,6 +584,7 @@ nnoremap <silent>--fs :set foldmethod=syntax<CR>
 cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
+nnoremap dca :!drush cc all<cr>
 "matchbrackets.vim
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
