@@ -48,15 +48,14 @@ if has("autocmd")
     augroup coding
         autocmd!
         " drupal coding standards
-        autocmd Bufenter,BufRead */drupal*/* set tabstop=2
-        autocmd Bufenter,BufRead */drupal*/* set smartindent
-        autocmd Bufenter,BufRead */drupal*/* set shiftwidth=2
-        autocmd Bufenter,BufRead */drupal*/* set expandtab
-        autocmd Bufenter,BufRead */drupal*/* set foldmethod=marker
-        autocmd Bufenter,BufRead *.module set filetype=php
-        autocmd Bufenter,BufRead *.inc set filetype=php
-        autocmd Bufenter,BufRead *.install set filetype=php
-        "autocmd BufRead */drupal*/* call IndentGuides()
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=marker
+        autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
+        autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
+        autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
+       "autocmd VimEnter,BufRead */drupal*/* call IndentGuides()
         " ratiochristi coding standards
         autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
         autocmd Bufenter,BufRead */ratiochristi/* set smartindent
@@ -198,7 +197,9 @@ if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
 endif
 " Make tabs as wide as four spaces
 set tabstop=4
+set smarttab
 set smartindent
+set autoindent
 set shiftwidth=4
 "tabs to spaces
 set expandtab
