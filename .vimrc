@@ -37,7 +37,6 @@ if has("autocmd")
     augroup css
         " filetype stuff
         autocmd!
-        autocmd BufRead,BufNewFile *.scss set filetype=css
         autocmd BufRead,BufNewFile *.css set filetype=css
         " use 2 spaces  for css and related files
         autocmd FileType css setlocal tabstop=2
