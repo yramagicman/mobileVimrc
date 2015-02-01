@@ -553,6 +553,8 @@ nnoremap CC 0f_x~
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
 nnoremap <leader>S :source %<CR>
+nnoremap <leader>dca :!drush cc all<CR>
+nnoremap <leader>cd :lcd %:p:h<CR>
 " spelling mappings
 nnoremap --s :set spell!<CR>
 nnoremap -s zg
@@ -584,7 +586,6 @@ nnoremap <silent>--fs :set foldmethod=syntax<CR>
 cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
-nnoremap <leader>dca :!drush cc all<CR>
 "matchbrackets.vim
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
@@ -702,9 +703,8 @@ noremap N Nzz
 vnoremap j j
 vnoremap k k
 " jump to ...
-noremap <S-l> g_
+noremap $ g_
 noremap <S-j> G
-noremap <S-h> ^
 noremap <S-k> gg
 nnoremap <tab> %
 vnoremap <tab> %
