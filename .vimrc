@@ -66,7 +66,7 @@ if has("autocmd")
         autocmd!
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
-        autocmd FileType snippets set noexpandtab
+        autocmd FileType,BufEnter snippets set noexpandtab
         autocmd BufRead /usr/local/* !ring
         autocmd BufNewFile,BufRead *.md set filetype=markdown
         autocmd BufEnter * execute "source ~/.vim/colors/" . g:colors_name . ".vim"
