@@ -621,6 +621,7 @@ augroup abbrevs
     autocmd FileType * iabbrev <buffer> etap Etapestry
     autocmd FileType * iabbrev <buffer> durpal Drupal
     autocmd FileType * iabbrev <buffer> drupal Drupal
+    autocmd FileType * iabbrev <buffer> JOnathan Jonathan
     autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
     autocmd FileType html inoremap <buffer> <> <>
     autocmd FileType html inoremap <buffer> < <><ESC>i
