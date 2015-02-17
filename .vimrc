@@ -73,11 +73,14 @@ if has("autocmd")
         " make Vim edit cron again
         autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
         " always reload files when changed outside Vim
-        autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
+        "autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
+        autocmd Bufenter,FocusGained,BufLeave * :checktime
         " save on focus lost
         autocmd FocusLost,BufLeave * :silent! wall
         " leave insert mode on focus lost
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
+        autocmd CmdwinEnter * unmap <CR>
+        autocmd CmdwinLeave * map <CR> za
     augroup end
 endif
 "defaults.vim
@@ -307,6 +310,7 @@ function! Knl ()
 endfunction
 " save, kill whitespace at end of lines, and end of file, convert tabs
 function! Save()
+    checktime
     syntax sync fromstart
     redraw!
     %retab
@@ -511,6 +515,7 @@ noremap <leader>rl <ESC>:source ~/.vimrc<CR>
 " Make Vim work logically
 " Don't move on *
 nnoremap * *<c-o>
+vnoremap * *<c-o>
 "paste in insert mode
 inoremap <leader>p <ESC>pa
 "paste from x clipboard
@@ -570,6 +575,8 @@ vnoremap R q
 " there, now q won't do dumb stuff
 nnoremap q <NOP>
 vnoremap q <NOP>
+" q: is actually useful when you have it configured right
+nnoremap ch q:
 " I've needed these mappings forever. Map '; to ; and ": to , also quickfix
 " last search
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
@@ -587,6 +594,7 @@ nnoremap <silent>--fs :set foldmethod=syntax<CR>
 cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
+cnoreabbrev tw Tw
 "matchbrackets.vim
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
