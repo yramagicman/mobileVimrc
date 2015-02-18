@@ -559,7 +559,7 @@ nnoremap CC 0f_x~
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
 nnoremap <leader>S :source %<CR>
-nnoremap <leader>dca :!drush cc all<CR>
+nnoremap <leader>dca :!sudo drush cc all<CR>
 nnoremap <leader>cd :lcd %:p:h<CR>
 " spelling mappings
 nnoremap --s :set spell!<CR>
