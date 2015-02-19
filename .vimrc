@@ -565,7 +565,7 @@ nnoremap CC 0f_x~
 nnoremap <leader>c :%!column -t<CR>
 nnoremap <leader>s :source %<CR>
 nnoremap <leader>S :source %<CR>
-nnoremap <leader>dca :!sudo drush cc all<CR>
+nnoremap <leader>dca :!drush cc all<CR>
 nnoremap <leader>cd :lcd %:p:h<CR>
 " spelling mappings
 nnoremap --s :set spell!<CR>
@@ -819,7 +819,7 @@ nnoremap <C-a> <C-w><
 nnoremap <C-s> <C-w>-
 " buffer management <c-z>
 nnoremap <c-z> <NOP>
-nnoremap <c-z><c-z> :suspend
+nnoremap -z :suspend<CR>
 " next buffer n
 nnoremap <C-z>n :bn<CR>
 vnoremap <C-z>n <ESC>:bn<CR>
