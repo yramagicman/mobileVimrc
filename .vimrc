@@ -177,6 +177,10 @@ set synmaxcol=800
 " break
 set scrolloff=2
 set nolist wrap linebreak sidescrolloff=15
+set showbreak=....
+if exists('+breakindent')
+    set breakindent
+endif
 " sensible completion
 set completeopt=longest,menuone
 set ofu=syntaxcomplete#Complete
@@ -525,6 +529,8 @@ vnoremap <LocalLeader>p "+p
 " delete till the beginning of a line
 nnoremap <leader>D d0
 inoremap <leader>D <ESC>d0xi
+"repeat last command
+nnoremap <leader>. @:
 " Formatting, TextMate-style
 nnoremap Q gqip
 vnoremap Q gq
@@ -591,6 +597,7 @@ nnoremap <silent>--fm :set foldmethod=marker<CR>
 nnoremap <silent>--fi :set foldmethod=indent<CR>
 nnoremap <silent>--fs :set foldmethod=syntax<CR>
 " Command line abbreviations
+cnoreabbrev clam Clam
 cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
@@ -755,21 +762,21 @@ nnoremap ss :call Save()<CR>
 inoremap <leader>ss <ESC>:call Save()<CR>
 vnoremap <leader>ss <ESC>:call Save()<CR>
 " save but don't retab
-nnoremap <leader><leader>ss :call SaveNoRt()<CR>
-inoremap <leader><leader>ss <ESC>:call SaveNoRt()<CR>
-vnoremap <leader><leader>ss <ESC>:call SaveNoRt()<CR>
+nnoremap <localleader>ss :call SaveNoRt()<CR>
+inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
+vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 " save and close
-nnoremap <silent><leader>ww :call Save()<CR>:close<CR>
-inoremap <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
-vnoremap <silent><leader>ww <ESC>:call Save()<CR>:close<CR>
+nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
+inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
+vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
 " close but don't save
 nnoremap <leader>cl <ESC>:close!
 inoremap <leader>cl <ESC>:close!
 vnoremap <leader>cl <ESC>:close!
 " save and quit
-nnoremap <silent><leader>wq :call Save()<CR>:qall<CR>
-inoremap <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
-vnoremap <silent><leader>wq <ESC>:call Save()<CR>:qall<CR>
+nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
+inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
+vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
 " quit without saving
 nnoremap <leader>Q :q!
 inoremap <leader>Q <ESC>:q!
