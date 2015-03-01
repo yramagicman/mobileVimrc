@@ -706,8 +706,6 @@ vnoremap <down> <C-d>
 vnoremap <right> <Nop>
 vnoremap <up> <C-u>
 "always center when navigating
-noremap j gj
-noremap k gk
 noremap G Gzz
 noremap { {zz
 noremap ( (zz
@@ -717,8 +715,6 @@ noremap % %zz
 noremap <Tab> <Tab>zz
 noremap n nzz
 noremap N Nzz
-vnoremap j j
-vnoremap k k
 " jump to ...
 noremap <S-j> G
 noremap <S-k> gg
