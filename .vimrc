@@ -2,7 +2,7 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-"defaults.vim
+" defaults
 " set secondary editor
 if has('mac')
     let g:Gui_Editor = 'TextWrangler'
@@ -160,7 +160,7 @@ set wildignore+=*.pyc                            " Python byte code
 set wildignore+=*.orig                           " Merge resolution files
 set wildignore+=.cache,.neocomplcache,.npm,.gem
 set wildignore+=node_modules,bower_components
-"motions.vim
+"motions
 " kill arrow keys
 nnoremap <down> <C-d>
 nnoremap <left> <Nop>
@@ -220,7 +220,6 @@ vnoremap <C-V> v
 " Diff motions
 nnoremap <leader>dn ]czt
 nnoremap <leader>dp [czt
-" autocmds.vim
 " Automatic commands
 if has("autocmd")
     " Enable file type detection
@@ -231,6 +230,7 @@ if has("autocmd")
         autocmd BufLeave * set nocursorline
         " auto-reload vim files, auto resize splits on window resize
         autocmd BufWritePost $HOME/.vim/config/* :source %
+        autocmd BufWritePost $HOME/.vim/config/* :set visualbell
         autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
         au VimResized * exe "normal! \<c-w>="
         autocmd VimEnter * set vb t_vb=
@@ -268,7 +268,7 @@ if has("autocmd")
         autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
         autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
         autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=marker
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=indent
         autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
         autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
         autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
@@ -301,7 +301,7 @@ if has("autocmd")
         autocmd CmdwinLeave * map <CR> za
     augroup end
 endif
-"matchbrackets.vim
+"matchbrackets
 " visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
 vnoremap " xi""<ESC>hp<ESC>f"
@@ -315,12 +315,15 @@ vnoremap ) xi()<ESC>hp<ESC>F(i
 inoremap (  ()<Left>
 inoremap [  []<Left>
 inoremap {  {}<Left>
+inoremap <  <><Left>
 inoremap [<CR> [<CR>]<ESC>O
 inoremap (<CR> (<CR>)<ESC>O
 inoremap {<CR> {<CR>}<ESC>O
+inoremap <<CR> <<CR>><ESC>O
 inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
 inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>": "]"
 inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
+inoremap <expr> >  strpart(getline('.'), col('.')-1, 1) == ">" ? "\<Right>" : ">"
 inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
 inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
 " swap quotes not in insert mode, too likely to conflict with typing
@@ -339,11 +342,10 @@ augroup abbrevs
     autocmd FileType * iabbrev <buffer> drupal Drupal
     autocmd FileType * iabbrev <buffer> JOnathan Jonathan
     autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
-    autocmd FileType html inoremap <buffer> <> <>
-    autocmd FileType html inoremap <buffer> < <><ESC>i
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
-    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>$xxi;<ESC>xA
-    autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';<Esc>$xxi;<ESC>xA
+    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
+    autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';
+    autocmd FileType vim inoremap " "
 augroup end
 " Make backspace work nicely with autopairs
 function! Backspace()
@@ -389,8 +391,7 @@ function! UnwrapParens()
 endfunction
 inoremap <localleader><BS> <Esc>:call UnwrapParens()<CR>
 noremap <leader>x :call UnwrapParens()<CR>
-autocmd! FileType vim inoremap " "
-"functions.vim
+"functions
 " Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
@@ -618,7 +619,7 @@ else:
 endpython
 endfunction
 command! Tw :call Tw()
-"escape.vim"
+"escape
 " remap escape for easier access
 nnoremap <leader>m <ESC>l
 vnoremap <leader>m <ESC>l
@@ -633,7 +634,7 @@ onoremap <M <ESC>
 " map colon to semi-colon. Life is just easier that way.
 noremap ; :
 nnoremap <leader>; :!
-"saving.vim
+"saving
 " control whitespace and tabs on save
 nnoremap <leader>ss :call Save()<CR>
 nnoremap ss :call Save()<CR>
@@ -671,7 +672,7 @@ nnoremap qw :wq
 nnoremap cl :close<CR>
 inoremap q q
 inoremap qq qq
-"folding.vim"
+"folding
 "Open folds on enter
 nnoremap <CR> za
 nnoremap <leader><CR> zO
@@ -690,7 +691,7 @@ set foldmethod=indent
 set foldcolumn=2
 "Close folds locally
 nnoremap <localleader><CR> zC
-"mappings.Vim
+"mappings
 " Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
@@ -701,8 +702,9 @@ nnoremap <localleader>[ <<
 vnoremap <localleader>[ <gv
 inoremap <localleader>[ <C-O><<
 "file navigation shortcuts
-nnoremap <silent> <leader>ev :e ~/.vim/config/<CR>
-noremap <leader>rl <ESC>:source ~/.vimrc<CR>
+nnoremap <silent> <leader>ev :e ~/.vim/config/vimrc.combined.vim<CR>
+nnoremap <silent> <leader>pe :e ~/.vim/config/extensions<CR>
+noremap <leader>rl <ESC>:source ~/.vimrc<CR>:set visualbell<CR>
 " Make Vim work logically
 "paste in insert mode
 inoremap <leader>p <ESC>pa
@@ -727,7 +729,7 @@ noremap <leader>W :w !sudo tee % > /dev/null<CR>
 "delete blank lines
 noremap <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
 " delete duplicate blank lines
-noremap <leader>db :%!cat -s<CR>
+noremap <leader>db mz:%!cat -s<CR>`z
 " toggle word wrap
 noremap <silent><leader>w <ESC>:set wrap!<CR>
 inoremap <silent><leader>w <ESC>:set wrap!<CR>i
@@ -777,16 +779,16 @@ nnoremap <leader>O O<ESC>j
 nnoremap <leader>o o<ESC>k
 " set buffer, also set foldmethod
 nnoremap <silent>-b :set buftype=<CR>
-nnoremap <silent>--fm :set foldmethod=marker<CR>
-nnoremap <silent>--fi :set foldmethod=indent<CR>
-nnoremap <silent>--fs :set foldmethod=syntax<CR>
+nnoremap <silent>-fm :set foldmethod=marker<CR>
+nnoremap <silent>-fi :set foldmethod=indent<CR>
+nnoremap <silent>-fs :set foldmethod=syntax<CR>
 " Command line abbreviations
 cnoreabbrev clam Clam
 cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
 cnoreabbrev tw Tw
-"splits.vim
+"splits
 "window navigation & and splits
 noremap <C-l> <C-w>l
 noremap <C-j> <C-w>j
@@ -861,7 +863,7 @@ inoremap <c-z>v <ESC>:vert sball<CR>
 nnoremap <c-z>h :sball<CR>
 vnoremap <c-z>h <ESC>:sball<CR>
 inoremap <c-z>h <ESC>:sball<CR>
-"reg.vim"
+" Regisers
 let @r = "/returnO,mjo,m"
 let @d = "ddn"
 let @g = "F<v/spannf>x/google-src"
@@ -871,3 +873,4 @@ let @c = "vi{"
 let @q = "vi'"
 let @b = 'vi"'
 let @a = "vi<"
+let @e = "jok"
