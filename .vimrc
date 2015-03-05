@@ -2,87 +2,6 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-" autocmds.vim
-" Automatic commands
-if has("autocmd")
-    " Enable file type detection
-    augroup general
-        autocmd!
-        " show cursorline on current buffer only
-        autocmd BufEnter * set cursorline
-        autocmd BufLeave * set nocursorline
-        " auto-reload vim files, auto resize splits on window resize
-        autocmd BufWritePost $HOME/.vim/config/* :source %
-        autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
-        au VimResized * exe "normal! \<c-w>="
-        autocmd VimEnter * set vb t_vb=
-        " fold method marker for specific files
-        autocmd FileType vim setlocal foldmethod=marker
-        autocmd FileType zsh setlocal foldmethod=marker
-        autocmd FileType lua setlocal foldmethod=marker
-        " use absolute line numbering in insert mode and relative numbers elsewhere
-        autocmd InsertLeave * :set nonumber
-        autocmd InsertLeave * :set relativenumber
-        autocmd InsertEnter * :set number
-        autocmd InsertEnter * :set norelativenumber
-    augroup end
-    augroup js
-        " Treat .json files as .js
-        autocmd!
-        autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-        " fix my fat fingers, change 90 to () in js
-        autocmd Bufenter *.js iabbr 90 ()
-        autocmd Bufleave *.js iabbr 90 90
-    augroup end
-    augroup css
-        " filetype stuff
-        autocmd!
-        autocmd BufRead,BufNewFile *.css set filetype=css
-        " use 2 spaces  for css and related files
-        autocmd FileType css setlocal tabstop=2
-        autocmd FileType css setlocal shiftwidth=2
-        " automattically add semicolons in css
-        autocmd FileType css inoremap <buffer> : :;<ESC>i
-    augroup end
-    augroup coding
-        autocmd!
-        " drupal coding standards
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=marker
-        autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
-        autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
-        autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
-       "autocmd VimEnter,BufRead */drupal*/* call IndentGuides()
-        " ratiochristi coding standards
-        autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
-        autocmd Bufenter,BufRead */ratiochristi/* set smartindent
-        autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
-        autocmd Bufenter,BufRead */ratiochristi/* set expandtab
-    augroup end
-    augroup extra
-        " Misc. individual commands that don't merit their own fold group
-        autocmd!
-        autocmd FileType mail set spell
-        autocmd FileType make set noexpandtab
-        autocmd FileType,BufEnter snippets set noexpandtab
-        autocmd BufRead /usr/local/* !ring
-        autocmd BufNewFile,BufRead *.md set filetype=markdown
-        autocmd BufEnter * execute "source ~/.vim/colors/" . g:colors_name . ".vim"
-        " make Vim edit cron again
-        autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
-        " always reload files when changed outside Vim
-        "autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
-        autocmd Bufenter,FocusGained,BufLeave * :checktime
-        " save on focus lost
-        autocmd FocusLost,BufLeave * :silent! wall
-        " leave insert mode on focus lost
-        autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
-        autocmd CmdwinEnter * unmap <CR>
-        autocmd CmdwinLeave * map <CR> za
-    augroup end
-endif
 "defaults.vim
 " set secondary editor
 if has('mac')
@@ -241,40 +160,236 @@ set wildignore+=*.pyc                            " Python byte code
 set wildignore+=*.orig                           " Merge resolution files
 set wildignore+=.cache,.neocomplcache,.npm,.gem
 set wildignore+=node_modules,bower_components
-"escape.vim"
-" remap escape for easier access
-nnoremap <leader>m <ESC>l
-vnoremap <leader>m <ESC>l
-inoremap <leader>m <ESC>l
-onoremap <leader>m <ESC>
-nnoremap <m <ESC>l
-vnoremap <m <ESC>l
-inoremap <m <ESC>l
-onoremap <m <ESC>
-inoremap <M <ESC>l
-onoremap <M <ESC>
-" map colon to semi-colon. Life is just easier that way.
-noremap ; :
-nnoremap <leader>; :!
-"folding.vim"
-"Open folds on enter
-nnoremap <CR> za
-nnoremap <leader><CR> zO
-nnoremap <Leader>z zMzvzz
-nnoremap <Leader><Leader>z zMzOzz
-"close all folds
-nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-"open all folds
-nnoremap <leader><leader><CR> <ESC>zR<ESC>
-inoremap <leader><leader><CR> <ESC>zR<ESC>
-vnoremap <leader><leader><CR> <ESC>zR<ESC>
-" folding options
-set foldmethod=indent
-set foldcolumn=2
-"Close folds locally
-nnoremap <localleader><CR> zC
+"motions.vim
+" kill arrow keys
+nnoremap <down> <C-d>
+nnoremap <left> <Nop>
+nnoremap <up> <C-u>
+nnoremap <right> <Nop>
+inoremap <right> <Nop>
+inoremap <down> <Nop>
+inoremap <left> <Nop>
+inoremap <up> <Nop>
+vnoremap <left> <Nop>
+vnoremap <down> <C-d>
+vnoremap <right> <Nop>
+vnoremap <up> <C-u>
+"always center when navigating
+noremap G Gzz
+noremap { {zz
+noremap ( (zz
+noremap } }zz
+noremap ) )zz
+noremap % %zz
+noremap <Tab> <Tab>zz
+noremap n nzz
+noremap N Nzz
+" jump to ...
+noremap <S-j> G
+noremap <S-k> gg
+nnoremap <tab> %
+vnoremap <tab> %
+nnoremap <leader>j J
+vnoremap <leader>j J
+" command line movement mappings
+cnoremap <C-a>  <Home>
+cnoremap <C-b>  <Left>
+cnoremap <C-f>  <Right>
+cnoremap <C-d>  <Delete>
+cnoremap <Esc>b <S-Left>
+cnoremap <Esc>f <S-Right>
+cnoremap <Esc>d <S-right><Delete>
+cnoremap <C-e>  <End>
+" Substitute word under cursor globally
+nnoremap --r :%s/\<<C-r><C-w>\>//g<Left><Left>
+" ask for confirmation
+nnoremap -r :%s/\<<C-r><C-w>\>//gc<Left><Left><Left>
+" Substitute selection globally
+vnoremap --r y<Esc>:%s/<C-r>"//g<Left><Left>
+" ask for confirmation
+vnoremap -r y<Esc>:%s/<C-r>"//gc<Left><Left><Left>
+" find and replace with control f
+noremap <C-F> :%s/find/replace/I
+inoremap <C-F> <ESC>:%s/find/replace/I
+vnoremap <C-F> :s/find/replace/g
+" visual block mode is better that visual mode
+nnoremap v <c-v>
+nnoremap <c-v> v
+vnoremap v <C-V>
+vnoremap <C-V> v
+" Diff motions
+nnoremap <leader>dn ]czt
+nnoremap <leader>dp [czt
+" autocmds.vim
+" Automatic commands
+if has("autocmd")
+    " Enable file type detection
+    augroup general
+        autocmd!
+        " show cursorline on current buffer only
+        autocmd BufEnter * set cursorline
+        autocmd BufLeave * set nocursorline
+        " auto-reload vim files, auto resize splits on window resize
+        autocmd BufWritePost $HOME/.vim/config/* :source %
+        autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
+        au VimResized * exe "normal! \<c-w>="
+        autocmd VimEnter * set vb t_vb=
+        " fold method marker for specific files
+        autocmd FileType vim setlocal foldmethod=marker
+        autocmd FileType zsh setlocal foldmethod=marker
+        autocmd FileType lua setlocal foldmethod=marker
+        " use absolute line numbering in insert mode and relative numbers elsewhere
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertLeave * :set relativenumber
+        autocmd InsertEnter * :set number
+        autocmd InsertEnter * :set norelativenumber
+    augroup end
+    augroup js
+        " Treat .json files as .js
+        autocmd!
+        autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
+        " fix my fat fingers, change 90 to () in js
+        autocmd Bufenter *.js iabbr 90 ()
+        autocmd Bufleave *.js iabbr 90 90
+    augroup end
+    augroup css
+        " filetype stuff
+        autocmd!
+        autocmd BufRead,BufNewFile *.css set filetype=css
+        " use 2 spaces  for css and related files
+        autocmd FileType css setlocal tabstop=2
+        autocmd FileType css setlocal shiftwidth=2
+        " automattically add semicolons in css
+        autocmd FileType css inoremap <buffer> : :;<ESC>i
+    augroup end
+    augroup coding
+        autocmd!
+        " drupal coding standards
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
+        autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=marker
+        autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
+        autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
+        autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
+       "autocmd VimEnter,BufRead */drupal*/* call IndentGuides()
+        " ratiochristi coding standards
+        autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
+        autocmd Bufenter,BufRead */ratiochristi/* set smartindent
+        autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
+        autocmd Bufenter,BufRead */ratiochristi/* set expandtab
+    augroup end
+    augroup extra
+        " Misc. individual commands that don't merit their own fold group
+        autocmd!
+        autocmd FileType mail set spell
+        autocmd FileType make set noexpandtab
+        autocmd FileType,BufEnter snippets set noexpandtab
+        autocmd BufRead /usr/local/* !ring
+        autocmd BufNewFile,BufRead *.md set filetype=markdown
+        autocmd BufEnter * execute "source ~/.vim/colors/" . g:colors_name . ".vim"
+        " make Vim edit cron again
+        autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
+        " always reload files when changed outside Vim
+        "autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
+        autocmd Bufenter,FocusGained,BufLeave * :checktime
+        " save on focus lost
+        autocmd FocusLost,BufLeave * :silent! wall
+        " leave insert mode on focus lost
+        autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
+        autocmd CmdwinEnter * unmap <CR>
+        autocmd CmdwinLeave * map <CR> za
+    augroup end
+endif
+"matchbrackets.vim
+" visual mode surround text
+vnoremap ' xi''<ESC>hp<ESC>f'
+vnoremap " xi""<ESC>hp<ESC>f"
+vnoremap { xi{}<ESC>hp<ESC>f}
+vnoremap [ xi[]<ESC>hp<ESC>f]
+vnoremap ( xi()<ESC>hp<ESC>F(
+vnoremap } xi{}<ESC>hp<ESC>f}
+vnoremap ] xi[]<ESC>hp<ESC>f]
+vnoremap ) xi()<ESC>hp<ESC>F(i
+" autocomplete quotes and brackets
+inoremap (  ()<Left>
+inoremap [  []<Left>
+inoremap {  {}<Left>
+inoremap [<CR> [<CR>]<ESC>O
+inoremap (<CR> (<CR>)<ESC>O
+inoremap {<CR> {<CR>}<ESC>O
+inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
+inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>": "]"
+inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
+inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
+inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
+" swap quotes not in insert mode, too likely to conflict with typing
+vnoremap <Leader>" yda'i""<ESC>h"0pf"
+vnoremap <Leader>' yda"i''<ESC>h"0pf'
+nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
+nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
+augroup abbrevs
+    " filetype specific mappings for characters and shortcuts
+    autocmd!
+    autocmd FileType * iabbrev <buffer> api API
+    autocmd FileType * iabbrev <buffer> iso ISO
+    autocmd FileType * iabbrev <buffer> csv CSV
+    autocmd FileType * iabbrev <buffer> etap Etapestry
+    autocmd FileType * iabbrev <buffer> durpal Drupal
+    autocmd FileType * iabbrev <buffer> drupal Drupal
+    autocmd FileType * iabbrev <buffer> JOnathan Jonathan
+    autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
+    autocmd FileType html inoremap <buffer> <> <>
+    autocmd FileType html inoremap <buffer> < <><ESC>i
+    autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
+    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>$xxi;<ESC>xA
+    autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';<Esc>$xxi;<ESC>xA
+augroup end
+" Make backspace work nicely with autopairs
+function! Backspace()
+    let l:current = strpart(getline('.'), col('.')-1, 1)
+    let l:prev = strpart(getline('.'), col('.')-2, 1)
+    if l:current == '"' || l:current == "'" || l:current == "]" || l:current == ")" || l:current == "}"
+        if l:current == l:prev
+            return "\<Right>\<BS>\<BS>"
+        elseif l:prev == '[' && l:current == ']'
+            return "\<Right>\<BS>\<BS>"
+        elseif l:prev == "{" && l:current == "}"
+            return "\<Right>\<BS>\<BS>"
+        elseif l:prev == "(" && l:current == ")"
+            return "\<Right>\<BS>\<BS>"
+        else
+            return "\<BS>"
+        endif
+    else
+        return "\<BS>"
+    endif
+endfunction
+inoremap <expr> <BS> Backspace()
+" Unwrap parens and brackets
+function! UnwrapParens()
+    let l:current = strpart(getline('.'), col('.')-1, 1)
+    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
+        norm ml%mkx`lx
+    endif
+    if l:current == '"'
+        try
+            norm mlf"mkx`lx
+        catch
+            norm mlF"mkx`lx
+        endtry
+    endif
+    if l:current == "'"
+        try
+            norm mlf'mkx`lx
+        catch
+            norm mlF'mkx`lx
+        endtry
+    endif
+endfunction
+inoremap <localleader><BS> <Esc>:call UnwrapParens()<CR>
+noremap <leader>x :call UnwrapParens()<CR>
+autocmd! FileType vim inoremap " "
 "functions.vim
 " Strip trailing whitespace
 function! StripWhitespace()
@@ -503,6 +618,78 @@ else:
 endpython
 endfunction
 command! Tw :call Tw()
+"escape.vim"
+" remap escape for easier access
+nnoremap <leader>m <ESC>l
+vnoremap <leader>m <ESC>l
+inoremap <leader>m <ESC>l
+onoremap <leader>m <ESC>
+nnoremap <m <ESC>l
+vnoremap <m <ESC>l
+inoremap <m <ESC>l
+onoremap <m <ESC>
+inoremap <M <ESC>l
+onoremap <M <ESC>
+" map colon to semi-colon. Life is just easier that way.
+noremap ; :
+nnoremap <leader>; :!
+"saving.vim
+" control whitespace and tabs on save
+nnoremap <leader>ss :call Save()<CR>
+nnoremap ss :call Save()<CR>
+inoremap <leader>ss <ESC>:call Save()<CR>
+vnoremap <leader>ss <ESC>:call Save()<CR>
+" save but don't retab
+nnoremap <localleader>ss :call SaveNoRt()<CR>
+inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
+vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
+" save and close
+nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
+inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
+vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
+" close but don't save
+nnoremap <leader>cl <ESC>:close!
+inoremap <leader>cl <ESC>:close!
+vnoremap <leader>cl <ESC>:close!
+" save and quit
+nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
+inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
+vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
+" quit without saving
+nnoremap <leader>Q :q!
+inoremap <leader>Q <ESC>:q!
+vnoremap <leader>Q <ESC>:q!
+nnoremap QQ :q!
+command! QQ :q!
+" nice quit
+nnoremap <silent><leader>q :q<CR>
+inoremap <silent><leader>q <ESC>:q<CR>
+vnoremap <silent><leader>q :q<CR>
+" sanity mappings
+nnoremap qq :wq
+nnoremap qw :wq
+nnoremap cl :close<CR>
+inoremap q q
+inoremap qq qq
+"folding.vim"
+"Open folds on enter
+nnoremap <CR> za
+nnoremap <leader><CR> zO
+nnoremap <Leader>z zMzvzz
+nnoremap <Leader><Leader>z zMzOzz
+"close all folds
+nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
+inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
+vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
+"open all folds
+nnoremap <leader><leader><CR> <ESC>zR<ESC>
+inoremap <leader><leader><CR> <ESC>zR<ESC>
+vnoremap <leader><leader><CR> <ESC>zR<ESC>
+" folding options
+set foldmethod=indent
+set foldcolumn=2
+"Close folds locally
+nnoremap <localleader><CR> zC
 "mappings.Vim
 " Indenting
 "bind \] to indent
@@ -599,193 +786,6 @@ cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
 cnoreabbrev tw Tw
-"matchbrackets.vim
-" visual mode surround text
-vnoremap ' xi''<ESC>hp<ESC>f'
-vnoremap " xi""<ESC>hp<ESC>f"
-vnoremap { xi{}<ESC>hp<ESC>f}
-vnoremap [ xi[]<ESC>hp<ESC>f]
-vnoremap ( xi()<ESC>hp<ESC>F(
-vnoremap } xi{}<ESC>hp<ESC>f}
-vnoremap ] xi[]<ESC>hp<ESC>f]
-vnoremap ) xi()<ESC>hp<ESC>F(i
-" autocomplete quotes and brackets
-inoremap (  ()<Left>
-inoremap [  []<Left>
-inoremap {  {}<Left>
-inoremap [<CR> [<CR>]<ESC>O
-inoremap (<CR> (<CR>)<ESC>O
-inoremap {<CR> {<CR>}<ESC>O
-inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
-inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>": "]"
-inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
-inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
-inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
-" swap quotes not in insert mode, too likely to conflict with typing
-vnoremap <Leader>" yda'i""<ESC>h"0pf"
-vnoremap <Leader>' yda"i''<ESC>h"0pf'
-nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
-nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
-augroup abbrevs
-    " filetype specific mappings for characters and shortcuts
-    autocmd!
-    autocmd FileType * iabbrev <buffer> api API
-    autocmd FileType * iabbrev <buffer> iso ISO
-    autocmd FileType * iabbrev <buffer> csv CSV
-    autocmd FileType * iabbrev <buffer> etap Etapestry
-    autocmd FileType * iabbrev <buffer> durpal Drupal
-    autocmd FileType * iabbrev <buffer> drupal Drupal
-    autocmd FileType * iabbrev <buffer> JOnathan Jonathan
-    autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
-    autocmd FileType html inoremap <buffer> <> <>
-    autocmd FileType html inoremap <buffer> < <><ESC>i
-    autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
-    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';<Esc>$xxi;<ESC>xA
-    autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';<Esc>$xxi;<ESC>xA
-augroup end
-" Make backspace work nicely with autopairs
-function! Backspace()
-    let l:current = strpart(getline('.'), col('.')-1, 1)
-    let l:prev = strpart(getline('.'), col('.')-2, 1)
-    if l:current == '"' || l:current == "'" || l:current == "]" || l:current == ")" || l:current == "}"
-        if l:current == l:prev
-            return "\<Right>\<BS>\<BS>"
-        elseif l:prev == '[' && l:current == ']'
-            return "\<Right>\<BS>\<BS>"
-        elseif l:prev == "{" && l:current == "}"
-            return "\<Right>\<BS>\<BS>"
-        elseif l:prev == "(" && l:current == ")"
-            return "\<Right>\<BS>\<BS>"
-        else
-            return "\<BS>"
-        endif
-    else
-        return "\<BS>"
-    endif
-endfunction
-inoremap <expr> <BS> Backspace()
-" Unwrap parens and brackets
-function! UnwrapParens()
-    let l:current = strpart(getline('.'), col('.')-1, 1)
-    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
-        norm ml%mkx`lx
-    endif
-    if l:current == '"'
-        try
-            norm mlf"mkx`lx
-        catch
-            norm mlF"mkx`lx
-        endtry
-    endif
-    if l:current == "'"
-        try
-            norm mlf'mkx`lx
-        catch
-            norm mlF'mkx`lx
-        endtry
-    endif
-endfunction
-inoremap <localleader><BS> <Esc>:call UnwrapParens()<CR>
-noremap <leader>x :call UnwrapParens()<CR>
-autocmd! FileType vim inoremap " "
-"motions.vim
-" kill arrow keys
-nnoremap <down> <C-d>
-nnoremap <left> <Nop>
-nnoremap <up> <C-u>
-nnoremap <right> <Nop>
-inoremap <right> <Nop>
-inoremap <down> <Nop>
-inoremap <left> <Nop>
-inoremap <up> <Nop>
-vnoremap <left> <Nop>
-vnoremap <down> <C-d>
-vnoremap <right> <Nop>
-vnoremap <up> <C-u>
-"always center when navigating
-noremap G Gzz
-noremap { {zz
-noremap ( (zz
-noremap } }zz
-noremap ) )zz
-noremap % %zz
-noremap <Tab> <Tab>zz
-noremap n nzz
-noremap N Nzz
-" jump to ...
-noremap <S-j> G
-noremap <S-k> gg
-nnoremap <tab> %
-vnoremap <tab> %
-nnoremap <leader>j J
-vnoremap <leader>j J
-" command line movement mappings
-cnoremap <C-a>  <Home>
-cnoremap <C-b>  <Left>
-cnoremap <C-f>  <Right>
-cnoremap <C-d>  <Delete>
-cnoremap <Esc>b <S-Left>
-cnoremap <Esc>f <S-Right>
-cnoremap <Esc>d <S-right><Delete>
-cnoremap <C-e>  <End>
-" Substitute word under cursor globally
-nnoremap --r :%s/\<<C-r><C-w>\>//g<Left><Left>
-" ask for confirmation
-nnoremap -r :%s/\<<C-r><C-w>\>//gc<Left><Left><Left>
-" Substitute selection globally
-vnoremap --r y<Esc>:%s/<C-r>"//g<Left><Left>
-" ask for confirmation
-vnoremap -r y<Esc>:%s/<C-r>"//gc<Left><Left><Left>
-" find and replace with control f
-noremap <C-F> :%s/find/replace/I
-inoremap <C-F> <ESC>:%s/find/replace/I
-vnoremap <C-F> :s/find/replace/g
-" visual block mode is better that visual mode
-nnoremap v <c-v>
-nnoremap <c-v> v
-vnoremap v <C-V>
-vnoremap <C-V> v
-" Diff motions
-nnoremap <leader>dn ]czt
-nnoremap <leader>dp [czt
-"saving.vim
-" control whitespace and tabs on save
-nnoremap <leader>ss :call Save()<CR>
-nnoremap ss :call Save()<CR>
-inoremap <leader>ss <ESC>:call Save()<CR>
-vnoremap <leader>ss <ESC>:call Save()<CR>
-" save but don't retab
-nnoremap <localleader>ss :call SaveNoRt()<CR>
-inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
-vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
-" save and close
-nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
-inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
-vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
-" close but don't save
-nnoremap <leader>cl <ESC>:close!
-inoremap <leader>cl <ESC>:close!
-vnoremap <leader>cl <ESC>:close!
-" save and quit
-nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
-inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
-vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
-" quit without saving
-nnoremap <leader>Q :q!
-inoremap <leader>Q <ESC>:q!
-vnoremap <leader>Q <ESC>:q!
-nnoremap QQ :q!
-command! QQ :q!
-" nice quit
-nnoremap <silent><leader>q :q<CR>
-inoremap <silent><leader>q <ESC>:q<CR>
-vnoremap <silent><leader>q :q<CR>
-" sanity mappings
-nnoremap qq :wq
-nnoremap qw :wq
-nnoremap cl :close<CR>
-inoremap q q
-inoremap qq qq
 "splits.vim
 "window navigation & and splits
 noremap <C-l> <C-w>l
@@ -861,3 +861,13 @@ inoremap <c-z>v <ESC>:vert sball<CR>
 nnoremap <c-z>h :sball<CR>
 vnoremap <c-z>h <ESC>:sball<CR>
 inoremap <c-z>h <ESC>:sball<CR>
+"reg.vim"
+let @r = "/returnO,mjo,m"
+let @d = "ddn"
+let @g = "F<v/spannf>x/google-src"
+let @s = "vi["
+let @p = "vi("
+let @c = "vi{"
+let @q = "vi'"
+let @b = 'vi"'
+let @a = "vi<"
