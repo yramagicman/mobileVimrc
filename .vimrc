@@ -339,7 +339,6 @@ augroup abbrevs
     autocmd FileType * iabbrev <buffer> etap Etapestry
     autocmd FileType * iabbrev <buffer> durpal Drupal
     autocmd FileType * iabbrev <buffer> drupal Drupal
-    autocmd FileType * iabbrev <buffer> JOnathan Jonathan
     autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
     autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
@@ -773,6 +772,7 @@ nnoremap ch q:
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
+iabbrev JOnathan Jonathan
 " insert blank lines in normal mode
 nnoremap <leader>O O<ESC>j
 nnoremap <leader>o o<ESC>k
