@@ -330,8 +330,8 @@ vnoremap <Leader>" yda'i""<ESC>h"0pf"
 vnoremap <Leader>' yda"i''<ESC>h"0pf'
 nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
 nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
+" filetype specific mappings for characters and shortcuts
 augroup abbrevs
-    " filetype specific mappings for characters and shortcuts
     autocmd!
     autocmd FileType * iabbrev <buffer> api API
     autocmd FileType * iabbrev <buffer> iso ISO
@@ -778,6 +778,7 @@ nnoremap <leader>O O<ESC>j
 nnoremap <leader>o o<ESC>k
 " set buffer, also set foldmethod
 nnoremap <silent>-b :set buftype=<CR>
+nnoremap <silent>-dh :set filetype=htmldjango<CR>
 nnoremap <silent>-fm :set foldmethod=marker<CR>
 nnoremap <silent>-fi :set foldmethod=indent<CR>
 nnoremap <silent>-fs :set foldmethod=syntax<CR>
