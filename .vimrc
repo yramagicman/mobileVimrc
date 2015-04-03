@@ -2,18 +2,20 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-" defaults
-" set secondary editor
+"{{{ defaults
+"{{{ set secondary editor
 if has('mac')
     let g:Gui_Editor = 'TextWrangler'
 else
     let g:Gui_Editor = 'geany'
 endif
-"setup stuff, for install plugin
+"}}}
+"{{{setup stuff, for install plugin
 let g:VundleHelper_Setup_Folders = ['after', 'autoload', 'backup', 'bundle', 'colors', 'config', 'doc', 'snippets', 'spell', 'swaps', 'syntax', 'tags', 'undo']
 let g:VundleHelper_Plugin_File =  '/.vim/config/extensions/vundle.vim'
 let g:VundleHelper_Update_Frequency = 5
-" Defaults probably won't change... ever
+"}}}
+"{{{ Defaults probably won't change... ever
 set background=dark
 set autoread
 set spelllang=en_us
@@ -120,7 +122,8 @@ filetype plugin on
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
-" Make tabs as wide as four spaces
+"}}}
+"{{{ Make tabs as wide as four spaces
 set tabstop=4
 set smarttab
 set smartindent
@@ -128,11 +131,13 @@ set autoindent
 set shiftwidth=4
 "tabs to spaces
 set expandtab
-" set compiler
+"}}}
+"{{{ set compiler
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_c_compiler = 'clang'
 let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
-" set status line
+"}}}
+"{{{ set status line
 " Always show status line
 set laststatus=2
 set statusline=\|\ %m%f%r\ \%y
@@ -144,10 +149,12 @@ set statusline+=Line:
 set statusline+=%4l/%-4L
 set statusline+=\ Column\ %2c
 set statusline+=\ \|
-" buffer sanity
+"}}}
+"{{{ buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
-" Wild ignore, mostly stolen from Steve Losh
+"}}}
+"{{{ Wild ignore, mostly stolen from Steve Losh
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
 set wildignore+=*.o,*.obj,*.exe,*.dll,*.manifest " compiled object files
@@ -160,8 +167,28 @@ set wildignore+=*.pyc                            " Python byte code
 set wildignore+=*.orig                           " Merge resolution files
 set wildignore+=.cache,.neocomplcache,.npm,.gem
 set wildignore+=node_modules,bower_components
-"motions
-" kill arrow keys
+"}}}
+"{{{ GUI Options
+if has('gui')
+set guifont="Source Code Pro":h13
+" Better line-height
+set linespace=10
+" Disable error bells
+set noerrorbells
+set guioptions -=m
+set guioptions +=c
+set guioptions +=p
+set guioptions -=e
+set guioptions -=r
+set guioptions -=R
+set guioptions -=l
+set guioptions -=L
+set guioptions -=T
+endif
+"}}}
+"}}}
+"{{{motions
+"{{{ kill arrow keys
 nnoremap <down> <C-d>
 nnoremap <left> <Nop>
 nnoremap <up> <C-u>
@@ -174,7 +201,8 @@ vnoremap <left> <Nop>
 vnoremap <down> <C-d>
 vnoremap <right> <Nop>
 vnoremap <up> <C-u>
-"always center when navigating
+"}}}
+"{{{always center when navigating
 noremap G Gzz
 noremap { {zz
 noremap ( (zz
@@ -184,14 +212,16 @@ noremap % %zz
 noremap <Tab> <Tab>zz
 noremap n nzz
 noremap N Nzz
-" jump to ...
+"}}}
+"{{{ jump to ...
 noremap <S-j> G
 noremap <S-k> gg
 nnoremap <tab> %
 vnoremap <tab> %
 nnoremap <leader>j J
 vnoremap <leader>j J
-" command line movement mappings
+"}}}
+"{{{ command line movement mappings
 cnoremap <C-a>  <Home>
 cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
@@ -200,71 +230,87 @@ cnoremap <Esc>b <S-Left>
 cnoremap <Esc>f <S-Right>
 cnoremap <Esc>d <S-right><Delete>
 cnoremap <C-e>  <End>
-" Substitute word under cursor globally
+"}}}
+"{{{ Substitute word under cursor globally
 nnoremap --r :%s/\<<C-r><C-w>\>//g<Left><Left>
 " ask for confirmation
 nnoremap -r :%s/\<<C-r><C-w>\>//gc<Left><Left><Left>
-" Substitute selection globally
+"}}}
+"{{{ Substitute selection globally
 vnoremap --r y<Esc>:%s/<C-r>"//g<Left><Left>
 " ask for confirmation
 vnoremap -r y<Esc>:%s/<C-r>"//gc<Left><Left><Left>
-" find and replace with control f
+"}}}
+"{{{ find and replace with control f
 noremap <C-F> :%s/find/replace/I
 inoremap <C-F> <ESC>:%s/find/replace/I
 vnoremap <C-F> :s/find/replace/g
-" visual block mode is better that visual mode
+"}}}
+"{{{ visual block mode is better that visual mode
 nnoremap v <c-v>
 nnoremap <c-v> v
 vnoremap v <C-V>
 vnoremap <C-V> v
-" Diff motions
+"}}}
+"{{{ Diff motions
 nnoremap <leader>dn ]czt
 nnoremap <leader>dp [czt
-" Automatic commands
+"}}}
+"}}}
+"{{{ Automatic commands
 if has("autocmd")
     " Enable file type detection
     augroup general
         autocmd!
-        " show cursorline on current buffer only
+        "{{{ show cursorline on current buffer only
         autocmd BufEnter * set cursorline
         autocmd BufLeave * set nocursorline
-        " auto-reload vim files, auto resize splits on window resize
+        "}}}
+        "{{{ auto-reload vim files, auto resize splits on window resize
         autocmd BufWritePost $HOME/.vim/config/* :source %
         autocmd BufWritePost $HOME/.vim/config/* :set visualbell
         autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
         au VimResized * exe "normal! \<c-w>="
         autocmd VimEnter * set vb t_vb=
-        " fold method marker for specific files
+        "}}}
+        "{{{ fold method marker for specific files
         autocmd FileType vim setlocal foldmethod=marker
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
-        " use absolute line numbering in insert mode and relative numbers elsewhere
+        "}}}
+        "{{{ use absolute line numbering in insert mode and relative numbers elsewhere
         autocmd InsertLeave * :set nonumber
         autocmd InsertLeave * :set relativenumber
         autocmd InsertEnter * :set number
         autocmd InsertEnter * :set norelativenumber
+        "}}}
     augroup end
     augroup js
-        " Treat .json files as .js
+        "{{{ Treat .json files as .js
         autocmd!
         autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-        " fix my fat fingers, change 90 to () in js
+        "}}}
+        "{{{ fix my fat fingers, change 90 to () in js
         autocmd Bufenter *.js iabbr 90 ()
         autocmd Bufleave *.js iabbr 90 90
+        "}}}
     augroup end
     augroup css
-        " filetype stuff
+        "{{{ filetype stuff
         autocmd!
         autocmd BufRead,BufNewFile *.css set filetype=css
-        " use 2 spaces  for css and related files
+        "}}}
+        "{{{ use 2 spaces  for css and related files
         autocmd FileType css setlocal tabstop=2
         autocmd FileType css setlocal shiftwidth=2
-        " automattically add semicolons in css
+        "}}}
+        "{{{ automattically add semicolons in css
         autocmd FileType css inoremap <buffer> : :;<ESC>i
+        "}}}
     augroup end
     augroup coding
         autocmd!
-        " drupal coding standards
+        "{{{ drupal coding standards
         autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
         autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
         autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
@@ -273,14 +319,16 @@ if has("autocmd")
         autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
         autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
        "autocmd VimEnter,BufRead */drupal*/* call IndentGuides()
-        " ratiochristi coding standards
+        "}}}
+        "{{{ ratiochristi coding standards
         autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
         autocmd Bufenter,BufRead */ratiochristi/* set smartindent
         autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
         autocmd Bufenter,BufRead */ratiochristi/* set expandtab
+        "}}}
     augroup end
     augroup extra
-        " Misc. individual commands that don't merit their own fold group
+        "{{{ Misc. individual commands that don't merit their own fold group
         autocmd!
         autocmd FileType mail set spell
         autocmd FileType make set noexpandtab
@@ -298,10 +346,12 @@ if has("autocmd")
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
         autocmd CmdwinEnter * unmap <CR>
         autocmd CmdwinLeave * map <CR> za
+        " }}}
     augroup end
 endif
-"matchbrackets
-" visual mode surround text
+"}}}
+"{{{matchbrackets
+"{{{ visual mode surround text
 vnoremap ' xi''<ESC>hp<ESC>f'
 vnoremap " xi""<ESC>hp<ESC>f"
 vnoremap { xi{}<ESC>hp<ESC>f}
@@ -310,7 +360,8 @@ vnoremap ( xi()<ESC>hp<ESC>F(
 vnoremap } xi{}<ESC>hp<ESC>f}
 vnoremap ] xi[]<ESC>hp<ESC>f]
 vnoremap ) xi()<ESC>hp<ESC>F(i
-" autocomplete quotes and brackets
+"}}}
+"{{{ autocomplete quotes and brackets
 inoremap (  ()<Left>
 inoremap [  []<Left>
 inoremap {  {}<Left>
@@ -325,12 +376,14 @@ inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}
 inoremap <expr> >  strpart(getline('.'), col('.')-1, 1) == ">" ? "\<Right>" : ">"
 inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
 inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
-" swap quotes not in insert mode, too likely to conflict with typing
+"}}}
+"{{{ swap quotes not in insert mode, too likely to conflict with typing
 vnoremap <Leader>" yda'i""<ESC>h"0pf"
 vnoremap <Leader>' yda"i''<ESC>h"0pf'
 nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
 nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
-" filetype specific mappings for characters and shortcuts
+"}}}
+"{{{ filetype specific mappings for characters and shortcuts
 augroup abbrevs
     autocmd!
     autocmd FileType * iabbrev <buffer> api API
@@ -345,7 +398,8 @@ augroup abbrevs
     autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';
     autocmd FileType vim inoremap " "
 augroup end
-" Make backspace work nicely with autopairs
+"}}}
+"{{{ Make backspace work nicely with autopairs
 function! Backspace()
     let l:current = strpart(getline('.'), col('.')-1, 1)
     let l:prev = strpart(getline('.'), col('.')-2, 1)
@@ -366,7 +420,8 @@ function! Backspace()
     endif
 endfunction
 inoremap <expr> <BS> Backspace()
-" Unwrap parens and brackets
+"}}}
+"{{{ Unwrap parens and brackets
 function! UnwrapParens()
     let l:current = strpart(getline('.'), col('.')-1, 1)
     if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
@@ -389,8 +444,10 @@ function! UnwrapParens()
 endfunction
 inoremap <localleader><BS> <Esc>:call UnwrapParens()<CR>
 noremap <leader>x :call UnwrapParens()<CR>
-"functions
-" Strip trailing whitespace
+"}}}
+"}}}
+"{{{functions
+"{{{ Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
     let old_query = getreg('/')
@@ -398,7 +455,8 @@ function! StripWhitespace()
     call setpos('.', save_cursor)
     call setreg('/', old_query)
 endfunction
-" indent guides
+"}}}
+"{{{ indent guides
 let g:indentguides_state = 0
 function! IndentGuides()
     if g:indentguides_state
@@ -411,7 +469,8 @@ function! IndentGuides()
 endfunction
 nnoremap <silent> <leader>i :call IndentGuides()<CR>
 "call IndentGuides()
-" Fix Line Endings
+"}}}
+"{{{ Fix Line Endings
 function! LineEndings()
     update
     e ++ff=dos
@@ -419,14 +478,16 @@ function! LineEndings()
     :w
 endfunction
 nnoremap <silent><leader>le :call LineEndings()<CR>
-" kill extra newlines
+"}}}
+"{{{ kill extra newlines
 function! Knl ()
     try
         %s#\($\n\s*\)\+\%$##
     catch
     endtry
 endfunction
-" save, kill whitespace at end of lines, and end of file, convert tabs
+"}}}
+"{{{ save, kill whitespace at end of lines, and end of file, convert tabs
 function! Save()
     checktime
     syntax sync fromstart
@@ -437,14 +498,16 @@ function! Save()
     w
     call CheckErrorFn()
 endfunction
-" save, kill whitespace at end of lines, and end of file, don't convert tabs
+"}}}
+"{{{ save, kill whitespace at end of lines, and end of file, don't convert tabs
 function! SaveNoRt()
     call StripWhitespace()
     call Knl()
     w
     call CheckErrorFn()
 endfunction
-" Shortcut: <leader>R = Run anything with a shebang
+"}}}
+"{{{ Shortcut: <leader>R = Run anything with a shebang
 " Source: http://superuser.com/a/21503/48014
 if has("autocmd")
     au BufEnter * if match( getline(1) , '^\#!') == 0 |
@@ -457,7 +520,8 @@ if has("autocmd")
     endfun
     nmap <Leader>R :call CallInterpreter()<CR>
 endif
-" highlight repeated lines
+" }}}
+"{{{ highlight repeated lines
 function! HighlightRepeats() range
   let lineCounts = {}
   let lineNum = a:firstline
@@ -478,13 +542,15 @@ endfunction
 command! -range=% HighlightRepeats <line1>,<line2>call HighlightRepeats()
 nmap <silent><LocalLeader>r :HighlightRepeats<CR>
 nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
-" Check for :Error command so it can be run on save
+"}}}
+"{{{ Check for :Error command so it can be run on save
 function! CheckErrorFn()
     if exists(':Error')
         Error
     endif
 endfunction
-" presentation mode
+"}}}
+"{{{ presentation mode
 let g:presmode = 1
 function! PresMode()
     if  g:presmode == 0
@@ -512,7 +578,8 @@ function! PresMode()
     endif
 endfunction
 command! Pres :call PresMode()
-" line numbers on or off
+"}}}
+"{{{ line numbers on or off
 let g:numoff = 1
 function! NumOff()
     if  g:numoff == 0
@@ -542,7 +609,8 @@ function! NumOff()
 endfunction
 noremap <silent> <leader>nn :call NumOff()<CR>
 noremap <silent> <leader>ns :call PresMode()<CR>
-" get stuff off my screen
+"}}}
+"{{{ get stuff off my screen
 let g:clean = 1
 function! CleanScreen()
     if  g:clean == 0
@@ -564,7 +632,8 @@ function! CleanScreen()
     endif
 endfunction
 command! Clean :call CleanScreen()
-" open scratch buffer
+"}}}
+"{{{ open scratch buffer
 function! Scratch()
     new
     setlocal buftype=nofile
@@ -574,7 +643,8 @@ function! Scratch()
     resize -15
 endfunction
 command! Scratch :call Scratch()
-" open new buffer without creating extra split
+"}}}
+"{{{ open new buffer without creating extra split
 function! NewBuffer()
     new
     wincmd k
@@ -583,7 +653,8 @@ endfunction
 nnoremap <silent><leader>n :call NewBuffer()<CR>
 cnoreabbrev new New
 command! New :call NewBuffer()
-" toggle fold column markers
+"}}}
+"{{{ toggle fold column markers
 let g:foldon=1
 function! FoldColumn()
     if g:foldon == 1
@@ -598,7 +669,8 @@ function! FoldColumn()
 endfunction
 command! Fc :call FoldColumn()
 nnoremap <Leader>f :call FoldColumn()<CR>
-" Open in secondary editor. I use TextWrangler on OS X so tw makes sense
+"}}}
+"{{{ Open in secondary editor. I use TextWrangler on OS X so tw makes sense
 function! Tw()
 python << endpython
 import sys, os, vim
@@ -617,8 +689,10 @@ else:
 endpython
 endfunction
 command! Tw :call Tw()
-"escape
-" remap escape for easier access
+"}}}
+"}}}
+"{{{escape
+"{{{ remap escape for easier access
 nnoremap <leader>m <ESC>l
 vnoremap <leader>m <ESC>l
 inoremap <leader>m <ESC>l
@@ -629,68 +703,85 @@ inoremap <m <ESC>l
 onoremap <m <ESC>
 inoremap <M <ESC>l
 onoremap <M <ESC>
-" map colon to semi-colon. Life is just easier that way.
+"}}}
+"{{{ map colon to semi-colon. Life is just easier that way.
 noremap ; :
 nnoremap <leader>; :!
-"saving
-" control whitespace and tabs on save
+"}}}
+"}}}
+"{{{saving
+"{{{ control whitespace and tabs on save
 nnoremap <leader>ss :call Save()<CR>
 nnoremap ss :call Save()<CR>
 inoremap <leader>ss <ESC>:call Save()<CR>
 vnoremap <leader>ss <ESC>:call Save()<CR>
-" save but don't retab
+"}}}
+"{{{ save but don't retab
 nnoremap <localleader>ss :call SaveNoRt()<CR>
 inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
-" save and close
+"}}}
+"{{{ save and close
 nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
 inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
 vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
-" close but don't save
+"}}}
+"{{{ close but don't save
 nnoremap <leader>cl <ESC>:close!
 inoremap <leader>cl <ESC>:close!
 vnoremap <leader>cl <ESC>:close!
-" save and quit
+"}}}
+"{{{ save and quit
 nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
 inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
 vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
-" quit without saving
+"}}}
+"{{{ quit without saving
 nnoremap <leader>Q :q!
 inoremap <leader>Q <ESC>:q!
 vnoremap <leader>Q <ESC>:q!
 nnoremap QQ :q!
 command! QQ :q!
-" nice quit
+"}}}
+"{{{ nice quit
 nnoremap <silent><leader>q :q<CR>
 inoremap <silent><leader>q <ESC>:q<CR>
 vnoremap <silent><leader>q :q<CR>
-" sanity mappings
+"}}}
+"{{{ sanity mappings
 nnoremap qq :wq
 nnoremap qw :wq
 nnoremap cl :close<CR>
 inoremap q q
 inoremap qq qq
-"folding
-"Open folds on enter
+"}}}
+"}}}
+"{{{folding
+"{{{Open folds on enter
 nnoremap <CR> za
 nnoremap <leader><CR> zO
 nnoremap <Leader>z zMzvzz
 nnoremap <Leader><Leader>z zMzOzz
-"close all folds
+"}}}
+"{{{close all folds
 nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-"open all folds
+"}}}
+"{{{open all folds
 nnoremap <leader><leader><CR> <ESC>zR<ESC>
 inoremap <leader><leader><CR> <ESC>zR<ESC>
 vnoremap <leader><leader><CR> <ESC>zR<ESC>
-" folding options
+"}}}
+"{{{ folding options
 set foldmethod=indent
 set foldcolumn=2
 "Close folds locally
 nnoremap <localleader><CR> zC
-"mappings
-" Indenting
+"}}}
+"}}}
+"{{{mappings
+"{{{ Indenting
 "bind \] to indent
 nnoremap <localleader>] >>
 vnoremap <localleader>] >gv
@@ -699,11 +790,13 @@ inoremap <localleader>] <C-O>>>
 nnoremap <localleader>[ <<
 vnoremap <localleader>[ <gv
 inoremap <localleader>[ <C-O><<
-"file navigation shortcuts
+"}}}
+"{{{file navigation shortcuts
 nnoremap <silent> <leader>ev :e ~/.vim/config/vimrc.combined.vim<CR>
 nnoremap <silent> <leader>pe :e ~/.vim/config/extensions<CR>
 noremap <leader>rl <ESC>:source ~/.vimrc<CR>:set visualbell<CR>
-" Make Vim work logically
+"}}}
+"{{{ Make Vim work logically
 "paste in insert mode
 inoremap <leader>p <ESC>pa
 "paste from x clipboard
@@ -715,12 +808,14 @@ nnoremap <leader>D d0
 inoremap <leader>D <ESC>d0xi
 "repeat last command
 nnoremap <leader>. @:
-" Formatting, TextMate-style
+"}}}
+"{{{ Formatting, TextMate-style
 nnoremap Q gqip
 vnoremap Q gq
 " Reformat line.
 nnoremap Ql gqq
-" Convenience bindings
+"}}}
+"{{{ Convenience bindings
 " Save a file as root ('W)
 nnoremap <c-\> :so $VIMRUNTIME/syntax/hitest.vim<CR>
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
@@ -753,14 +848,16 @@ nnoremap <leader>s :source %<CR>
 nnoremap <leader>S :source %<CR>
 nnoremap <leader>dca :!drush cc all<CR>
 nnoremap <leader>cd :lcd %:p:h<CR>
-" spelling mappings
+"}}}
+"{{{ spelling mappings
 nnoremap --s :set spell!<CR>
 nnoremap -s zg
 nnoremap -d ]szo
 nnoremap -a [szo
 nnoremap -w 1z=
 nnoremap --w z=
-" No... I don't want to record a macro now
+"}}}
+"{{{ No... I don't want to record a macro now
 "I never use replace mode anyway
 nnoremap R q
 vnoremap R q
@@ -769,29 +866,35 @@ nnoremap q <NOP>
 vnoremap q <NOP>
 " q: is actually useful when you have it configured right
 nnoremap ch q:
-" I've needed these mappings forever. Map '; to ; and ": to , also quickfix
+"}}}
+"{{{ I've needed these mappings forever. Map '; to ; and ": to , also quickfix
 " last search
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
 iabbrev JOnathan Jonathan
-" insert blank lines in normal mode
+"}}}
+"{{{ insert blank lines in normal mode
 nnoremap <leader>O O<ESC>j
 nnoremap <leader>o o<ESC>k
-" set buffer, also set foldmethod
+"}}}
+"{{{ set buffer, also set foldmethod
 nnoremap <silent>-b :set buftype=<CR>
 nnoremap <silent>-dh :set filetype=htmldjango<CR>
 nnoremap <silent>-fm :set foldmethod=marker<CR>
 nnoremap <silent>-fi :set foldmethod=indent<CR>
 nnoremap <silent>-fs :set foldmethod=syntax<CR>
-" Command line abbreviations
+"}}}
+"{{{ Command line abbreviations
 cnoreabbrev clam Clam
 cnoreabbrev ack Ack
 cnoreabbrev push Git push
 cnoreabbrev pull Git pull
 cnoreabbrev tw Tw
-"splits
-"window navigation & and splits
+"}}}
+"}}}
+"{{{splits
+"{{{window navigation & and splits
 noremap <C-l> <C-w>l
 noremap <C-j> <C-w>j
 noremap <C-h> <C-w>h
@@ -806,66 +909,83 @@ noremap <leader>sv <ESC>:vnew<CR>
 "window stuff
 set equalalways
 noremap <localleader>= <C-w>=
-" put splits in a logical place
+"}}}
+"{{{ put splits in a logical place
 set splitbelow
 set splitright
-" window size mappings
+"}}}
+"{{{ window size mappings
 nnoremap <C-d> <C-w>>
 nnoremap <C-w> <C-w>+
 nnoremap <C-a> <C-w><
 nnoremap <C-s> <C-w>-
-" buffer management <c-z>
+"}}}
+"{{{ buffer management <c-z>
 nnoremap <c-z> <NOP>
 nnoremap -z :suspend<CR>
-" next buffer n
+"{{{ next buffer n
 nnoremap <C-z>n :bn<CR>
 vnoremap <C-z>n <ESC>:bn<CR>
 inoremap <C-z>n <ESC>:bn<CR>
-" previous buffer p
+"}}}
+"{{{ previous buffer p
 nnoremap <C-z>p :bp<CR>
 vnoremap <C-z>p <ESC>:bp<CR>
 inoremap <C-z>p <ESC>:bp<CR>
-" maximize
+"}}}
+"{{{ maximize
 nnoremap <C-z>o :only<CR>
 vnoremap <C-z>o <ESC>:only<CR>
 inoremap <C-z>o <ESC>:only<CR>
-" list buffers l
+"}}}
+"{{{ list buffers l
 nnoremap <c-z>l :ls<CR>
 vnoremap <c-z>l <ESC>:ls<CR>
 inoremap <c-z>l <ESC>:ls<CR>
-" show all buffers a
+"}}}
+"{{{ show all buffers a
 nnoremap <c-z>a :ls!<CR>
 vnoremap <c-z>a <ESC>:ls!<CR>
 inoremap <c-z>a <ESC>:ls!<CR>
-" jump to a specific buffer b
+"}}}
+"{{{ jump to a specific buffer b
 nnoremap <c-z>b :ls<CR>:buffer<space>
 vnoremap <c-z>b <ESC>:ls<CR>:buffer<space>
 inoremap <c-z>b <ESC>:ls<CR>:buffer<space>
-" delete buffer d
+"}}}
+"{{{ delete buffer d
 nnoremap <c-z>d :ls!<CR>:bdelete<space>
 vnoremap <c-z>d <ESC>:ls!<CR>:bdelete<space>
 inoremap <c-z>d <ESC>:ls!<CR>:bdelete<space>
-" unload buffer u
+"}}}
+"{{{ unload buffer u
 nnoremap <c-z>u :ls!<CR>:bunload<space>
 vnoremap <c-z>u <ESC>:ls!<CR>:bunload<space>
 inoremap <c-z>u <ESC>:ls!<CR>:bunload<space>
-" wipe out buffer w
+"}}}
+"{{{ wipe out buffer w
 nnoremap <c-z>w :ls!<CR>:bwipeout<space>
 vnoremap <c-z>w <ESC>:ls!<CR>:bwipeout<space>
 inoremap <c-z>w <ESC>:ls!<CR>:bwipeout<space>
-" unload current buffer k
+"}}}
+"{{{ unload current buffer k
 nnoremap <c-z>k :bunload %<CR>
 vnoremap <c-z>k <ESC>:bunload %<CR>
 inoremap <c-z>k <ESC>:bunload %<CR>
-" open all buffers vertically
+"}}}
+"{{{ open all buffers vertically
 nnoremap <c-z>v :vert sball<CR>
 vnoremap <c-z>v <ESC>:vert sball<CR>
 inoremap <c-z>v <ESC>:vert sball<CR>
-" open all buffers horizontally
+"}}}
+"{{{ open all buffers horizontally
 nnoremap <c-z>h :sball<CR>
 vnoremap <c-z>h <ESC>:sball<CR>
 inoremap <c-z>h <ESC>:sball<CR>
-" Regisers
+"}}}
+"}}}
+"}}}
+"{{{ Regisers
 let @r = "/returnO,mjo,m"
 let @d = "ddn"
 let @g = "F<v/spannf>x/google-src"
@@ -877,18 +997,4 @@ let @b = 'vi"'
 let @a = "vi<"
 let @e = "jok"
 let @v = '0/\u~hi_, '
-set guifont="Source Code Pro":h13
-" Better line-height
-set linespace=10
-" Disable error bells
-set noerrorbells
-" use os clipboard in gvim
-set guioptions -=m
-set guioptions +=c
-set guioptions +=p
-set guioptions -=e
-set guioptions -=r
-set guioptions -=R
-set guioptions -=l
-set guioptions -=L
-set guioptions -=T
+"}}}
