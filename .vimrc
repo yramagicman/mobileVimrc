@@ -76,11 +76,11 @@ set mouse=a
 " Disable error bells
 set novisualbell
 set noerrorbells
-" Don’t reset cursor to start of line when moving around.
+" Don't reset cursor to start of line when moving around.
 set nostartofline
 " Show the cursor position
 set ruler
-" Don’t show the intro message when starting Vim
+" Don't show the intro message when starting Vim
 set shortmess=atI
 " Show the current mode
 set showmode
@@ -94,7 +94,7 @@ set showcmd
 syntax on
 "set max highlight column
 set synmaxcol=800
-" Start scrolling five lines before the horizontal window border when will this
+" Start scrolling two lines before the horizontal window border when will this
 " break
 set scrolloff=2
 set nolist wrap linebreak sidescrolloff=15
@@ -122,6 +122,7 @@ filetype plugin on
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
+set pastetoggle=<C-e>
 "}}}
 "{{{ Make tabs as wide as four spaces
 set tabstop=4
