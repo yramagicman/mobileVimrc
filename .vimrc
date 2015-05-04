@@ -651,7 +651,6 @@ function! NewBuffer()
     wincmd k
     close
 endfunction
-nnoremap <silent><leader>n :call NewBuffer()<CR>
 cnoreabbrev new New
 command! New :call NewBuffer()
 "}}}
@@ -921,68 +920,88 @@ nnoremap <C-w> <C-w>+
 nnoremap <C-a> <C-w><
 nnoremap <C-s> <C-w>-
 "}}}
-"{{{ buffer management <c-z>
-nnoremap <c-z> <NOP>
-nnoremap -z :suspend<CR>
+"{{{ buffer management <c-b>
 "{{{ next buffer n
-nnoremap <C-z>n :bn<CR>
-vnoremap <C-z>n <ESC>:bn<CR>
-inoremap <C-z>n <ESC>:bn<CR>
+nnoremap <c-b>n :bn<CR>
+vnoremap <c-b>n <ESC>:bn<CR>
+inoremap <c-b>n <ESC>:bn<CR>
+"}}}
+"{{{ new empty buffer e
+"{{{ new empty horizontal buffer h
+nnoremap <c-b>eh      :new<CR>
+vnoremap <c-b>eh <ESC>:new<CR>
+inoremap <c-b>eh <ESC>:new<CR>
+"}}}
+"{{{ new empty vertical buffer v
+nnoremap <c-b>ev      :vnew<CR>
+vnoremap <c-b>ev <ESC>:vnew<CR>
+inoremap <c-b>ev <ESC>:vnew<CR>
+"}}}
+"{{{ new empty maximized buffer f
+nnoremap <c-b>ef      :new<CR>:only<CR>
+vnoremap <c-b>ef <ESC>:new<CR>:only<CR>
+inoremap <c-b>ef <ESC>:new<CR>:only<CR>
+"}}}
+"}}}
+"{{{ Scratch buffer s
+nnoremap <c-b>s      :Scratch<CR>
+vnoremap <c-b>s <ESC>:Scratch<CR>
+inoremap <c-b>s <ESC>:Scratch<CR>
 "}}}
 "{{{ previous buffer p
-nnoremap <C-z>p :bp<CR>
-vnoremap <C-z>p <ESC>:bp<CR>
-inoremap <C-z>p <ESC>:bp<CR>
+nnoremap <c-b>p :bp<CR>
+vnoremap <c-b>p <ESC>:bp<CR>
+inoremap <c-b>p <ESC>:bp<CR>
 "}}}
-"{{{ maximize
-nnoremap <C-z>o :only<CR>
-vnoremap <C-z>o <ESC>:only<CR>
-inoremap <C-z>o <ESC>:only<CR>
+"{{{ maximize o
+nnoremap <c-b>o :only<CR>
+vnoremap <c-b>o <ESC>:only<CR>
+inoremap <c-b>o <ESC>:only<CR>
 "}}}
 "{{{ list buffers l
-nnoremap <c-z>l :ls<CR>
-vnoremap <c-z>l <ESC>:ls<CR>
-inoremap <c-z>l <ESC>:ls<CR>
+nnoremap <c-b>l :ls<CR>
+vnoremap <c-b>l <ESC>:ls<CR>
+inoremap <c-b>l <ESC>:ls<CR>
 "}}}
 "{{{ show all buffers a
-nnoremap <c-z>a :ls!<CR>
-vnoremap <c-z>a <ESC>:ls!<CR>
-inoremap <c-z>a <ESC>:ls!<CR>
+nnoremap <c-b>a :ls!<CR>
+vnoremap <c-b>a <ESC>:ls!<CR>
+inoremap <c-b>a <ESC>:ls!<CR>
 "}}}
 "{{{ jump to a specific buffer b
-nnoremap <c-z>b :ls<CR>:buffer<space>
-vnoremap <c-z>b <ESC>:ls<CR>:buffer<space>
-inoremap <c-z>b <ESC>:ls<CR>:buffer<space>
+nnoremap <c-b>b :ls<CR>:buffer<space>
+vnoremap <c-b>b <ESC>:ls<CR>:buffer<space>
+inoremap <c-b>b <ESC>:ls<CR>:buffer<space>
 "}}}
 "{{{ delete buffer d
-nnoremap <c-z>d :ls!<CR>:bdelete<space>
-vnoremap <c-z>d <ESC>:ls!<CR>:bdelete<space>
-inoremap <c-z>d <ESC>:ls!<CR>:bdelete<space>
+nnoremap <c-b>d :ls!<CR>:bdelete<space>
+vnoremap <c-b>d <ESC>:ls!<CR>:bdelete<space>
+inoremap <c-b>d <ESC>:ls!<CR>:bdelete<space>
 "}}}
 "{{{ unload buffer u
-nnoremap <c-z>u :ls!<CR>:bunload<space>
-vnoremap <c-z>u <ESC>:ls!<CR>:bunload<space>
-inoremap <c-z>u <ESC>:ls!<CR>:bunload<space>
+nnoremap <c-b>u :ls!<CR>:bunload<space>
+vnoremap <c-b>u <ESC>:ls!<CR>:bunload<space>
+inoremap <c-b>u <ESC>:ls!<CR>:bunload<space>
 "}}}
 "{{{ wipe out buffer w
-nnoremap <c-z>w :ls!<CR>:bwipeout<space>
-vnoremap <c-z>w <ESC>:ls!<CR>:bwipeout<space>
-inoremap <c-z>w <ESC>:ls!<CR>:bwipeout<space>
+nnoremap <c-b>w :ls!<CR>:bwipeout<space>
+vnoremap <c-b>w <ESC>:ls!<CR>:bwipeout<space>
+inoremap <c-b>w <ESC>:ls!<CR>:bwipeout<space>
 "}}}
 "{{{ unload current buffer k
-nnoremap <c-z>k :bunload %<CR>
-vnoremap <c-z>k <ESC>:bunload %<CR>
-inoremap <c-z>k <ESC>:bunload %<CR>
+nnoremap <c-b>k :bunload %<CR>
+vnoremap <c-b>k <ESC>:bunload %<CR>
+inoremap <c-b>k <ESC>:bunload %<CR>
 "}}}
-"{{{ open all buffers vertically
-nnoremap <c-z>v :vert sball<CR>
-vnoremap <c-z>v <ESC>:vert sball<CR>
-inoremap <c-z>v <ESC>:vert sball<CR>
+"{{{ open all buffers vertically v
+nnoremap <c-b>v :vert sball<CR>
+vnoremap <c-b>v <ESC>:vert sball<CR>
+inoremap <c-b>v <ESC>:vert sball<CR>
 "}}}
-"{{{ open all buffers horizontally
-nnoremap <c-z>h :sball<CR>
-vnoremap <c-z>h <ESC>:sball<CR>
-inoremap <c-z>h <ESC>:sball<CR>
+"{{{ open all buffers horizontally h
+nnoremap <c-b>h :sball<CR>
+vnoremap <c-b>h <ESC>:sball<CR>
+inoremap <c-b>h <ESC>:sball<CR>
 "}}}
 "}}}
 "}}}
