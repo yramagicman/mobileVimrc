@@ -271,6 +271,9 @@ if has("autocmd")
         autocmd BufWritePost $HOME/.vim/config/* :source %
         autocmd BufWritePost $HOME/.vim/config/* :set visualbell
         autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
+        autocmd BufWritePost $HOME/.vimrc :source %
+        autocmd BufWritePost $HOME/.vimrc :set visualbell
+        autocmd BufWritePost $HOME/.vimrc :set foldmethod=marker
         au VimResized * exe "normal! \<c-w>="
         autocmd VimEnter * set vb t_vb=
         "}}}
