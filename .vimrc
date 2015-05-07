@@ -598,7 +598,6 @@ function! NumOff()
         let g:numoff = 1
         return g:numoff
     else
-        echom g:numoff
         let g:numoff = 0
         "when people are watching
         set norelativenumber
