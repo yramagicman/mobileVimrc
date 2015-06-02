@@ -112,7 +112,7 @@ set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 set nonumber
 set relativenumber
 " Change mapleader
-let mapleader=","
+let mapleader="\<space>"
 let localleader="/"
 ""set tags=.git/tags;
 ""set autochdir
@@ -692,70 +692,58 @@ endpython
 endfunction
 command! Tw :call Tw()
 "}}}
+"{{{
+function! Maximize()
+    wincmd _
+    wincmd |
+endfunction
 "}}}
-"{{{escape
+"}}}
 "{{{ remap escape for easier access
-nnoremap <leader>m <ESC>l
-vnoremap <leader>m <ESC>l
-inoremap <leader>m <ESC>l
-onoremap <leader>m <ESC>
-nnoremap <m <ESC>l
-vnoremap <m <ESC>l
-inoremap <m <ESC>l
-onoremap <m <ESC>
-inoremap <M <ESC>l
-onoremap <M <ESC>
-"}}}
-"{{{ map colon to semi-colon. Life is just easier that way.
-noremap ; :
-nnoremap <leader>; :!
-"}}}
+nnoremap <leader><leader> <ESC>:w<CR>l
+vnoremap <leader><leader> <ESC>:w<CR>l
+inoremap <leader><leader> <ESC>:w<CR>l
+onoremap <leader><leader> <ESC>
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
+nnoremap <leader>w :call Save()<CR>
+nnoremap ww :call Save()<CR>
+vnoremap <leader>w <ESC>:call Save()<CR>
 nnoremap <leader>ss :call Save()<CR>
 nnoremap ss :call Save()<CR>
-inoremap <leader>ss <ESC>:call Save()<CR>
 vnoremap <leader>ss <ESC>:call Save()<CR>
 "}}}
 "{{{ save but don't retab
 nnoremap <localleader>ss :call SaveNoRt()<CR>
-inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 "}}}
 "{{{ save and close
 nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
-inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
 vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
 "}}}
 "{{{ close but don't save
 nnoremap <leader>cl <ESC>:close!
-inoremap <leader>cl <ESC>:close!
 vnoremap <leader>cl <ESC>:close!
 "}}}
 "{{{ save and quit
 nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
-inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
 vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
 "}}}
 "{{{ quit without saving
 nnoremap <leader>Q :q!
-inoremap <leader>Q <ESC>:q!
 vnoremap <leader>Q <ESC>:q!
 nnoremap QQ :q!
 command! QQ :q!
 "}}}
 "{{{ nice quit
 nnoremap <silent><leader>q :q<CR>
-inoremap <silent><leader>q <ESC>:q<CR>
 vnoremap <silent><leader>q :q<CR>
 "}}}
 "{{{ sanity mappings
 nnoremap qq :wq
 nnoremap qw :wq
 nnoremap cl :close<CR>
-inoremap q q
-inoremap qq qq
 "}}}
 "}}}
 "{{{folding
@@ -772,7 +760,6 @@ vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
 "}}}
 "{{{open all folds
 nnoremap <leader><leader><CR> <ESC>zR<ESC>
-inoremap <leader><leader><CR> <ESC>zR<ESC>
 vnoremap <leader><leader><CR> <ESC>zR<ESC>
 "}}}
 "{{{ folding options
@@ -800,14 +787,12 @@ noremap <leader>rl <ESC>:source ~/.vimrc<CR>:set visualbell<CR>
 "}}}
 "{{{ Make Vim work logically
 "paste in insert mode
-inoremap <leader>p <ESC>pa
+inoremap <localleader>p <ESC>pa
 "paste from x clipboard
 nnoremap <LocalLeader>p <ESC>"+p
-inoremap <LocalLeader>p <ESC>"+p
 vnoremap <LocalLeader>p "+p
 " delete till the beginning of a line
 nnoremap <leader>D d0
-inoremap <leader>D <ESC>d0xi
 "repeat last command
 nnoremap <leader>. @:
 "}}}
@@ -826,8 +811,6 @@ noremap <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
 " delete duplicate blank lines
 noremap <leader>db mz:%!cat -s<CR>`z
 " toggle word wrap
-noremap <silent><leader>w <ESC>:set wrap!<CR>
-inoremap <silent><leader>w <ESC>:set wrap!<CR>i
 "toggle file explorer
 noremap <silent><leader>e <ESC>:FileBeagle<CR>
 "retab
@@ -905,6 +888,7 @@ inoremap <C-l> <ESC><C-w>li
 inoremap <C-j> <ESC><C-w>ji
 inoremap <C-h> <ESC><C-w>hi
 inoremap <C-k> <ESC><C-w>ki
+noremap <C-w>m :call Maximize()<CR>
 "splitting
 noremap <leader>sn <ESC>:new<CR>
 noremap <leader>sv <ESC>:vnew<CR>
@@ -917,10 +901,10 @@ set splitbelow
 set splitright
 "}}}
 "{{{ window size mappings
-nnoremap <C-d> <C-w>>
-nnoremap <C-w> <C-w>+
-nnoremap <C-a> <C-w><
-nnoremap <C-s> <C-w>-
+"nnoremap <C-d> <C-w>>
+"nnoremap <C-w> <C-w>+
+"nnoremap <C-a> <C-w><
+"nnoremap <C-s> <C-w>-
 "}}}
 "{{{ buffer management <c-b>
 "{{{ next buffer n
@@ -954,11 +938,6 @@ inoremap <c-b>s <ESC>:Scratch<CR>
 nnoremap <c-b>p :bp<CR>
 vnoremap <c-b>p <ESC>:bp<CR>
 inoremap <c-b>p <ESC>:bp<CR>
-"}}}
-"{{{ maximize o
-nnoremap <c-b>o :only<CR>
-vnoremap <c-b>o <ESC>:only<CR>
-inoremap <c-b>o <ESC>:only<CR>
 "}}}
 "{{{ list buffers l
 nnoremap <c-b>l :ls<CR>
