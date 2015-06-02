@@ -154,6 +154,8 @@ set statusline+=\ \|
 "{{{ buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
+set winwidth=85
+set winheight=20
 "}}}
 "{{{ Wild ignore, mostly stolen from Steve Losh
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -700,10 +702,10 @@ endfunction
 "}}}
 "}}}
 "{{{ remap escape for easier access
-nnoremap <leader><leader> <ESC>:w<CR>l
-vnoremap <leader><leader> <ESC>:w<CR>l
-inoremap <leader><leader> <ESC>:w<CR>l
-onoremap <leader><leader> <ESC>
+nnoremap <silent><leader><leader> <ESC>:w<CR>l
+vnoremap <silent><leader><leader> <ESC>:w<CR>l
+inoremap <silent><leader><leader> <ESC>:w<CR>l
+onoremap <silent><leader><leader> <ESC>
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
@@ -751,7 +753,7 @@ nnoremap cl :close<CR>
 nnoremap <CR> za
 nnoremap <leader><CR> zO
 nnoremap <Leader>z zMzvzz
-nnoremap <Leader><Leader>z zMzOzz
+nnoremap <LocalLeader>z zMzOzz
 "}}}
 "{{{close all folds
 nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
