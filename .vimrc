@@ -112,7 +112,7 @@ set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 set nonumber
 set relativenumber
 " Change mapleader
-let mapleader="\<space>"
+let mapleader="\<CR>"
 let localleader="/"
 ""set tags=.git/tags;
 ""set autochdir
@@ -494,7 +494,7 @@ function! Knl ()
 endfunction
 "}}}
 "{{{ save, kill whitespace at end of lines, and end of file, convert tabs
-function! Save()
+silent! function Save()
     checktime
     syntax sync fromstart
     redraw!
@@ -506,7 +506,7 @@ function! Save()
 endfunction
 "}}}
 "{{{ save, kill whitespace at end of lines, and end of file, don't convert tabs
-function! SaveNoRt()
+silent! function SaveNoRt()
     call StripWhitespace()
     call Knl()
     w
@@ -694,7 +694,7 @@ endpython
 endfunction
 command! Tw :call Tw()
 "}}}
-"{{{
+"{{{ Maximize window
 function! Maximize()
     wincmd _
     wincmd |
@@ -702,19 +702,19 @@ endfunction
 "}}}
 "}}}
 "{{{ remap escape for easier access
-nnoremap <silent><leader><leader> <ESC>:w<CR>l
-vnoremap <silent><leader><leader> <ESC>:w<CR>l
-inoremap <silent><leader><leader> <ESC>:w<CR>l
-onoremap <silent><leader><leader> <ESC>
+nnoremap <silent>,m <ESC>:w<CR>
+vnoremap <silent>,m <ESC>:w<CR>
+inoremap <silent>,m <ESC>:w<CR>
+onoremap <silent>,m <ESC>
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
-nnoremap <leader>w :call Save()<CR>
-nnoremap ww :call Save()<CR>
-vnoremap <leader>w <ESC>:call Save()<CR>
-nnoremap <leader>ss :call Save()<CR>
-nnoremap ss :call Save()<CR>
-vnoremap <leader>ss <ESC>:call Save()<CR>
+nnoremap <silent><leader>w :call Save()<CR>
+nnoremap <silent>ww :call Save()<CR>
+vnoremap <silent><leader>w <ESC>:call Save()<CR>
+nnoremap <silent><leader>ss :call Save()<CR>
+nnoremap <silent>ss :call Save()<CR>
+vnoremap <silent><leader>ss <ESC>:call Save()<CR>
 "}}}
 "{{{ save but don't retab
 nnoremap <localleader>ss :call SaveNoRt()<CR>
@@ -749,27 +749,14 @@ nnoremap cl :close<CR>
 "}}}
 "}}}
 "{{{folding
-"{{{Open folds on enter
-nnoremap <CR> za
-nnoremap <leader><CR> zO
 nnoremap <Leader>z zMzvzz
 nnoremap <LocalLeader>z zMzOzz
-"}}}
-"{{{close all folds
-nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-"}}}
-"{{{open all folds
-nnoremap <leader><leader><CR> <ESC>zR<ESC>
-vnoremap <leader><leader><CR> <ESC>zR<ESC>
 "}}}
 "{{{ folding options
 set foldmethod=indent
 set foldcolumn=2
 "Close folds locally
 nnoremap <localleader><CR> zC
-"}}}
 "}}}
 "{{{mappings
 "{{{ Indenting
