@@ -692,6 +692,11 @@ endpython
 endfunction
 command! Tw :call Tw()
 "}}}
+"{{{
+function! Maximize()
+    wincmd _
+    wincmd |
+endfunction
 "}}}
 "{{{escape
 "{{{ remap escape for easier access
@@ -905,6 +910,7 @@ inoremap <C-l> <ESC><C-w>li
 inoremap <C-j> <ESC><C-w>ji
 inoremap <C-h> <ESC><C-w>hi
 inoremap <C-k> <ESC><C-w>ki
+noremap <C-w>m :call Maximize()<CR>
 "splitting
 noremap <leader>sn <ESC>:new<CR>
 noremap <leader>sv <ESC>:vnew<CR>
@@ -917,10 +923,10 @@ set splitbelow
 set splitright
 "}}}
 "{{{ window size mappings
-nnoremap <C-d> <C-w>>
-nnoremap <C-w> <C-w>+
-nnoremap <C-a> <C-w><
-nnoremap <C-s> <C-w>-
+"nnoremap <C-d> <C-w>>
+"nnoremap <C-w> <C-w>+
+"nnoremap <C-a> <C-w><
+"nnoremap <C-s> <C-w>-
 "}}}
 "{{{ buffer management <c-b>
 "{{{ next buffer n
@@ -954,11 +960,6 @@ inoremap <c-b>s <ESC>:Scratch<CR>
 nnoremap <c-b>p :bp<CR>
 vnoremap <c-b>p <ESC>:bp<CR>
 inoremap <c-b>p <ESC>:bp<CR>
-"}}}
-"{{{ maximize o
-nnoremap <c-b>o :only<CR>
-vnoremap <c-b>o <ESC>:only<CR>
-inoremap <c-b>o <ESC>:only<CR>
 "}}}
 "{{{ list buffers l
 nnoremap <c-b>l :ls<CR>
