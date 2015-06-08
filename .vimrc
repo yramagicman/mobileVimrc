@@ -699,16 +699,6 @@ set foldcolumn=2
 "}}}
 "}}}
 "{{{mappings
-"{{{ Indenting
-"bind \] to indent
-nnoremap <localleader>] >>
-vnoremap <localleader>] >gv
-inoremap <localleader>] <C-O>>>
-"bind \[ to outdent
-nnoremap <localleader>[ <<
-vnoremap <localleader>[ <gv
-inoremap <localleader>[ <C-O><<
-"}}}
 "{{{file navigation shortcuts
 nnoremap <silent> <leader>ev :e ~/.vim/config/vimrc.combined.vim<CR>
 nnoremap <silent> <leader>pe :e ~/.vim/config/extensions<CR>
