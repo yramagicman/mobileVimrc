@@ -109,8 +109,8 @@ set ofu=syntaxcomplete#Complete
 set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 "set list " breaks set linebreak
 " Enable line numbers
-set nonumber
 set relativenumber
+set number
 " Change mapleader
 let mapleader=","
 let localleader="/"
@@ -154,6 +154,8 @@ set statusline+=\ \|
 "{{{ buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
+set winwidth=85
+set winheight=20
 "}}}
 "{{{ Wild ignore, mostly stolen from Steve Losh
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -282,12 +284,6 @@ if has("autocmd")
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
         "}}}
-        "{{{ use absolute line numbering in insert mode and relative numbers elsewhere
-        autocmd InsertLeave * :set nonumber
-        autocmd InsertLeave * :set relativenumber
-        autocmd InsertEnter * :set number
-        autocmd InsertEnter * :set norelativenumber
-        "}}}
     augroup end
     augroup js
         "{{{ Treat .json files as .js
@@ -322,7 +318,6 @@ if has("autocmd")
         autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
         autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
         autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
-       "autocmd VimEnter,BufRead */drupal*/* call IndentGuides()
         "}}}
         "{{{ ratiochristi coding standards
         autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
@@ -348,8 +343,6 @@ if has("autocmd")
         autocmd FocusLost,BufLeave * :silent! wall
         " leave insert mode on focus lost
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
-        autocmd CmdwinEnter * unmap <CR>
-        autocmd CmdwinLeave * map <CR> za
         " }}}
     augroup end
 endif
@@ -373,7 +366,6 @@ inoremap <  <><Left>
 inoremap [<CR> [<CR>]<ESC>O
 inoremap (<CR> (<CR>)<ESC>O
 inoremap {<CR> {<CR>}<ESC>O
-inoremap <<CR> <<CR>><ESC>O
 inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
 inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>": "]"
 inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
@@ -396,11 +388,13 @@ augroup abbrevs
     autocmd FileType * iabbrev <buffer> etap Etapestry
     autocmd FileType * iabbrev <buffer> durpal Drupal
     autocmd FileType * iabbrev <buffer> drupal Drupal
-    autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
+    autocmd FileType mail,text,gitcommit,scheme inoremap <buffer> ' '
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
+    autocmd FileType html,vim inoremap <<CR> <<CR>><ESC>O
+    autocmd FileType html,vim inoremap <expr> >  strpart(getline('.'), col('.')-1, 1) == ">" ? "\<Right>" : ">"
     autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
     autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';
-    autocmd FileType vim inoremap " "
+    autocmd FileType vim inoremap <buffer> " "
 augroup end
 "}}}
 "{{{ Make backspace work nicely with autopairs
@@ -525,28 +519,6 @@ if has("autocmd")
     nmap <Leader>R :call CallInterpreter()<CR>
 endif
 " }}}
-"{{{ highlight repeated lines
-function! HighlightRepeats() range
-  let lineCounts = {}
-  let lineNum = a:firstline
-  while lineNum <= a:lastline
-    let lineText = getline(lineNum)
-    if lineText != ""
-      let lineCounts[lineText] = (has_key(lineCounts, lineText) ? lineCounts[lineText] : 0) + 1
-    endif
-    let lineNum = lineNum + 1
-  endwhile
-  exe 'syn clear Repeat'
-  for lineText in keys(lineCounts)
-    if lineCounts[lineText] >= 2
-      exe 'syn match Repeat "^' . escape(lineText, '".\^$*[]') . '$"'
-    endif
-  endfor
-endfunction
-command! -range=% HighlightRepeats <line1>,<line2>call HighlightRepeats()
-nmap <silent><LocalLeader>r :HighlightRepeats<CR>
-nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
-"}}}
 "{{{ Check for :Error command so it can be run on save
 function! CheckErrorFn()
     if exists(':Error')
@@ -554,73 +526,15 @@ function! CheckErrorFn()
     endif
 endfunction
 "}}}
-"{{{ presentation mode
-let g:presmode = 1
-function! PresMode()
-    if  g:presmode == 0
-        "normal opperation
-        set relativenumber
-        set nonumber
-        autocmd!
-        autocmd InsertLeave * :set nonumber
-        autocmd InsertLeave * :set relativenumber
-        autocmd InsertEnter * :set number
-        autocmd InsertEnter * :set norelativenumber
-        let g:presmode = 1
-        return g:presmode
-    else
-        let g:presmode = 0
-        "when people are watching
-        set norelativenumber
-        set number
-        autocmd!
-        autocmd InsertEnter * :set number
-        autocmd InsertLeave * :set number
-        autocmd InsertEnter * :set norelativenumber
-        autocmd InsertLeave * :set norelativenumber
-        return g:presmode
-    endif
-endfunction
-command! Pres :call PresMode()
-"}}}
-"{{{ line numbers on or off
-let g:numoff = 1
-function! NumOff()
-    if  g:numoff == 0
-        "normal opperation
-        set relativenumber
-        set nonumber
-        autocmd!
-        autocmd InsertLeave * :set nonumber
-        autocmd InsertLeave * :set relativenumber
-        autocmd InsertEnter * :set number
-        autocmd InsertEnter * :set norelativenumber
-        let g:numoff = 1
-        return g:numoff
-    else
-        let g:numoff = 0
-        "when people are watching
-        set norelativenumber
-        set nonumber
-        autocmd!
-        autocmd InsertEnter * :set nonumber
-        autocmd InsertLeave * :set nonumber
-        autocmd InsertEnter * :set norelativenumber
-        autocmd InsertLeave * :set norelativenumber
-        return g:numoff
-    endif
-endfunction
-noremap <silent> <leader>nn :call NumOff()<CR>
-noremap <silent> <leader>ns :call PresMode()<CR>
-"}}}
 "{{{ get stuff off my screen
 let g:clean = 1
 function! CleanScreen()
     if  g:clean == 0
         let g:numoff = 0
-        set laststatus=1
+        set laststatus=2
         set foldcolumn=2
-        call NumOff()
+        set relativenumber
+        set number
         set showmode
         let g:clean=1
         return g:clean
@@ -628,8 +542,9 @@ function! CleanScreen()
         let g:numoff = 1
         set laststatus=0
         set noshowmode
+        set nonumber
+        set norelativenumber
         set foldcolumn=12
-        call NumOff()
         let g:clean=0
         return g:clean
     endif
@@ -646,15 +561,6 @@ function! Scratch()
     resize -15
 endfunction
 command! Scratch :call Scratch()
-"}}}
-"{{{ open new buffer without creating extra split
-function! NewBuffer()
-    new
-    wincmd k
-    close
-endfunction
-cnoreabbrev new New
-command! New :call NewBuffer()
 "}}}
 "{{{ toggle fold column markers
 let g:foldon=1
@@ -692,11 +598,35 @@ endpython
 endfunction
 command! Tw :call Tw()
 "}}}
-"{{{
+"{{{ Maximize
 function! Maximize()
     wincmd _
     wincmd |
 endfunction
+"}}}
+"{{{ Auto-highlight current word
+" Highlight all instances of word under cursor, when idle.
+" Useful when studying strange source code.
+" Type z/ to toggle highlighting on/off.
+function! AutoHighlightToggle()
+    let @/ = ''
+    if exists('#auto_highlight')
+        au! auto_highlight
+        augroup! auto_highlight
+        setl updatetime=4000
+        echo 'Highlight current word: off'
+        return 0
+    else
+        augroup auto_highlight
+            au!
+            au CursorHold * let @/ = '\V\<'.escape(expand('<cword>'), '\').'\>'
+        augroup end
+        setl updatetime=500
+        echo 'Highlight current word: ON'
+        return 1
+    endif
+endfunction
+"}}}
 "}}}
 "{{{escape
 "{{{ remap escape for easier access
@@ -711,10 +641,6 @@ onoremap <m <ESC>
 inoremap <M <ESC>l
 onoremap <M <ESC>
 "}}}
-"{{{ map colon to semi-colon. Life is just easier that way.
-noremap ; :
-nnoremap <leader>; :!
-"}}}
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
@@ -722,11 +648,6 @@ nnoremap <leader>ss :call Save()<CR>
 nnoremap ss :call Save()<CR>
 inoremap <leader>ss <ESC>:call Save()<CR>
 vnoremap <leader>ss <ESC>:call Save()<CR>
-"}}}
-"{{{ save but don't retab
-nnoremap <localleader>ss :call SaveNoRt()<CR>
-inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
-vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 "}}}
 "{{{ save and close
 nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
@@ -764,27 +685,15 @@ inoremap qq qq
 "}}}
 "}}}
 "{{{folding
-"{{{Open folds on enter
-nnoremap <CR> za
-nnoremap <leader><CR> zO
 nnoremap <Leader>z zMzvzz
 nnoremap <Leader><Leader>z zMzOzz
-"}}}
-"{{{close all folds
-nnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-inoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-vnoremap <localleader><localleader><CR> <ESC>gg0vG$zC<ESC>
-"}}}
-"{{{open all folds
-nnoremap <leader><leader><CR> <ESC>zR<ESC>
-inoremap <leader><leader><CR> <ESC>zR<ESC>
-vnoremap <leader><leader><CR> <ESC>zR<ESC>
-"}}}
+"close all folds
+nnoremap <leader>zc <ESC>gg0vG$zC<ESC>
+"open all folds
+nnoremap <leader>za <ESC>gg0vG$zO<ESC>
 "{{{ folding options
 set foldmethod=indent
 set foldcolumn=2
-"Close folds locally
-nnoremap <localleader><CR> zC
 "}}}
 "}}}
 "{{{mappings
@@ -823,6 +732,8 @@ vnoremap Q gq
 nnoremap Ql gqq
 "}}}
 "{{{ Convenience bindings
+"auto-highlight current word
+nnoremap <leader>t :call AutoHighlightToggle()
 " Save a file as root ('W)
 nnoremap <c-\> :so $VIMRUNTIME/syntax/hitest.vim<CR>
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
@@ -922,80 +833,7 @@ noremap <localleader>= <C-w>=
 set splitbelow
 set splitright
 "}}}
-"{{{ window size mappings
-"nnoremap <C-d> <C-w>>
-"nnoremap <C-w> <C-w>+
-"nnoremap <C-a> <C-w><
-"nnoremap <C-s> <C-w>-
-"}}}
 "{{{ buffer management <c-b>
-"{{{ next buffer n
-nnoremap <c-b>n :bn<CR>
-vnoremap <c-b>n <ESC>:bn<CR>
-inoremap <c-b>n <ESC>:bn<CR>
-"}}}
-"{{{ new empty buffer e
-"{{{ new empty horizontal buffer h
-nnoremap <c-b>eh      :new<CR>
-vnoremap <c-b>eh <ESC>:new<CR>
-inoremap <c-b>eh <ESC>:new<CR>
-"}}}
-"{{{ new empty vertical buffer v
-nnoremap <c-b>ev      :vnew<CR>
-vnoremap <c-b>ev <ESC>:vnew<CR>
-inoremap <c-b>ev <ESC>:vnew<CR>
-"}}}
-"{{{ new empty maximized buffer f
-nnoremap <c-b>ef      :new<CR>:only<CR>
-vnoremap <c-b>ef <ESC>:new<CR>:only<CR>
-inoremap <c-b>ef <ESC>:new<CR>:only<CR>
-"}}}
-"}}}
-"{{{ Scratch buffer s
-nnoremap <c-b>s      :Scratch<CR>
-vnoremap <c-b>s <ESC>:Scratch<CR>
-inoremap <c-b>s <ESC>:Scratch<CR>
-"}}}
-"{{{ previous buffer p
-nnoremap <c-b>p :bp<CR>
-vnoremap <c-b>p <ESC>:bp<CR>
-inoremap <c-b>p <ESC>:bp<CR>
-"}}}
-"{{{ list buffers l
-nnoremap <c-b>l :ls<CR>
-vnoremap <c-b>l <ESC>:ls<CR>
-inoremap <c-b>l <ESC>:ls<CR>
-"}}}
-"{{{ show all buffers a
-nnoremap <c-b>a :ls!<CR>
-vnoremap <c-b>a <ESC>:ls!<CR>
-inoremap <c-b>a <ESC>:ls!<CR>
-"}}}
-"{{{ jump to a specific buffer b
-nnoremap <c-b>b :ls<CR>:buffer<space>
-vnoremap <c-b>b <ESC>:ls<CR>:buffer<space>
-inoremap <c-b>b <ESC>:ls<CR>:buffer<space>
-"}}}
-"{{{ delete buffer d
-nnoremap <c-b>d :ls!<CR>:bdelete<space>
-vnoremap <c-b>d <ESC>:ls!<CR>:bdelete<space>
-inoremap <c-b>d <ESC>:ls!<CR>:bdelete<space>
-"}}}
-"{{{ unload buffer u
-nnoremap <c-b>u :ls!<CR>:bunload<space>
-vnoremap <c-b>u <ESC>:ls!<CR>:bunload<space>
-inoremap <c-b>u <ESC>:ls!<CR>:bunload<space>
-"}}}
-"{{{ wipe out buffer w
-nnoremap <c-b>w :ls!<CR>:bwipeout<space>
-vnoremap <c-b>w <ESC>:ls!<CR>:bwipeout<space>
-inoremap <c-b>w <ESC>:ls!<CR>:bwipeout<space>
-"}}}
-"{{{ unload current buffer k
-nnoremap <c-b>k :bunload %<CR>
-vnoremap <c-b>k <ESC>:bunload %<CR>
-inoremap <c-b>k <ESC>:bunload %<CR>
-"}}}
 "{{{ open all buffers vertically v
 nnoremap <c-b>v :vert sball<CR>
 vnoremap <c-b>v <ESC>:vert sball<CR>
@@ -1011,7 +849,6 @@ inoremap <c-b>h <ESC>:sball<CR>
 "{{{ Regisers
 let @r = "/returnO,mjo,m"
 let @d = "ddn"
-let @g = "F<v/spannf>x/google-src"
 let @s = "vi["
 let @p = "vi("
 let @c = "vi{"
