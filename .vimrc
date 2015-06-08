@@ -2,7 +2,8 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-"{{{ defaults "{{{ set secondary editor
+"{{{ defaults
+"{{{ set secondary editor
 if has('mac')
     let g:Gui_Editor = 'TextWrangler'
 else
@@ -108,9 +109,10 @@ set ofu=syntaxcomplete#Complete
 set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 "set list " breaks set linebreak
 " Enable line numbers
+set nonumber
 set relativenumber
 " Change mapleader
-let mapleader="\<CR>"
+let mapleader=","
 let localleader="/"
 ""set tags=.git/tags;
 ""set autochdir
@@ -152,11 +154,9 @@ set statusline+=\ \|
 "{{{ buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
-set winwidth=85
-set winheight=20
 "}}}
 "{{{ Window width settings
-set winwidth=81
+set winwidth=85
 set winheight=20
 "}}}
 "{{{ Wild ignore, mostly stolen from Steve Losh
@@ -228,7 +228,7 @@ vnoremap <leader>j J
 "}}}
 "{{{ command line movement mappings
 cnoremap <C-a>  <Home>
-cnoremap <c-d>  <Left>
+cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
 cnoremap <C-d>  <Delete>
 cnoremap <Esc>b <S-Left>
@@ -266,87 +266,87 @@ nnoremap <leader>dp [czt
 if has("autocmd")
     " Enable file type detection
     augroup general
-        autocmd!
-        "{{{ show cursorline on current buffer only
-        autocmd BufEnter * set cursorline
-        autocmd BufLeave * set nocursorline
-        "}}}
-        "{{{ auto-reload vim files, auto resize splits on window resize
-        autocmd BufWritePost $HOME/.vim/config/* :source %
-        autocmd BufWritePost $HOME/.vim/config/* :set visualbell
-        autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
-        autocmd BufWritePost $HOME/.vimrc :source %
-        autocmd BufWritePost $HOME/.vimrc :set visualbell
-        autocmd BufWritePost $HOME/.vimrc :set foldmethod=marker
+	autocmd!
+	"{{{ show cursorline on current buffer only
+	autocmd BufEnter * set cursorline
+	autocmd BufLeave * set nocursorline
+	"}}}
+	"{{{ auto-reload vim files, auto resize splits on window resize
+	autocmd BufWritePost $HOME/.vim/config/* :source %
+	autocmd BufWritePost $HOME/.vim/config/* :set visualbell
+	autocmd BufWritePost $HOME/.vim/config/* :set foldmethod=marker
+	autocmd BufWritePost $HOME/.vimrc :source %
+	autocmd BufWritePost $HOME/.vimrc :set visualbell
+	autocmd BufWritePost $HOME/.vimrc :set foldmethod=marker
 	au VimResized,Bufenter * exe "normal! \<c-w>="
-        autocmd VimEnter * set vb t_vb=
-        "}}}
-        "{{{ fold method marker for specific files
-        autocmd FileType vim setlocal foldmethod=marker
-        autocmd FileType zsh setlocal foldmethod=marker
-        autocmd FileType lua setlocal foldmethod=marker
-        "}}}
+	autocmd VimEnter * set vb t_vb=
+	"}}}
+	"{{{ fold method marker for specific files
+	autocmd FileType vim setlocal foldmethod=marker
+	autocmd FileType zsh setlocal foldmethod=marker
+	autocmd FileType lua setlocal foldmethod=marker
+	"}}}
     augroup end
     augroup js
-        "{{{ Treat .json files as .js
-        autocmd!
-        autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
-        "}}}
-        "{{{ fix my fat fingers, change 90 to () in js
-        autocmd Bufenter *.js iabbr 90 ()
-        autocmd Bufleave *.js iabbr 90 90
-        "}}}
+	"{{{ Treat .json files as .js
+	autocmd!
+	autocmd BufNewFile,BufRead *.json setfiletype json syntax=javascript
+	"}}}
+	"{{{ fix my fat fingers, change 90 to () in js
+	autocmd Bufenter *.js iabbr 90 ()
+	autocmd Bufleave *.js iabbr 90 90
+	"}}}
     augroup end
     augroup css
-        "{{{ filetype stuff
-        autocmd!
-        autocmd BufRead,BufNewFile *.css set filetype=css
-        "}}}
-        "{{{ use 2 spaces  for css and related files
-        autocmd FileType css setlocal tabstop=2
-        autocmd FileType css setlocal shiftwidth=2
-        "}}}
-        "{{{ automattically add semicolons in css
-        autocmd FileType css inoremap <buffer> : :;<ESC>i
-        "}}}
+	"{{{ filetype stuff
+	autocmd!
+	autocmd BufRead,BufNewFile *.css set filetype=css
+	"}}}
+	"{{{ use 2 spaces  for css and related files
+	autocmd FileType css setlocal tabstop=2
+	autocmd FileType css setlocal shiftwidth=2
+	"}}}
+	"{{{ automattically add semicolons in css
+	autocmd FileType css inoremap <buffer> : :;<ESC>i
+	"}}}
     augroup end
     augroup coding
-        autocmd!
-        "{{{ drupal coding standards
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
-        autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=indent
-        autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
-        autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
-        autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
+	autocmd!
+	"{{{ drupal coding standards
+	autocmd VimEnter,Bufenter,BufRead */drupal*/* set tabstop=2
+	autocmd VimEnter,Bufenter,BufRead */drupal*/* set shiftwidth=2
+	autocmd VimEnter,Bufenter,BufRead */drupal*/* set expandtab
+	autocmd VimEnter,Bufenter,BufRead */drupal*/* set foldmethod=indent
+	autocmd VimEnter,Bufenter,BufRead *.module set filetype=php
+	autocmd VimEnter,Bufenter,BufRead *.inc set filetype=php
+	autocmd VimEnter,Bufenter,BufRead *.install set filetype=php
        "autocmd VimEnter,BufRead */drupal*/* call IndentGuides()
-        "}}}
-        "{{{ ratiochristi coding standards
-        autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
-        autocmd Bufenter,BufRead */ratiochristi/* set smartindent
-        autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
-        autocmd Bufenter,BufRead */ratiochristi/* set expandtab
-        "}}}
+	"}}}
+	"{{{ ratiochristi coding standards
+	autocmd Bufenter,BufRead */ratiochristi/* set tabstop=4
+	autocmd Bufenter,BufRead */ratiochristi/* set smartindent
+	autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
+	autocmd Bufenter,BufRead */ratiochristi/* set expandtab
+	"}}}
     augroup end
     augroup extra
-        "{{{ Misc. individual commands that don't merit their own fold group
-        autocmd!
-        autocmd FileType mail set spell
-        autocmd FileType make set noexpandtab
-        autocmd FileType,BufEnter snippets set noexpandtab
-        autocmd BufNewFile,BufRead *.md set filetype=markdown
-        autocmd BufEnter * execute "source ~/.vim/colors/" . g:colors_name . ".vim"
-        " make Vim edit cron again
-        autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
-        " always reload files when changed outside Vim
-        "autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
-        autocmd Bufenter,FocusGained,BufLeave * :checktime
-        " save on focus lost
-        autocmd FocusLost,BufLeave * :silent! wall
-        " leave insert mode on focus lost
-        autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
-        " }}}
+	"{{{ Misc. individual commands that don't merit their own fold group
+	autocmd!
+	autocmd FileType mail set spell
+	autocmd FileType make set noexpandtab
+	autocmd FileType,BufEnter snippets set noexpandtab
+	autocmd BufNewFile,BufRead *.md set filetype=markdown
+	autocmd BufEnter * execute "source ~/.vim/colors/" . g:colors_name . ".vim"
+	" make Vim edit cron again
+	autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
+	" always reload files when changed outside Vim
+	"autocmd CursorHold,CursorMovedI,CursorMoved,Bufenter * :checktime
+	autocmd Bufenter,FocusGained,BufLeave * :checktime
+	" save on focus lost
+	autocmd FocusLost,BufLeave * :silent! wall
+	" leave insert mode on focus lost
+	autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
+	" }}}
     augroup end
 endif
 "}}}
@@ -386,19 +386,19 @@ function! Backspace()
     let l:current = strpart(getline('.'), col('.')-1, 1)
     let l:prev = strpart(getline('.'), col('.')-2, 1)
     if l:current == '"' || l:current == "'" || l:current == "]" || l:current == ")" || l:current == "}"
-        if l:current == l:prev
-            return "\<Right>\<BS>\<BS>"
-        elseif l:prev == '[' && l:current == ']'
-            return "\<Right>\<BS>\<BS>"
-        elseif l:prev == "{" && l:current == "}"
-            return "\<Right>\<BS>\<BS>"
-        elseif l:prev == "(" && l:current == ")"
-            return "\<Right>\<BS>\<BS>"
-        else
-            return "\<BS>"
-        endif
+	if l:current == l:prev
+	    return "\<Right>\<BS>\<BS>"
+	elseif l:prev == '[' && l:current == ']'
+	    return "\<Right>\<BS>\<BS>"
+	elseif l:prev == "{" && l:current == "}"
+	    return "\<Right>\<BS>\<BS>"
+	elseif l:prev == "(" && l:current == ")"
+	    return "\<Right>\<BS>\<BS>"
+	else
+	    return "\<BS>"
+	endif
     else
-        return "\<BS>"
+	return "\<BS>"
     endif
 endfunction
 inoremap <expr> <BS> Backspace()
@@ -407,21 +407,21 @@ inoremap <expr> <BS> Backspace()
 function! UnwrapParens()
     let l:current = strpart(getline('.'), col('.')-1, 1)
     if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
-        norm ml%mkx`lx
+	norm ml%mkx`lx
     endif
     if l:current == '"'
-        try
-            norm mlf"mkx`lx
-        catch
-            norm mlF"mkx`lx
-        endtry
+	try
+	    norm mlf"mkx`lx
+	catch
+	    norm mlF"mkx`lx
+	endtry
     endif
     if l:current == "'"
-        try
-            norm mlf'mkx`lx
-        catch
-            norm mlF'mkx`lx
-        endtry
+	try
+	    norm mlf'mkx`lx
+	catch
+	    norm mlF'mkx`lx
+	endtry
     endif
 endfunction
 inoremap <localleader><BS> <Esc>:call UnwrapParens()<CR>
@@ -462,11 +462,11 @@ endfunction
 let g:indentguides_state = 0
 function! IndentGuides()
     if g:indentguides_state
-        let g:indentguides_state = 0
-        2match None
+	let g:indentguides_state = 0
+	2match None
     else
-        let g:indentguides_state = 1
-        execute '2match IndentGuides /\%(\_^\s*\)\@<=\%(\%'.(0*&sw+1).'v\|\%'.(1*&sw+1).'v\|\%'.(2*&sw+1).'v\|\%'.(3*&sw+1).'v\|\%'.(4*&sw+1).'v\|\%'.(5*&sw+1).'v\|\%'.(6*&sw+1).'v\|\%'.(7*&sw+1).'v\)\s/'
+	let g:indentguides_state = 1
+	execute '2match IndentGuides /\%(\_^\s*\)\@<=\%(\%'.(0*&sw+1).'v\|\%'.(1*&sw+1).'v\|\%'.(2*&sw+1).'v\|\%'.(3*&sw+1).'v\|\%'.(4*&sw+1).'v\|\%'.(5*&sw+1).'v\|\%'.(6*&sw+1).'v\|\%'.(7*&sw+1).'v\)\s/'
     endif
 endfunction
 nnoremap <silent> <leader>i :call IndentGuides()<CR>
@@ -484,7 +484,7 @@ nnoremap <silent><leader>le :call LineEndings()<CR>
 "{{{ kill extra newlines
 function! Knl ()
     try
-        %s#\($\n\s*\)\+\%$##
+	%s#\($\n\s*\)\+\%$##
     catch
     endtry
 endfunction
@@ -516,9 +516,9 @@ if has("autocmd")
     \ execute("let b:interpreter = getline(1)[2:]") |
     \endif
     fun! CallInterpreter()
-        if exists("b:interpreter")
-             exec ("!".b:interpreter." %")
-        endif
+	if exists("b:interpreter")
+	     exec ("!".b:interpreter." %")
+	endif
     endfun
     nmap <Leader>R :call CallInterpreter()<CR>
 endif
@@ -526,7 +526,7 @@ endif
 "{{{ Check for :Error command so it can be run on save
 function! CheckErrorFn()
     if exists(':Error')
-        Error
+	Error
     endif
 endfunction
 "}}}
@@ -535,18 +535,18 @@ let g:clean = 1
 function! CleanScreen()
     if  g:clean == 0
 	set laststatus=2
-        set foldcolumn=2
+	set foldcolumn=2
 	set relativenumber
-        set showmode
-        let g:clean=1
-        return g:clean
+	set showmode
+	let g:clean=1
+	return g:clean
     else
-        set laststatus=0
-        set noshowmode
-        set foldcolumn=12
+	set laststatus=0
+	set noshowmode
+	set foldcolumn=12
 	set nonumber
-        let g:clean=0
-        return g:clean
+	let g:clean=0
+	return g:clean
     endif
 endfunction
 command! Clean :call CleanScreen()
@@ -566,13 +566,13 @@ command! Scratch :call Scratch()
 let g:foldon=1
 function! FoldColumn()
     if g:foldon == 1
-        hi      FoldColumn       ctermbg=234     ctermfg=247    guifg=#1c1c1c  guibg=#1c1c1c
-        let g:foldon=0
-        return g:foldon
+	hi      FoldColumn       ctermbg=234     ctermfg=247    guifg=#1c1c1c  guibg=#1c1c1c
+	let g:foldon=0
+	return g:foldon
     else
-        hi      FoldColumn       ctermbg=234     ctermfg=234    guifg=#1c1c1c  guibg=#1c1c1c
-        let g:foldon=1
-        return g:foldon
+	hi      FoldColumn       ctermbg=234     ctermfg=234    guifg=#1c1c1c  guibg=#1c1c1c
+	let g:foldon=1
+	return g:foldon
     endif
 endfunction
 command! Fc :call FoldColumn()
@@ -589,16 +589,16 @@ platform = sys.platform
 if gui_editor_defined:
     gui_editor = vim.eval('g:Gui_Editor')
     if platform == 'darwin':
-        call(['open', '-a', gui_editor, cur_file])
+	call(['open', '-a', gui_editor, cur_file])
     if platform =='linux' or platform == 'linux2':
-        call([gui_editor, cur_file])
+	call([gui_editor, cur_file])
 else:
     print "Please set a secondary editor by adding let g:Gui_Editor='editor command' to your vimrc"
 endpython
 endfunction
 command! Tw :call Tw()
 "}}}
-"{{{ Maximize window
+"{{{ Maximize
 function! Maximize()
     wincmd _
     wincmd |
@@ -628,37 +628,50 @@ nnoremap <silent><leader>ss :call Save()<CR>
 nnoremap <silent>ss :call Save()<CR>
 vnoremap <silent><leader>ss <ESC>:call Save()<CR>
 "}}}
+"{{{ save but don't retab
+nnoremap <localleader>ss :call SaveNoRt()<CR>
+inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
+vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
+"}}}
 "{{{ save and close
 nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
+inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
 vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
 "}}}
 "{{{ close but don't save
 nnoremap <leader>cl <ESC>:close!
+inoremap <leader>cl <ESC>:close!
 vnoremap <leader>cl <ESC>:close!
 "}}}
 "{{{ save and quit
 nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
+inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
 vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
 "}}}
 "{{{ quit without saving
 nnoremap <leader>Q :q!
+inoremap <leader>Q <ESC>:q!
 vnoremap <leader>Q <ESC>:q!
 nnoremap QQ :q!
 command! QQ :q!
 "}}}
 "{{{ nice quit
 nnoremap <silent><leader>q :q<CR>
+inoremap <silent><leader>q <ESC>:q<CR>
 vnoremap <silent><leader>q :q<CR>
 "}}}
 "{{{ sanity mappings
 nnoremap qq :wq
 nnoremap qw :wq
 nnoremap cl :close<CR>
+inoremap q q
+inoremap qq qq
 "}}}
 "}}}
 "{{{folding
+"{{{Open folds on enter
 nnoremap <Leader>z zMzvzz
-nnoremap <LocalLeader>z zMzOzz
+nnoremap <Leader><Leader>z zMzOzz
 "}}}
 "{{{ folding options
 set foldmethod=indent
@@ -674,16 +687,16 @@ noremap <leader>rl <ESC>:source ~/.vimrc<CR>:set visualbell<CR>
 "}}}
 "{{{ Make Vim work logically
 "paste in insert mode
-inoremap <localleader>p <ESC>pa
+inoremap <leader>p <ESC>pa
 "paste from x clipboard
 nnoremap <LocalLeader>p <ESC>"+p
+inoremap <LocalLeader>p <ESC>"+p
 vnoremap <LocalLeader>p "+p
 " delete till the beginning of a line
 nnoremap <leader>D d0
+inoremap <leader>D <ESC>d0xi
 "repeat last command
 nnoremap <leader>. @:
-"don't move on *
-nnoremap * *<C-o>
 "}}}
 "{{{ Formatting, TextMate-style
 nnoremap Q gqip
@@ -700,6 +713,8 @@ noremap <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
 " delete duplicate blank lines
 noremap <leader>db mz:%!cat -s<CR>`z
 " toggle word wrap
+noremap <silent><leader>w <ESC>:set wrap!<CR>
+inoremap <silent><leader>w <ESC>:set wrap!<CR>i
 "toggle file explorer
 noremap <silent><leader>e <ESC>:FileBeagle<CR>
 "retab
@@ -788,16 +803,16 @@ set splitbelow
 set splitright
 "}}}
 "}}}
-"{{{ buffer management <c-d>
 "{{{ open all buffers vertically v
-nnoremap <c-d>v :vert sball<CR>
-vnoremap <c-d>v <ESC>:vert sball<CR>
-inoremap <c-d>v <ESC>:vert sball<CR>
+nnoremap <c-b>v :vert sball<CR>
+vnoremap <c-b>v <ESC>:vert sball<CR>
+inoremap <c-b>v <ESC>:vert sball<CR>
 "}}}
 "{{{ open all buffers horizontally h
-nnoremap <c-d>h :sball<CR>
-vnoremap <c-d>h <ESC>:sball<CR>
-inoremap <c-d>h <ESC>:sball<CR>
+nnoremap <c-b>h :sball<CR>
+vnoremap <c-b>h <ESC>:sball<CR>
+inoremap <c-b>h <ESC>:sball<CR>
+"}}}
 "}}}
 "}}}
 "{{{ Regisers
