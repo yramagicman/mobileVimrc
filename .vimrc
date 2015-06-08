@@ -144,9 +144,9 @@ let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && ech
 let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
 let c=split(b, '')
 set laststatus=2
-set statusline=\|\ %m%f%r\ \%y
+set statusline=\|\ %m\ %f\ %r\ \%y
 set statusline+=\ \%{c[0]}
-set statusline+=\ \%{f[0]}
+set statusline+=%{f[0]}
 set statusline+=%=
 set statusline+=Line:
 set statusline+=%4l/%-4L
