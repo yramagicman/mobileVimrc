@@ -2,7 +2,8 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-"{{{ defaults "{{{ set secondary editor
+"{{{ defaults
+"{{{ set secondary editor
 if has('mac')
     let g:Gui_Editor = 'TextWrangler'
 else
@@ -108,6 +109,7 @@ set ofu=syntaxcomplete#Complete
 set lcs=tab:⟩\ ,trail:·,eol:↩,nbsp:_
 "set list " breaks set linebreak
 " Enable line numbers
+set nonumber
 set relativenumber
 " Change mapleader
 let mapleader=","
@@ -152,10 +154,6 @@ set statusline+=\ \|
 "{{{ buffer sanity
 set hidden
 let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
-"}}}
-"{{{ Window width settings
-set winwidth=81
-set winheight=20
 "}}}
 "{{{ Wild ignore, mostly stolen from Steve Losh
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -226,7 +224,7 @@ vnoremap <leader>j J
 "}}}
 "{{{ command line movement mappings
 cnoremap <C-a>  <Home>
-cnoremap <c-d>  <Left>
+cnoremap <C-b>  <Left>
 cnoremap <C-f>  <Right>
 cnoremap <C-d>  <Delete>
 cnoremap <Esc>b <S-Left>
@@ -276,13 +274,19 @@ if has("autocmd")
         autocmd BufWritePost $HOME/.vimrc :source %
         autocmd BufWritePost $HOME/.vimrc :set visualbell
         autocmd BufWritePost $HOME/.vimrc :set foldmethod=marker
-	au VimResized,Bufenter * exe "normal! \<c-w>="
+        au VimResized * exe "normal! \<c-w>="
         autocmd VimEnter * set vb t_vb=
         "}}}
         "{{{ fold method marker for specific files
         autocmd FileType vim setlocal foldmethod=marker
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
+        "}}}
+        "{{{ use absolute line numbering in insert mode and relative numbers elsewhere
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertLeave * :set relativenumber
+        autocmd InsertEnter * :set number
+        autocmd InsertEnter * :set norelativenumber
         "}}}
     augroup end
     augroup js
@@ -344,11 +348,23 @@ if has("autocmd")
         autocmd FocusLost,BufLeave * :silent! wall
         " leave insert mode on focus lost
         autocmd FocusLost,BufLeave * call feedkeys("\<ESC>")
+        autocmd CmdwinEnter * unmap <CR>
+        autocmd CmdwinLeave * map <CR> za
         " }}}
     augroup end
 endif
 "}}}
 "{{{matchbrackets
+"{{{ visual mode surround text
+vnoremap ' xi''<ESC>hp<ESC>f'
+vnoremap " xi""<ESC>hp<ESC>f"
+vnoremap { xi{}<ESC>hp<ESC>f}
+vnoremap [ xi[]<ESC>hp<ESC>f]
+vnoremap ( xi()<ESC>hp<ESC>F(
+vnoremap } xi{}<ESC>hp<ESC>f}
+vnoremap ] xi[]<ESC>hp<ESC>f]
+vnoremap ) xi()<ESC>hp<ESC>F(i
+"}}}
 "{{{ autocomplete quotes and brackets
 inoremap (  ()<Left>
 inoremap [  []<Left>
@@ -357,11 +373,19 @@ inoremap <  <><Left>
 inoremap [<CR> [<CR>]<ESC>O
 inoremap (<CR> (<CR>)<ESC>O
 inoremap {<CR> {<CR>}<ESC>O
+inoremap <<CR> <<CR>><ESC>O
 inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
 inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>": "]"
 inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
+inoremap <expr> >  strpart(getline('.'), col('.')-1, 1) == ">" ? "\<Right>" : ">"
 inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
 inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
+"}}}
+"{{{ swap quotes not in insert mode, too likely to conflict with typing
+vnoremap <Leader>" yda'i""<ESC>h"0pf"
+vnoremap <Leader>' yda"i''<ESC>h"0pf'
+nnoremap <Leader>" <ESC>vi'yda'i""<ESC>h"0pf"
+nnoremap <Leader>' <ESC>vi"yda"i''<ESC>h"0pf'
 "}}}
 "{{{ filetype specific mappings for characters and shortcuts
 augroup abbrevs
@@ -372,11 +396,11 @@ augroup abbrevs
     autocmd FileType * iabbrev <buffer> etap Etapestry
     autocmd FileType * iabbrev <buffer> durpal Drupal
     autocmd FileType * iabbrev <buffer> drupal Drupal
-    autocmd FileType mail,text,gitcommit,scheme inoremap <buffer> ' '
-    autocmd FileType vim inoremap <buffer> " "
+    autocmd FileType mail,text,gitcommit inoremap <buffer> ' '
     autocmd FileType html vnoremap <buffer> < xi<<ESC>pa<ESC>la
-    autocmd FileType html inoremap <expr> >  strpart(getline('.'), col('.')-1, 1) == ">" ? "\<Right>" : ">"
-    autocmd FileType html inoremap <<CR> <<CR>><ESC>O
+    autocmd FileType php  iabbrev <buffer> pp> print '<pre>';
+    autocmd FileType php  iabbrev <buffer> cpp> print '</pre>';
+    autocmd FileType vim inoremap " "
 augroup end
 "}}}
 "{{{ Make backspace work nicely with autopairs
@@ -427,26 +451,6 @@ noremap <leader>x :call UnwrapParens()<CR>
 "}}}
 "}}}
 "{{{functions
-"{{{ Automatically highlight current word
-function! AutoHighlightToggle()
-    let @/ = ''
-    if exists('#auto_highlight')
-	au! auto_highlight
-	augroup! auto_highlight
-	setl updatetime=4000
-	echo 'Highlight current word: off'
-	return 0
-    else
-	augroup auto_highlight
-	    au!
-	    au CursorHold * let @/ = '\V\<'.escape(expand('<cword>'), '\').'\>'
-	augroup end
-	setl updatetime=500
-	echo 'Highlight current word: on'
-	return 1
-    endif
-endfunction
-"}}}
 "{{{ Strip trailing whitespace
 function! StripWhitespace()
     let save_cursor = getpos(".")
@@ -521,6 +525,28 @@ if has("autocmd")
     nmap <Leader>R :call CallInterpreter()<CR>
 endif
 " }}}
+"{{{ highlight repeated lines
+function! HighlightRepeats() range
+  let lineCounts = {}
+  let lineNum = a:firstline
+  while lineNum <= a:lastline
+    let lineText = getline(lineNum)
+    if lineText != ""
+      let lineCounts[lineText] = (has_key(lineCounts, lineText) ? lineCounts[lineText] : 0) + 1
+    endif
+    let lineNum = lineNum + 1
+  endwhile
+  exe 'syn clear Repeat'
+  for lineText in keys(lineCounts)
+    if lineCounts[lineText] >= 2
+      exe 'syn match Repeat "^' . escape(lineText, '".\^$*[]') . '$"'
+    endif
+  endfor
+endfunction
+command! -range=% HighlightRepeats <line1>,<line2>call HighlightRepeats()
+nmap <silent><LocalLeader>r :HighlightRepeats<CR>
+nmap <silent><LocalLeader>cr :syn clear Repeat<CR>
+"}}}
 "{{{ Check for :Error command so it can be run on save
 function! CheckErrorFn()
     if exists(':Error')
@@ -528,21 +554,82 @@ function! CheckErrorFn()
     endif
 endfunction
 "}}}
+"{{{ presentation mode
+let g:presmode = 1
+function! PresMode()
+    if  g:presmode == 0
+        "normal opperation
+        set relativenumber
+        set nonumber
+        autocmd!
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertLeave * :set relativenumber
+        autocmd InsertEnter * :set number
+        autocmd InsertEnter * :set norelativenumber
+        let g:presmode = 1
+        return g:presmode
+    else
+        let g:presmode = 0
+        "when people are watching
+        set norelativenumber
+        set number
+        autocmd!
+        autocmd InsertEnter * :set number
+        autocmd InsertLeave * :set number
+        autocmd InsertEnter * :set norelativenumber
+        autocmd InsertLeave * :set norelativenumber
+        return g:presmode
+    endif
+endfunction
+command! Pres :call PresMode()
+"}}}
+"{{{ line numbers on or off
+let g:numoff = 1
+function! NumOff()
+    if  g:numoff == 0
+        "normal opperation
+        set relativenumber
+        set nonumber
+        autocmd!
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertLeave * :set relativenumber
+        autocmd InsertEnter * :set number
+        autocmd InsertEnter * :set norelativenumber
+        let g:numoff = 1
+        return g:numoff
+    else
+        let g:numoff = 0
+        "when people are watching
+        set norelativenumber
+        set nonumber
+        autocmd!
+        autocmd InsertEnter * :set nonumber
+        autocmd InsertLeave * :set nonumber
+        autocmd InsertEnter * :set norelativenumber
+        autocmd InsertLeave * :set norelativenumber
+        return g:numoff
+    endif
+endfunction
+noremap <silent> <leader>nn :call NumOff()<CR>
+noremap <silent> <leader>ns :call PresMode()<CR>
+"}}}
 "{{{ get stuff off my screen
 let g:clean = 1
 function! CleanScreen()
     if  g:clean == 0
-	set laststatus=2
+        let g:numoff = 0
+        set laststatus=1
         set foldcolumn=2
-	set relativenumber
+        call NumOff()
         set showmode
         let g:clean=1
         return g:clean
     else
+        let g:numoff = 1
         set laststatus=0
         set noshowmode
         set foldcolumn=12
-	set nonumber
+        call NumOff()
         let g:clean=0
         return g:clean
     endif
@@ -559,6 +646,15 @@ function! Scratch()
     resize -15
 endfunction
 command! Scratch :call Scratch()
+"}}}
+"{{{ open new buffer without creating extra split
+function! NewBuffer()
+    new
+    wincmd k
+    close
+endfunction
+cnoreabbrev new New
+command! New :call NewBuffer()
 "}}}
 "{{{ toggle fold column markers
 let g:foldon=1
@@ -610,13 +706,10 @@ onoremap <m <ESC>
 inoremap <M <ESC>l
 onoremap <M <ESC>
 "}}}
-<<<<<<< HEAD
-=======
 "{{{ map colon to semi-colon. Life is just easier that way.
 noremap ; :
 nnoremap <leader>; :!
 "}}}
->>>>>>> I lost a few things here
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
@@ -625,14 +718,11 @@ nnoremap ss :call Save()<CR>
 inoremap <leader>ss <ESC>:call Save()<CR>
 vnoremap <leader>ss <ESC>:call Save()<CR>
 "}}}
-<<<<<<< HEAD
-=======
 "{{{ save but don't retab
 nnoremap <localleader>ss :call SaveNoRt()<CR>
 inoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
 "}}}
->>>>>>> I lost a few things here
 "{{{ save and close
 nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
 inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
@@ -693,6 +783,16 @@ nnoremap <localleader><CR> zC
 "}}}
 "}}}
 "{{{mappings
+"{{{ Indenting
+"bind \] to indent
+nnoremap <localleader>] >>
+vnoremap <localleader>] >gv
+inoremap <localleader>] <C-O>>>
+"bind \[ to outdent
+nnoremap <localleader>[ <<
+vnoremap <localleader>[ <gv
+inoremap <localleader>[ <C-O><<
+"}}}
 "{{{file navigation shortcuts
 nnoremap <silent> <leader>ev :e ~/.vim/config/vimrc.combined.vim<CR>
 nnoremap <silent> <leader>pe :e ~/.vim/config/extensions<CR>
@@ -710,8 +810,6 @@ nnoremap <leader>D d0
 inoremap <leader>D <ESC>d0xi
 "repeat last command
 nnoremap <leader>. @:
-"don't move on *
-nnoremap * *<C-o>
 "}}}
 "{{{ Formatting, TextMate-style
 nnoremap Q gqip
@@ -750,6 +848,7 @@ nnoremap <leader>cs :%!column -t -s ","<CR>
 nnoremap <leader>cp :%!column -t -s "\|"<CR>
 nnoremap <leader>s :source %<CR>
 nnoremap <leader>S :source %<CR>
+nnoremap <leader>dca :!drush cc all<CR>
 nnoremap <leader>cd :lcd %:p:h<CR>
 "}}}
 "{{{ spelling mappings
@@ -768,7 +867,7 @@ vnoremap R q
 nnoremap q <NOP>
 vnoremap q <NOP>
 " q: is actually useful when you have it configured right
-nnoremap !! q:
+nnoremap ch q:
 "}}}
 "{{{ I've needed these mappings forever. Map '; to ; and ": to , also quickfix
 " last search
@@ -783,7 +882,7 @@ nnoremap <leader>o o<ESC>k
 "}}}
 "{{{ set buffer, also set foldmethod
 nnoremap <silent>-b :set buftype=<CR>
-nnoremap <silent>-dj :set filetype=htmldjango<CR>
+nnoremap <silent>-dh :set filetype=htmldjango<CR>
 nnoremap <silent>-fm :set foldmethod=marker<CR>
 nnoremap <silent>-fi :set foldmethod=indent<CR>
 nnoremap <silent>-fs :set foldmethod=syntax<CR>
@@ -791,9 +890,10 @@ nnoremap <silent>-fs :set foldmethod=syntax<CR>
 "{{{ Command line abbreviations
 cnoreabbrev clam Clam
 cnoreabbrev ack Ack
+cnoreabbrev push Git push
+cnoreabbrev pull Git pull
 cnoreabbrev tw Tw
 "}}}
-nnoremap <Leader>t :call AutoHighlightToggle()<CR>
 "}}}
 "{{{splits
 "{{{window navigation & and splits
@@ -816,8 +916,6 @@ noremap <localleader>= <C-w>=
 set splitbelow
 set splitright
 "}}}
-<<<<<<< HEAD
-=======
 "{{{ window size mappings
 nnoremap <C-d> <C-w>>
 nnoremap <C-w> <C-w>+
@@ -896,18 +994,17 @@ inoremap <c-b>w <ESC>:ls!<CR>:bwipeout<space>
 nnoremap <c-b>k :bunload %<CR>
 vnoremap <c-b>k <ESC>:bunload %<CR>
 inoremap <c-b>k <ESC>:bunload %<CR>
->>>>>>> I lost a few things here
 "}}}
-"{{{ buffer management <c-d>
 "{{{ open all buffers vertically v
-nnoremap <c-d>v :vert sball<CR>
-vnoremap <c-d>v <ESC>:vert sball<CR>
-inoremap <c-d>v <ESC>:vert sball<CR>
+nnoremap <c-b>v :vert sball<CR>
+vnoremap <c-b>v <ESC>:vert sball<CR>
+inoremap <c-b>v <ESC>:vert sball<CR>
 "}}}
 "{{{ open all buffers horizontally h
-nnoremap <c-d>h :sball<CR>
-vnoremap <c-d>h <ESC>:sball<CR>
-inoremap <c-d>h <ESC>:sball<CR>
+nnoremap <c-b>h :sball<CR>
+vnoremap <c-b>h <ESC>:sball<CR>
+inoremap <c-b>h <ESC>:sball<CR>
+"}}}
 "}}}
 "}}}
 "{{{ Regisers
