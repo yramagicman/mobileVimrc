@@ -263,9 +263,9 @@ if has("autocmd")
     augroup general
         autocmd!
         "{{{ Status line
-        autocmd BufEnter,BufWritePost * let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
-        autocmd VimEnter,BufEnter * let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
-        autocmd VimEnter,BufEnter * let c=split(b, '')
+        autocmd BufEnter,BufWritePost,ShellCmdPost * let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
+        autocmd VimEnter,BufEnter,ShellCmdPost * let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
+        autocmd VimEnter,BufEnter,ShellCmdPost * let c=split(b, '')
         "}}}
         "{{{ show cursorline on current buffer only
         autocmd BufEnter * set cursorline
@@ -798,8 +798,6 @@ nnoremap <silent>-fs :set foldmethod=syntax<CR>
 "{{{ Command line abbreviations
 cnoreabbrev clam Clam
 cnoreabbrev ack Ack
-cnoreabbrev push Git push
-cnoreabbrev pull Git pull
 cnoreabbrev tw Tw
 "}}}
 "}}}
