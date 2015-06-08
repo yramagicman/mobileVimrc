@@ -140,11 +140,13 @@ let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
 "}}}
 "{{{ set status line
 " Always show status line
+let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
+let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
+let c=split(b, '')
 set laststatus=2
 set statusline=\|\ %m%f%r\ \%y
-if has('statusline') && exists('*fugitive#statusline')
-    set statusline+=\ \%{fugitive#statusline()}
-endif
+set statusline+=\ \%{c[0]}
+set statusline+=\ \%{f[0]}
 set statusline+=%=
 set statusline+=Line:
 set statusline+=%4l/%-4L
@@ -260,6 +262,11 @@ if has("autocmd")
     " Enable file type detection
     augroup general
         autocmd!
+        "{{{ Status line
+        autocmd BufEnter,BufWritePost * let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
+        autocmd VimEnter,BufEnter * let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
+        autocmd VimEnter,BufEnter * let c=split(b, '')
+        "}}}
         "{{{ show cursorline on current buffer only
         autocmd BufEnter * set cursorline
         autocmd BufLeave * set nocursorline
