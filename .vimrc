@@ -2,8 +2,7 @@
 " https://github.com/yramagicman/dotfiles/tree/master/.vim/config
 
 
-"{{{ defaults
-"{{{ set secondary editor
+"{{{ defaults "{{{ set secondary editor
 if has('mac')
     let g:Gui_Editor = 'TextWrangler'
 else
@@ -599,24 +598,13 @@ endpython
 endfunction
 command! Tw :call Tw()
 "}}}
-<<<<<<< HEAD
 "{{{ Maximize window
-=======
-"{{{ Maximize
->>>>>>> various utilities
 function! Maximize()
     wincmd _
     wincmd |
 endfunction
 "}}}
 "}}}
-<<<<<<< HEAD
-"{{{ remap escape for easier access
-nnoremap <silent>,m <ESC>:w<CR>
-vnoremap <silent>,m <ESC>:w<CR>
-inoremap <silent>,m <ESC>:w<CR>
-onoremap <silent>,m <ESC>
-=======
 "{{{escape
 "{{{ remap escape for easier access
 nnoremap <leader>m <ESC>l
@@ -630,7 +618,6 @@ onoremap <m <ESC>
 inoremap <M <ESC>l
 onoremap <M <ESC>
 "}}}
->>>>>>> various utilities
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
@@ -641,13 +628,6 @@ nnoremap <silent><leader>ss :call Save()<CR>
 nnoremap <silent>ss :call Save()<CR>
 vnoremap <silent><leader>ss <ESC>:call Save()<CR>
 "}}}
-<<<<<<< HEAD
-"{{{ save but don't retab
-nnoremap <localleader>ss :call SaveNoRt()<CR>
-vnoremap <localleader>ss <ESC>:call SaveNoRt()<CR>
-"}}}
-=======
->>>>>>> various utilities
 "{{{ save and close
 nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
 vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
@@ -677,14 +657,8 @@ nnoremap cl :close<CR>
 "}}}
 "}}}
 "{{{folding
-<<<<<<< HEAD
 nnoremap <Leader>z zMzvzz
 nnoremap <LocalLeader>z zMzOzz
-=======
-"{{{Open folds on enter
-nnoremap <Leader>z zMzvzz
-nnoremap <Leader><Leader>z zMzOzz
->>>>>>> various utilities
 "}}}
 "{{{ folding options
 set foldmethod=indent
