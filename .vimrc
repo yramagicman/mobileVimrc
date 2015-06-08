@@ -244,11 +244,6 @@ vnoremap --r y<Esc>:%s/<C-r>"//g<Left><Left>
 " ask for confirmation
 vnoremap -r y<Esc>:%s/<C-r>"//gc<Left><Left><Left>
 "}}}
-"{{{ find and replace with control f
-noremap <C-F> :%s/find/replace/I
-inoremap <C-F> <ESC>:%s/find/replace/I
-vnoremap <C-F> :s/find/replace/g
-"}}}
 "{{{ visual block mode is better that visual mode
 nnoremap v <c-v>
 nnoremap <c-v> v
