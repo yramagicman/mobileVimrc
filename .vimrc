@@ -118,7 +118,7 @@ let localleader="/"
 ""set autochdir
 set nowrapscan
 ""set cryptmethod=blowfish2
-filetype plugin on
+filetype plugin indent on
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
@@ -326,6 +326,12 @@ if has("autocmd")
         autocmd Bufenter,BufRead */ratiochristi/* set smartindent
         autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
         autocmd Bufenter,BufRead */ratiochristi/* set expandtab
+        "}}}
+        "{{{ scheme coding standards
+        autocmd BufEnter,BufRead scheme set tabstop=2
+        autocmd BufEnter,BufRead scheme set smartindent
+        autocmd BufEnter,BufRead scheme set shiftwidth=2
+        autocmd BufEnter,BufRead scheme set expandtab
         "}}}
     augroup end
     augroup extra
