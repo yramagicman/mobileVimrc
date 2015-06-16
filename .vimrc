@@ -286,6 +286,13 @@ if has("autocmd")
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
         "}}}
+        "{{{ Saving
+        autocmd BufWritePre * checktime
+        autocmd BufWritePre * call StripWhitespace()
+        autocmd BufWritePre * call Knl()
+        autocmd BufWritePre * %retab
+        autocmd BufWritePost * call CheckErrorFn()
+        "}}}
     augroup end
     augroup js
         "{{{ Treat .json files as .js
@@ -493,26 +500,6 @@ function! Knl ()
     endtry
 endfunction
 "}}}
-"{{{ save, kill whitespace at end of lines, and end of file, convert tabs
-function! Save()
-    checktime
-    syntax sync fromstart
-    redraw!
-    %retab
-    call StripWhitespace()
-    call Knl()
-    w
-    call CheckErrorFn()
-endfunction
-"}}}
-"{{{ save, kill whitespace at end of lines, and end of file, don't convert tabs
-function! SaveNoRt()
-    call StripWhitespace()
-    call Knl()
-    w
-    call CheckErrorFn()
-endfunction
-"}}}
 "{{{ Shortcut: <leader>R = Run anything with a shebang
 " Source: http://superuser.com/a/21503/48014
 if has("autocmd")
@@ -652,15 +639,10 @@ onoremap <M <ESC>
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
-nnoremap <leader>ss :call Save()<CR>
-nnoremap ss :call Save()<CR>
-inoremap <leader>ss <ESC>:call Save()<CR>
-vnoremap <leader>ss <ESC>:call Save()<CR>
-"}}}
-"{{{ save and close
-nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
-inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
-vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
+nnoremap <leader>ss :w<CR>
+nnoremap ss :w<CR>
+inoremap <leader>ss <ESC>:w<CR>
+vnoremap <leader>ss <ESC>:w<CR>
 "}}}
 "{{{ close but don't save
 nnoremap <leader>cl <ESC>:close!
@@ -668,9 +650,9 @@ inoremap <leader>cl <ESC>:close!
 vnoremap <leader>cl <ESC>:close!
 "}}}
 "{{{ save and quit
-nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
-inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
-vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
+nnoremap <silent><leader>wq :wqa<CR>
+inoremap <silent><leader>wq <ESC>:wqa<CR>
+vnoremap <silent><leader>wq <ESC>:wqa<CR>
 "}}}
 "{{{ quit without saving
 nnoremap <leader>Q :q!
@@ -731,7 +713,7 @@ nnoremap Ql gqq
 "}}}
 "{{{ Convenience bindings
 "auto-highlight current word
-nnoremap <leader>t :call AutoHighlightToggle()
+nnoremap <leader>t :call AutoHighlightToggle()<CR>
 " Save a file as root ('W)
 nnoremap <c-\> :so $VIMRUNTIME/syntax/hitest.vim<CR>
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
