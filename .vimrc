@@ -437,7 +437,7 @@ inoremap <expr> <BS> Backspace()
 "{{{ Unwrap parens and brackets
 function! UnwrapParens()
     let l:current = strpart(getline('.'), col('.')-1, 1)
-    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
+    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{" || l:current == "<" || l:current == ">"
         norm ml%mkx`lx
     endif
     if l:current == '"'
