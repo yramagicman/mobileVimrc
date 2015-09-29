@@ -16,7 +16,7 @@ let g:VundleHelper_Plugin_File =  '/.vim/config/extensions/vundle.vim'
 let g:VundleHelper_Update_Frequency = 5
 "}}}
 "{{{ Defaults probably won't change... ever
-set background=dark
+set background=light
 set autoread
 set spelllang=en_us
 " best color scheme ever
@@ -118,7 +118,7 @@ let localleader="/"
 ""set autochdir
 set nowrapscan
 ""set cryptmethod=blowfish2
-filetype plugin on
+filetype plugin indent on
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
@@ -140,11 +140,13 @@ let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
 "}}}
 "{{{ set status line
 " Always show status line
+let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
+let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
+let c=split(b, '')
 set laststatus=2
-set statusline=\|\ %m%f%r\ \%y
-if has('statusline') && exists('*fugitive#statusline')
-    set statusline+=\ \%{fugitive#statusline()}
-endif
+set statusline=\|\ %m\ %f\ %r\ \%y
+set statusline+=\ \%{c[0]}
+set statusline+=%{f[0]}
 set statusline+=%=
 set statusline+=Line:
 set statusline+=%4l/%-4L
@@ -260,6 +262,11 @@ if has("autocmd")
     " Enable file type detection
     augroup general
         autocmd!
+        "{{{ Status line
+        autocmd BufEnter,BufWritePost,ShellCmdPost * let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
+        autocmd VimEnter,BufEnter,ShellCmdPost * let b=system('git branch 2>/dev/null | grep \* | sed "s/\*//g"')
+        autocmd VimEnter,BufEnter,ShellCmdPost * let c=split(b, '')
+        "}}}
         "{{{ show cursorline on current buffer only
         autocmd BufEnter * set cursorline
         autocmd BufLeave * set nocursorline
@@ -278,6 +285,13 @@ if has("autocmd")
         autocmd FileType vim setlocal foldmethod=marker
         autocmd FileType zsh setlocal foldmethod=marker
         autocmd FileType lua setlocal foldmethod=marker
+        "}}}
+        "{{{ Saving
+        autocmd BufWritePre * checktime
+        autocmd BufWritePre * call StripWhitespace()
+        autocmd BufWritePre * call Knl()
+        autocmd BufWritePre * %retab
+        autocmd BufWritePost * call CheckErrorFn()
         "}}}
     augroup end
     augroup js
@@ -320,6 +334,12 @@ if has("autocmd")
         autocmd Bufenter,BufRead */ratiochristi/* set shiftwidth=4
         autocmd Bufenter,BufRead */ratiochristi/* set expandtab
         "}}}
+        "{{{ scheme coding standards
+        autocmd BufEnter,BufRead scheme set tabstop=2
+        autocmd BufEnter,BufRead scheme set smartindent
+        autocmd BufEnter,BufRead scheme set shiftwidth=2
+        autocmd BufEnter,BufRead scheme set expandtab
+        "}}}
     augroup end
     augroup extra
         "{{{ Misc. individual commands that don't merit their own fold group
@@ -328,7 +348,6 @@ if has("autocmd")
         autocmd FileType make set noexpandtab
         autocmd FileType,BufEnter snippets set noexpandtab
         autocmd BufNewFile,BufRead *.md set filetype=markdown
-        autocmd BufEnter * execute "source ~/.vim/colors/" . g:colors_name . ".vim"
         " make Vim edit cron again
         autocmd BufEnter /private/tmp/crontab.* setl backupcopy=yes
         " always reload files when changed outside Vim
@@ -417,7 +436,7 @@ inoremap <expr> <BS> Backspace()
 "{{{ Unwrap parens and brackets
 function! UnwrapParens()
     let l:current = strpart(getline('.'), col('.')-1, 1)
-    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{"
+    if  l:current == "]" || l:current == ")" || l:current == "}" || l:current == "[" || l:current == "(" || l:current == "{" || l:current == "<" || l:current == ">"
         norm ml%mkx`lx
     endif
     if l:current == '"'
@@ -478,26 +497,6 @@ function! Knl ()
         %s#\($\n\s*\)\+\%$##
     catch
     endtry
-endfunction
-"}}}
-"{{{ save, kill whitespace at end of lines, and end of file, convert tabs
-function! Save()
-    checktime
-    syntax sync fromstart
-    redraw!
-    %retab
-    call StripWhitespace()
-    call Knl()
-    w
-    call CheckErrorFn()
-endfunction
-"}}}
-"{{{ save, kill whitespace at end of lines, and end of file, don't convert tabs
-function! SaveNoRt()
-    call StripWhitespace()
-    call Knl()
-    w
-    call CheckErrorFn()
 endfunction
 "}}}
 "{{{ Shortcut: <leader>R = Run anything with a shebang
@@ -639,15 +638,10 @@ onoremap <M <ESC>
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
-nnoremap <leader>ss :call Save()<CR>
-nnoremap ss :call Save()<CR>
-inoremap <leader>ss <ESC>:call Save()<CR>
-vnoremap <leader>ss <ESC>:call Save()<CR>
-"}}}
-"{{{ save and close
-nnoremap <silent><leader>ww :call SaveNoRt()<CR>:close<CR>
-inoremap <silent><leader>ww <ESC>:call SaveNoRt()<CR>:close<CR>
-vnoremap <silent><leader>ww <ESC>:call SaveNoR()<CR>:close<CR>
+nnoremap <leader>ss :wa<CR>
+nnoremap ss :wa<CR>
+inoremap <leader>ss <ESC>:wa<CR>
+vnoremap <leader>ss <ESC>:wa<CR>
 "}}}
 "{{{ close but don't save
 nnoremap <leader>cl <ESC>:close!
@@ -655,9 +649,9 @@ inoremap <leader>cl <ESC>:close!
 vnoremap <leader>cl <ESC>:close!
 "}}}
 "{{{ save and quit
-nnoremap <silent><leader>wq :call SaveNoRt()<CR>:qall<CR>
-inoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
-vnoremap <silent><leader>wq <ESC>:call SaveNoRt()<CR>:qall<CR>
+nnoremap <silent><leader>wq :wqa<CR>
+inoremap <silent><leader>wq <ESC>:wqa<CR>
+vnoremap <silent><leader>wq <ESC>:wqa<CR>
 "}}}
 "{{{ quit without saving
 nnoremap <leader>Q :q!
@@ -692,16 +686,6 @@ set foldcolumn=2
 "}}}
 "}}}
 "{{{mappings
-"{{{ Indenting
-"bind \] to indent
-nnoremap <localleader>] >>
-vnoremap <localleader>] >gv
-inoremap <localleader>] <C-O>>>
-"bind \[ to outdent
-nnoremap <localleader>[ <<
-vnoremap <localleader>[ <gv
-inoremap <localleader>[ <C-O><<
-"}}}
 "{{{file navigation shortcuts
 nnoremap <silent> <leader>ev :e ~/.vim/config/vimrc.combined.vim<CR>
 nnoremap <silent> <leader>pe :e ~/.vim/config/extensions<CR>
@@ -728,7 +712,7 @@ nnoremap Ql gqq
 "}}}
 "{{{ Convenience bindings
 "auto-highlight current word
-nnoremap <leader>t :call AutoHighlightToggle()
+nnoremap <leader>t :call AutoHighlightToggle()<CR>
 " Save a file as root ('W)
 nnoremap <c-\> :so $VIMRUNTIME/syntax/hitest.vim<CR>
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
@@ -801,9 +785,14 @@ nnoremap <silent>-fs :set foldmethod=syntax<CR>
 "{{{ Command line abbreviations
 cnoreabbrev clam Clam
 cnoreabbrev ack Ack
-cnoreabbrev push Git push
-cnoreabbrev pull Git pull
 cnoreabbrev tw Tw
+cnoreabbrev git !git
+cnoreabbrev gab !git add %
+cnoreabbrev ga !git add %
+cnoreabbrev gac !git add %
+cnoreabbrev ga% !git add %
+cnoreabbrev gcm !git commit -m
+cnoreabbrev gd !git diff
 "}}}
 "}}}
 "{{{splits
