@@ -1,0 +1,230 @@
+6.824 2002 Lecture 1
+
+Opening
+  network-based systems
+  robustness, high performance, flexible construction
+  we'll study design
+  you'll build real systems
+  understand and synthesize many O/S and dist sys ideas
+
+Example:
+  group of cooperating people
+  want to write software, maintain document
+  need shared data repository
+
+Solution 1:
+  Buy one AFS server [picture]
+  Lots to talk about even w/ simple client/server system
+  Issue: s/w structure, modules, interfaces, complexity
+  Issue: performance w/ multiple clients (caching...)
+  Issue: cache consistency
+  Issue: fault tolerance / crash recovery
+  Issue: stability w/ high load
+
+Stable performance under high load
+  Example: Starbucks.
+    5 seconds to write down incoming request. 10 seconds to make it.
+    max thruput at 4 drinks/minute.
+    thruput goes to zero at 12 requests/minute.
+    [graph: x=requests, y=output]
+  Efficiency *decreases* with load -- bad.
+  Careful system design to avoid this -- flat line at 4 drinks.
+    Peets, for example.
+  Better: build systems whose efficiency *increases* w/ load
+    w/ e.g. batching, disk scheduling
+
+Issue: scalable performance
+  What if more clients than one server can handle?
+  Divide files or users among multiple servers.
+  Issue: partial failure, e.g. crash during inter-server rename()
+  Issue: load balance
+  Issue: communication cost, latency
+
+Issue: high availability
+  Can I get at my data if some servers / networks are down?
+  Yes, if you replicate the data on multiple servers.
+  Issue: replica consistency. e.g. airline reservations.
+  Issue: partition vs availability
+
+Issue: security
+  systems with good security are often *easier* to use
+  want your service to be accessible by everybody
+  hardening against outside attack
+  for legitimate users
+    accept deposits vs view balance
+  two problems: authentication and authorization
+  hard part: what does identity mean?
+    example: pub-key signed e-mail; verify sig is not enough
+
+We want to understand the individual techniques, and how to assemble them.
+
+--------------
+
+Course structure
+  URL
+  meetings: 1/2 lectures on fundamentals, 1/2 reading discussions
+  research papers on ideas and working systems
+  must read papers before class
+  two exams
+  Labs: build real servers. on our machines.
+  Project. Programming and paper (in style of readings).
+  Thomer is TA, office hours on Monday morning
+  Don't forget:
+    sign up for course machine accounts
+    start first assignment early!
+    read paper for tuesday (schedule on web site)
+
+---------------
+
+O/S kernel overview
+  context in which you build distributed systems
+  o/s has big impact on design, robustness, performance
+  sometimes because of o/s quirks
+  mostly because o/s solves some hard problems
+  This should be review for most of you
+    Want to tell what I think is important
+    Give you a chance to ask questions
+    Prepare you for the first reading...
+
+What problems does o/s solve?
+  sharing hardware resources
+  protection
+  communication
+  hardware independence
+  (everyone faces these problems)
+
+Approach to solution?
+  o/s designers think like programmers, think in abstractions
+  abstract resources
+  control the abstraction
+  there's lots of freedom here
+
+UNIX abstractions
+  (we'll be programming UNIX in labs...)
+  process
+    address space
+    thread of control
+    user ID
+  file system
+  pipe
+    local
+    network connection
+
+System call interface to kernel abstractions
+  looks like function call, but special
+  fork, exec
+  open, read, creat
+
+Note we're partially virtualizing
+  o/s multiplexes physical resource among multiple processes
+  CPU, memory
+  simple model for apps
+  easy for o/s to control, protect, share
+
+Can't completely virtualize
+  the file system is not a virtual disk
+
+abstractions interact, must form a coherent set
+  if o/s can start programs, it must know how to read files
+
+Standard picture
+  app (show two of them, mark addresses from zero)
+  libraries
+  -----
+  FS
+  disk driver
+  (mention address spaces, protection boundaries)
+  (mention h/w runs kernel address space w/ special permissions)
+
+Why UNIX abstractions have been successful.
+  high level programming model
+  easy for kernel subsystems to cooperate
+    disk buffer shares phys mem with virtual mem system
+  all kernel code is 100% privileged
+    very simple security model
+
+Why UNIX abstractions are not perfect
+  kernel is big
+  kernel has room for lots of bugs; it's all privileged
+  kernel limits flexibility
+    multiple threads per process?
+    single thread crossing into a different address space?
+    control disk layout of files for performance?
+    don't like the kernel's TCP implementation?
+  we'll discuss a number of improved abstractions
+
+Alternate set of abstractions: micro-kernel
+  Move complex abstractions to server processes
+  Talk to FS server, rather than FS module in kernel
+  Kernel mostly handles IPC
+    also grants h/w access to privileged servers
+    e.g. FS server can read/write disk h/w
+  Elegant idea, but not clear it really fixes any problems.
+
+Life-cycle of a simple UNIX system call
+  App:
+    close(3)
+  C Library:
+    close(int x) {
+      R0 <- 73
+      R1 <- x
+      INT
+    }
+  INT instruction:
+    save registers where kernel can find them
+    switch to kernel address space
+    set kernel mode flag
+    jump to kernel syscall handler
+  Kernel syscall handler:
+    set SP to kernel stack
+    save user registers in per-process table
+    call sys_close(), an ordinary C function
+    now executing in "kernel half"
+    ...
+    IRET
+  IRET instruction:
+    restore saved registers
+    clear kernel mode flag
+    switch to process address space
+    continue process execution
+
+Main point: protected transfer
+  h/w allows process to get kernel permissions
+  but only by jumping to known entry point in kernel
+
+Suppose sys_read() starts a disk read, needs to wait.
+  Ask driver to start disk read (seek &c).
+  Now want to "sleep": give up the cpu
+    "blocking system call"
+  Mark process as waiting for that disk I/O.
+  Save registers in per-process kernel table entry.
+  Leave most state in per-kernel-half stack.
+    i.e. subroutine activation records
+  Call process scheduler
+    Finds another kernel-half that wants to run.
+  
+What happens when disk completion interrupt occurs?
+  CPU sees device wants to interrupt.
+  Saves current process state much like system call.
+  Enters kernel handler.
+  Kernel points SP to special interrupt stack.
+  Device interrupt routine sees a process was waiting for that I/O.
+  Marks process as runnable.
+  Returns from interrupt.
+  Someday process scheduler will switch to the waiting process.
+
+Now let's look at how services use this kernel structure.
+
+--------------
+
+Topic: basic server software structure
+
+Explain code in handout
+
+Problem
+  [draw this]
+  Time-lines for CPU, disk, network
+  We're wasting CPU, disk, network.
+  We may have lots of work AND an idle system. Not good.
+  s/w structure forces one-at-time processing
+  How can we use the system's resources more efficiently?

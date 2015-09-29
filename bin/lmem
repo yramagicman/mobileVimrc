@@ -1,0 +1,1 @@
+free -mh | head -n 2 | tail -n 1 | cut -d " " -f 11,18,25

@@ -1,0 +1,49 @@
+6.824 2002 Lecture 20: Viewstamped Replication
+
+Suppose we want to build a replicated service, for high availability.
+  We want to tolerate replica or network failure and keep going.
+  Example: lock manager.
+  Example: file server.
+
+Why not use two-phase commit?
+  Many situations in which 2pc blocks due to just one server down.
+  2pc designed for situations where *all* nodes are neccessary.
+
+Replicated data is easier than general atomic commit.
+  No one node is critical, if they are all replicas.
+
+What's the overall plan?
+  Clients, and a group of replicated servers.
+  Servers have "replicated state machines."
+  Same operations, same order.
+  Operations might be read/write of particular data items.
+  Or acquire/release of locks.
+  Or NFS operations.
+  To avoid external lock manger, we'll assume that each operation
+    is atomic: e.g. rename operation, not link+unlink,
+    or transfer operation, not debit+credit.
+  In any event, the only issue is agreement on what operations
+    have occurred, and the order. So we can boil everything
+    down to numbering operations.
+
+Idea for order: primary-copy.
+  Elect a primary.
+  Clients send all operations through primary.
+  Primary processes client operations in some order.
+  Primary sends each operation to backups, waits for ACKs.
+  If primary fails, clients start using a backup as the primary.
+  Problem: status of the last operation if primary fails.
+  Problem: network partition might lead to two primaries.
+  Problem: net or backup failure may leave a backup out of date.
+
+Idea to handle partition: quorum.
+  Make sure every operation consults a majority of replicas.
+  Quorum ensures that you proceed in at most one partition.
+    Which avoids non-serializable histories.
+  Quorum ensures that at least one replica saw previous operation.
+    So read following write guaranteed to see one copy of latest data.
+    But how does reader know which replica is most recent?
+  Problem: Assumes external serializer, e.g. lock manager.
+    How do we implement available lock manager?
+  Problem: no one copy sees complete sequence of operations.
+    Trouble if replicated data is e.g. NFS file system.

@@ -1,0 +1,171 @@
+6.824 2002 Lecture 23: Distributed Hash Tables 92)
+
+How does a new node acquire correct tables?
+  Issues a lookup for its own key to any existing node.
+    Finds numerically closest node.
+    Ask that node for leaf set -- that's almost all the leaf set.
+  Can't use numerically closest node to help initialize routing table.
+    We might be 133, it might be 200; no help.
+  Get complete tables from each node on path of lookup.
+    These are nodes that share more and more of our prefix.
+  We can use first node's first row directly.
+  And second node's second row, since it agrees w/ us in first digit.
+  At this point the new node can forward queries correctly.
+
+Does routing *to* us now work?
+  If new node doesn't do anything,
+    query will go to where it would have gone before we joined.
+    I.e. to the existing node numerically closest to us.
+  So, for correctness, we just need to correct leaf sets of
+    numerically closest L nodes.
+    That's easy: closest node can tell us our leaf set.
+  If that's all we do, lookups will take linear time.
+
+Updating other nodes' routing tables to reflect new node.
+  To preserve O(log N) lookup time.
+  They are either correct, or missing an entry that we could fill.
+  Send our state to each node mentioned in our routing table.
+  Also, existing nodes periodically do lookups to try to fill blank entries.
+
+What about node failures?
+  Assume nodes fail w/o warning. Strictly harder than graceful departure.
+  Two issues:
+    Other nodes' routing tables refer to dead node.
+    Other nodes' leaf sets refer to dead node.
+  For routing table, detect timeout, treat as empty table entry.
+    I.e. route to numerically closer entry instead.
+    Repair: ask any node on same row for a copy of its corresponding entry.
+      Or any node on rows below.
+      All these share the right prefix.
+  For leaf sets,
+    Failed node might have been closest to key ID!
+    Need to know next-closest.
+    That's why leaf set knows of more than just two closest nodes.
+    We can route around failure, and easily update leaf set.
+
+The system is effectively self-correcting.
+  Easy to verify correctness of your own routing table (just look at prefix).
+  Easy to keep yourself in other nodes' leaf sets.
+
+What kinds of failures can the system withstand?
+  If all else fails, routes numerically using leaf sets.
+  This only fails if some node has lost all leaf set entries.
+  Assume independent node failure...
+    probability of all simultaneously failing is p^L
+    p is probability of any one node failing
+    Pretty small for reasonable values of L
+  Why is independent node failure a reasonable assumption?
+    Requires that nodes w/ nearby IDs not fail at the same time.
+    I.e. are not in the same room/building/backbone.
+    Probably true if nodeID = hash(IPAddress)
+    And if the system is geographically big.
+
+Locality
+  Lookup takes log_b(n) messages.
+    But they are to random nodes on the Internet!
+    Will often be very far away.
+  Can we route through nodes close to us on underlying network?
+  This boils down to whether we have choices:
+    If multiple correct next hops, we can try to choose closest.
+  We do have choices for routing table:
+    *Any* node with correct prefix will do for each entry.
+    So we can pre-choose nearby entries.
+  But there's no choice for leaf sets.
+
+Pastry continuously adjusts routing table entries for locality
+  Asks current entry for that entry's complete tables
+  Ping suitable nodes from other node's tables
+  Use them instead of current entry if ping says closer
+  This works OK even if other nodes don't have local entries
+  Since other nodes do this too, even initial table will be reasonable
+    Assuming initial node contacted is close to new node
+
+What's the effect?
+  Individual hops are lower latency.
+  But less and less choice (lower node density) as you get close in ID space.
+  So last few hops likely to be very long. 
+  Thus you don't *end up* close to the initiating node.
+    You just get there quicker.
+
+What does this assume about underlying network topology?
+  Works best if:
+    X close to Y and Y close to Z means X close to Z
+  Not always true: MediaOne, MIT, BU
+
+Any down side to locality routing?
+  Harder to prove independent failure.
+    Maybe no big deal, since no locality for leaf sets.
+  Easier to trick me into using malicious nodes in my tables.
+
+How might you use something like Pastry?
+  Store key/value pairs, like a hash table.
+  A little bit like Petal (from Frangipani paper).
+  Typical trick: key = SHA-1(value)
+  Build complex data structures with pointers
+
+
+
+  Subject: RE: Pastry question
+  Date: Tue, 3 Dec 2002 11:43:55 -0800
+  From: "Ant Rowstron" <antr@microsoft.com>
+  To: "Robert Morris" <rtm@amsterdam.lcs.mit.edu>
+
+  Hi!
+
+  Holes in routing tables are fixed in a number of ways. Lets assume that
+  there is a node n which has a hole in its routing table which could be
+  filled if it knew about node m.
+
+  1) Another node joins, which puts node m and n into the same row of its
+  routing table. The joining node will propagate the row to both nodes m
+  and n. n can then fill the hole in its routing table.
+
+  2) Whenever n is routing a message to key k and it finds a hole in the
+  routing table it selects a node (s)which is numerically closer and
+  shares the same or longer prefix match to k than itself. When n forwards
+  the message to s it asks node s to send it a routing table entry to fill
+  its hole (if s has one).
+
+  3) Periodically, nodes randomly send a row of their routing tables to on
+  of the members of that row.
+
+  In simulations, we found that the holes were rare and that were normally
+  fixed by method (2) above - of course, the number of holes in the
+  routing tables is effected by the leaf set size.   
+
+  It is worth pointing out that we changed the joining algorithm since the
+  Middleware paper. We have removed the neighbourhood sets (so we just
+  have leaf sets and routing tables), and reduced the amount of state sent
+  to each member of the routing table.
+
+  Hope this helps, 
+
+  Ant.
+
+  ___________________________________________________________________
+  Dr. Antony Rowstron, Microsoft Research, Cambridge. 
+  Tel. +44/0 1223 479742
+  Personal homepage: http://www.research.microsoft.com/~antr
+  Pastry Project: http://www.research.microsoft.com/~antr/Pastry 
+
+  > -----Original Message-----
+  > From: Robert Morris [mailto:rtm@amsterdam.lcs.mit.edu] 
+  > Sent: 03 December 2002 4:53
+  > To: Ant Rowstron
+  > Subject: Pastry question
+  > 
+  > 
+  > Antony,
+  > 
+  > I'm about to teach a course lecture about Pastry, based on 
+  > your Middleware 2001 paper. Suppose a new node joins the 
+  > system, and it is the very first node with prefix 2xxx. So 
+  > every other node in the system needs to know about the new 
+  > node, because they all should fill in the currently-blank 
+  > entry for "2" in their first routing table row. But the new 
+  > node only tells a few other nodes about itself. How do the 
+  > other existing nodes find out?
+  > 
+  > Thanks,
+  > Robert
+  > 

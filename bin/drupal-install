@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+cd ~/Sites/drupal-"$@"/sites/default
+mkdir files
+cp default.settings.php settings.php
+chmod 777 settings.php
+chmod 777 ./files

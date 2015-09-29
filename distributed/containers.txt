@@ -1,0 +1,122 @@
+Resource containers: A new facility for resource management in server systems
+Gaurav Banga, Peter Druschel, Jeffrey Mogul
+OSDI 1999
+
+Why are we reading this paper?
+
+What problem are they solving?
+  Your web server is having trouble enforcing priority.
+  (Or you want your X-based editor to have priority over compilation?)
+
+What are the basic issues?
+  All scheduling points must obey priorities.
+  All consumption of resources must be charged to the right activity.
+
+Let's think of points at which scheduling occurs.
+  O/S process scheduler.
+  Interrupt dispatcher.
+  Network protocol processing for incoming packets.
+  Disk scheduler.
+  Physical page allocator (replacement algorithm).
+  Accept queue.
+  Web server's main select() loop.
+
+How does the O/S decide how to schedule?
+  Hmm, only explicit case is process scheduling.
+  Two kinds of common policy:
+    Based on CPU time consumed (for fairness).
+    Based on absolute priority.
+
+For fairness scheduling, we need to account for CPU time consumed.
+
+Let's think of times when it may be confusing who to charge CPU to.
+  Handling of different connections in server process.
+  Fast CGI, AMPED helpers, sfsusrv.
+  Interrupts.
+  Protocol processing.
+  Memory consumption (valuable resource, not really CPU).
+  Disk I/O usage (valuable resource, not really CPU).
+
+What do they think is wrong with how current O/S charges time?
+  Charged to process, not activity.
+
+O/S abstractions designed for "classical applications"
+  Process per logical activity.
+  But efficiency &c force us to handle many activities per process.
+
+Hmm, two kinds of isolation:
+  Memory (address space).
+  Performance (scheduling).
+
+Why isn't scheduling *threads* enough?
+
+Real world example:
+  I charge things to different accounts.
+  I.e. resource principle different from human identity.
+
+Accounting plan:
+  Do they give us a list of exactly what is accounted for?
+    Hmm, not really, 4.4 is vague.
+    4.6 implies containers attached only to threads and sockets.
+  Every activity associated with a resource container.
+  So extra argument to each sys call?
+  Every socket tagged with container ID?
+  Processes tell O/S when they switch activities.
+
+Scheduling plan:
+  Where are scheduling decisions made?
+    They mention thread scheduler and (4.7) protocol processing.
+  AND (4.8) incoming SYNs.
+    Different prios come in on different accept sockets?
+  Interrupt dispatch?
+  Network code (but LRP?)?
+  Disk scheduler?
+  Phys page allocator?
+
+Things that are scheduled based on containers:
+  (section 4.6)
+  CPU time
+  memory
+  network QoS
+
+They actually bind a thread to a set of containers.
+  The containers the thread has recently executed for?
+  This is done by O/S, not by process.
+
+Why do they need a container hierarchy?
+  Web server vs nightly backup.
+  Within web server, different connections.
+
+What is the hierarchy semantics?
+  Parents charged sum of children's usage?
+
+A container looks like a file descriptor!
+  Why?
+
+Extend to deal with file system I/O?
+  Memory allocation?
+
+Why can only fixed-share containers have children?
+  Why not time-shared containers?
+  Too hard to decide how to schedule parents?
+    E.g. parent X has 10 children, Y has 1.
+    How to time-share between X and Y?
+  5.1
+
+How do you evaluate a system like this?
+  Do we care how fast it runs?
+    A little, to see if it adds overhead.
+  Big issue is whether it can enforce priorities.
+    Overload from many low-pri...
+    I.e. are there important things that weren't scheduled or accounted.
+    Interrupts?
+    Select -- what is the problem in Figure 11?
+
+Can they really resist DoS attacks better?
+  Example assumes they know attacker's IP address.
+  And that attacker doesn't forge it.
+
+What other aspects of a process might we want to make explicit?
+  User ID.
+  For access checks.
+  So sfsusrv could say on whose behalf it is making a system call.

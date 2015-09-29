@@ -1,0 +1,143 @@
+"Flash...", by Pai, Druschel, and Zwaenepoel
+USENIX 1999
+
+What is the basic AMPED idea?
+  [draw picture w/ helpers]
+
+What operations does the helper perform?
+  disk read()
+  how about open()? stat()?
+
+Why is cached vs disk a big issue?
+
+Where might the cache be?
+  O/S disk block cache, or
+  Maintained by web server[s]
+  Flash seems to use both. But Flash-MP has *mapped* file cache, so shared?
+
+How does the main process ask a helper to read data?
+  pipe. why? select()able.
+
+How does the helper tell the main process the read is done?
+
+How does the main process actually get file data?
+  After the helper causes it to be read in?
+  it's implicit -- main process mmaps file, assumes pages will be resident
+  What is mmap()? mincore()?
+
+What's a reasonable number of helpers?
+  one or two per disk?
+  many per disk for disk-arm scheduling?
+
+Other techniques they discuss:
+  MP
+  MT (user threads? kernel threads?)
+  SPED (event-driven, like 2nd lab)
+  Apache == MP
+  Zeus == SPED
+
+What performance do we expect?
+  Disk-bound: AMPED > MT > MP/Apache >> SPED/Zeus
+  Cacheable: SPED/AMPED/Zeus > MT > MP/Apache.
+
+What's the test setup?
+  Real server and lots of clients. How many clients? Is one enough?
+  Clients run fake web browsers that issue concurrent requests.
+
+Figure 6:
+  
+Why does b/w go up with file size?
+
+What's the limiting factor for small files?
+  Disk? Net? RAM? I/O bus? CPU?
+  Client's ability to generate requests?
+
+What's the limiting factor for large files?
+
+Why does the curve have the shape it does?
+  x = file size
+  a = time to process zero-length request
+  b = bytes-per-second limit
+  y = bytes/time = x / (a + x/b)
+
+What are a and b?
+  Figure 6(b) suggests a is about 1 millisecond.
+  Figure 6(a) suggests b is about 100 mbits/second.
+
+What new information does Figure 6(b) contain?
+  1 / (a + x); abstracts away the b, so less information.
+  Shows small-file info more clearly.
+
+Why is there no MT line in Figure 7?
+
+Why is FreeBSD faster than Solaris?
+  Same hardware...
+  Solaris is a commercial O/S, you'd expect it to be faster?
+
+Why does the paper present Figures 6 and 7?
+  Is the workload realistic? no. only one file, no disk...
+  What have we learned?
+  Apache is slow.
+
+What would we still like to learn about?
+  Disk-bound performance.
+  "Realistic" performance with typical mix of big/small, cached/disk.
+  Effect of various parameters (mem size, # of processes, &c)
+
+Why don't they show us a simple disk-only graph like Figure 6?
+  Maybe the answers are too obvious?
+  But it would show effect of disk scheduling; SPED doesn't allow this.
+  Maybe would require huge # files to defeat caching.
+    No longer a simple experiment...
+
+Why is performance only 40 mbits in Figure 8, was ca. 100 in Figure 6?
+  avg file size apparently 10 kBytes.
+  or too many files to fit in cache.
+  They don't tell us.
+
+What can we conclude from Figure 8?
+  Realistic traces. Flash is a bit faster, but not radically.
+  Presumably this is a mix of cached/disk requests.
+  But actual mix is not known, so we don't really know what we're testing.
+
+How do figures 9 and 10 shed light on cached/disk performance?
+  by varying data set size, control how well data fits in ~100 MB disk cache.
+
+How do they vary the data set size?
+  How does that affect cache vs disk?
+
+Why is there a discontinuity at around 100 mbytes in Figure 9?
+
+Why is b/w around 50..100 mbits for large data set sizes?
+  How many requests per second? 500 to 1000...
+  Is this workload diskbound?
+  What would b/w be if diskbound? 8 mbits/second...
+  What's the cache hit rate?
+    SPED's b/w is half that of Flash in Figure 9
+    So SPED spends half its time waiting for the disk?
+    Thus 50 disk reads per second?
+    So miss rate is around 10%?
+  Do they in fact ever evaluate disk-bound behavior?
+
+At right of Figure 9, why is MP < SPED?
+  user-level cache is small in MP
+
+Figure 9/10, Flash vs MP.
+  Why does Flash beat MP for small data set? (MP has partitioned cache)
+  Why does Flash beat MP for large data set? (event-driven is more efficient)
+
+Flash vs SPED
+  Why are Flash and SPED close for small data set?
+  Why does Flash beat SPED for large data set?
+
+Flash vs MT (Figure 10)
+  Flash and MT have about the same behavior for all data set sizes.
+  Why?
+  What does this mean w.r.t. whether Flash is worthwhile?
+
+Cynical view:
+  Should just use MT, not Flash.
+
+Practical view:
+  Flash far easier to implement then kernel-supported threads!
+  Much better use of programmer time.

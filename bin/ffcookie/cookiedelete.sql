@@ -1,0 +1,2 @@
+delete from moz_cookies where baseDomain <>'facebook.com' AND baseDomain <> 'google.com' AND baseDomain <> 'amazon.com' AND baseDomain <> 'github.com' AND baseDomain <> 'youtube.com' AND baseDomain <> 'netflix.com' AND baseDomain <> 'pulse.me' AND baseDomain <> 'stackoverflow.com';
+select * from moz_cookies where baseDomain <>'facebook.com' AND baseDomain <> 'google.com' AND baseDomain <> 'amazon.com' AND baseDomain <> 'github.com' AND baseDomain <> 'youtube.com' AND baseDomain <> 'netflix.com' AND baseDomain <> 'pulse.me' AND baseDomain <> 'stackoverflow.com';

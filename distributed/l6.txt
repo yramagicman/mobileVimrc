@@ -1,0 +1,186 @@
+6.824 2002 Lecture 6: RPC
+
+Goal:
+  Tools to help us divide up programs onto multiple machines
+  Could be client / server
+  Could be cooperating cluster of machines, front end vs file server
+  Could be large distributed system, like DNS
+
+Your program could send a receive network messages directly
+  Use socket calls, read, write
+  Agree on format of data
+  Program would format and parse
+
+Network I/O is awkward
+  It isn't the usual abstraction we use for inter-module interfaces
+  We use function call instead
+  Well supported by languages
+  Can we extend this idea to cross-network inter-module interfaces?
+
+Remote Procedure Call: The Idea
+  Ordinary local code:
+    seat = reserve(int flight, str name);
+    reserve(...){
+      read/write DB;
+      return ...;
+    }
+  Now we're going to split into client and server halves.
+  Client:
+    reserve(...){
+      send request msg to server;
+      recv reply msg from server;
+      return result;
+    }
+  Server:
+    main(){
+      while(1){
+        wait for request msg;
+        call reserve(...); (the real implementation)
+        send reply msg back to client;
+      }
+    }
+  Now the programmer can make the same client reserve() call,
+    and implement reserve() on the server the same way,
+    and the RPC machinery takes care of the communcation.
+
+What are the potential benefits of RPC?
+  Transparent distributed computing
+    Existing programs don't need to be modified
+    Can write s/w that's location-independent
+  Enforces well-defined interfaces
+  Allows portable interfaces
+    Plug together separately written programs at RPC boundaries
+    e.g. NFS and X clients and servers
+
+What does an RPC system consist of?
+  Will base explanation on SUN RPC, which NFS paper mentions.
+  1. Standards for wire format of RPC msgs and data types. XDR and RPC.
+  2. Library of routines to marshal / unmarshal data.
+  3. Stub generator, or RPC compiler, to produce "stubs".
+    For client: marshal arguments, call, wait, unmarshal reply.
+    For server: unmarshal arguments, call real fn, marshal reply.
+  4. Server framework:
+    Dispatch each call message to correct server stub.
+  5. Client framework:
+    Give each reply to correct waiting thread / callback.
+  6. Binding: how does client find the right server?  
+
+What does a Sun RPC request contain?
+  (all 32 bits. this is wire format.)
+  xid
+  call/reply
+  rpc version
+  program #
+  program version
+  procedure #
+  auth stuff
+  arguments
+
+Of main interest: xid, prog#, proc#
+  Server dispatch uses prog#, proc#
+  Client reply dispatch uses xid
+    Client remembers the xid of each outstanding call
+
+Authentication fields
+  An attempt to do cryptographic security at RPC level
+    Transparent to application code
+  Turns out not to work well
+    What "security" means is too app-dependent
+    Authenticate user? host? data?
+  Typically just holds your numeric UNIX user id, not verification at all
+
+Marshaling arguments
+  "Linearize" data scattered in memory into byte stream
+  "Externalize" data representation so it is portable
+  Formats defined by XDR standard
+  Easy for e.g. int -- same representation, though portable byte order...
+  Arrays and strings? Prepend a length.
+  Pointers? Follow them? How much data does a char * point to?
+    May be unclear how to efficiently linearize e.g. hash table.
+    What if circular pointers? I.e. representing a graph structure?
+    Need programmer or language support for this.
+
+What needs to be in an RPC reply?
+  xid
+  call/reply
+  accepted? (vs bad rpc version, or auth failure)
+  auth stuff
+  success? (vs bad prog/proc #)
+  results
+  
+How does the stub generator work?
+  You give it a description of the procedure calls and arg/res data types.
+    Sun defines a C-like standard, described in the XDR RFC.
+  It produces:
+    Routines to marshall / unmarshall.
+    Routines to read/write call on the wire.
+    Maybe client / server stubs.
+
+What does the client framework do?
+  Keeps track of outstanding requests.
+    For each, xid and caller's thread / callback.
+  Matches replies to caller.
+  Might be multiple callers using one socket. NFS client in kernel.
+  Usually handles timeing out and retransmitting.
+
+What does the server framework do?
+  Need a context in which to execute the procedure.
+  In a threaded system:
+    Create a new thread per request. Master thread reads socket[s].
+    Or a fixed pool of threads, and a queue if too many requests. NFS srvrs.
+    Or just one thread, serial execution. Simplifies concurrency. X srvr.
+  Key feature: support for concurrent RPCs
+    If one RPC takes multiple blocking steps to compute,
+      Can I serve another one in the meantime?
+    For example, DNS. Service routine is an RPC client.
+    May also avoid deadlock if I send RPC to ... to myself
+  In an async programming system:
+    Callback registered per prog#/proc#.
+    (Rather than per socket. fdcb() calls un-marshaling function).
+
+What about binding?
+  Client needs to be able to talk to the correct server
+    It needs an IP address
+    Use DNS.
+  Client knows RPC prog #, needs to know server's TCP/UDP port #
+  Could use a well-known port: NFS uses port 2049
+  Could use a "port mapper" per server
+    server programs register prog#/port with port mapper
+    clients can ask for port, given prog#
+    avoids dedicating scarce port #s to services
+
+Example in the handout
+  rx.x is an XDR description
+    shared by client and server, so they agree
+  declares one program
+    can potentially have many procedures
+  just one procedure declared
+  data types described
+  program/procedure numbers specified
+ 
+Server code
+  Set up connection
+  Wrap it with transport (packetizer) and RPC parser
+  asrv will call our callback for each RPC
+  we're responsible for dispatch
+ 
+Client code
+  sets up connection to server just once
+  gets an "aclnt" handle
+  can use it for multiple RPCs
+  reserve_call stub uses aclnt, specifies proc#
+  aclnt takes care of marshaling, retransmission, waiting
+  multiple client calls may be outstanding
+    callback registered for the xid of each one
+
+Did we achieve the transparency we want?
+  Hides marshal / unmarshal.
+  Hides details of send / recv. And TCP vs UDP &c.
+  Hides who the client is.
+
+Why does this look ugly?
+  It does *not* hide remote access from programmer.
+  Async style. Cannot hide request/reply inside a stub fn.
+  Which server are we making the call to?
+  Some details are argument passing are different.
+  But in general most of the network I/O machinery is hidden.

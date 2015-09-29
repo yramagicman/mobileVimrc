@@ -1,0 +1,184 @@
+Separating key management from file system security
+Mazieres, Kaminsky, Kaashoek, Witchel
+
+why I think sfs is fabulous
+  not just more secure
+  lets me use file systems where couldn't before
+  not ip-address based, so can use on laptop
+
+previous state of the art?
+  nfs, very easy to use, ip-address based security
+  afs, hard to use, uses Kerberos for authentication
+
+how easy is it to break into an nfs server?
+  for someone on the same lan as you?
+  for an outsider (someone on the Internet)?
+
+why not run NFS over SSL?
+  use Verisign certificate to verify /sfs/servername
+
+why not authenticate NFS with Kerberos?
+  ok within your own Kerberos realm
+  maybe ok in wide area, with hierarchical Kerberos realms
+  you need administrative help to set up a server, or a user
+  you can't support anonymous access
+
+why not just specify a key when you connect to your sfs server?
+  i.e. in mount command, or in fstab?
+  gives me 100% control, don't need adminstrator to help server or user
+
+what do I *know* when I use an sfs pathname?
+  why do I think data I get is correct?
+  why is it ok that self-cert path doesn't actually contain public key?
+
+can I emulate a CA with SFS?
+  /sfs/verisign.com/mit.edu
+  a CA really provides mapping from names to public keys
+  Verisign tries to do this in a global way
+  SFS allows each CA to have own name space, precise control over which you use
+
+can I emulate manually-configured keys with SFS?
+
+how does SFS handle revocation?
+
+could we apply sfs ideas to ssh?
+  self-certifying host names?
+  certificate servers?
+
+Outline:
+  1. What's a self-certifying path name?
+  2. Outline of SFS implementation.
+  3. Links users share trust, build decentralized authorities.
+  4. How to emulate Verisign.
+  5. Revocation.
+  6. Detailed implementation. Agents.
+
+What are the high-level goals of SFS?
+  Allow anyone to set up a secure file server.
+    Don't involve Verisign or other centralized authorities.
+  Allow anyone to use my file server.
+    And get useful security guarantees, even for anonymous use.
+  Why are these goals hard?
+    User needs *something* in common with server!
+    Classically a shared authority (Verisign, Athena's Kerberos DB).
+  Let's just talk about secure anonymous access.
+    Problem is proviving server's authenticity to user.
+
+What's a self-certifying path name?
+
+How can a client use a self-cert path name?
+  /sfs/foo:bar/README
+  To make sure it's talking to the right server.
+  Then set up an ordinary secure channel.
+
+Where do self-certifying path names come from?
+  SFS doesn't care!
+  I could write one on a business card.
+    Can I do that w/ Verisign or Kerberos?
+  Here's where the "separating" of the paper title applies.
+    SFS defines crypto protocol and key format.
+    User (or something external) provides keys.
+  How can we make use of that? Why is it useful?
+
+Let's connect my laptop to my file server.
+  Could type out /sfs/pdos.lcs.mit.edu:xxxxx/rtm
+  Or can use "symbolic link"
+    Make /pdos point to /sfs/pdos.lcs.mit.edu:xxxxx
+  Easy to add new ones as I learn about other file servers.
+    I can manage my own *secure* file system access.
+      And name space.
+    As I learn about various servers' public keys.
+    A lot like ssh_known_hosts, which I can control.
+      But it's not convenient (when used securely).
+      I would have to add entries by hand.
+
+Where do I learn about server public keys?
+  My friends write them on scraps of paper.
+  My system administrator tells me.
+  I read them in the Wall Street Journal.
+  I.e. sources I trust tell me.
+  Can we automate and generalize this process?
+
+How can users easily share knowledge of self-cert pathnames?
+  Make links to /sfs/... in sfs-accessible file systems.
+    ~rtm/links/yahoo, cnn, &c.
+  Then if I know just my friend's pathname,
+    I can easily get at all his or her links.
+  I still have to trust him.
+    But *I* can decide that myself.
+    No software can do it for me.
+    This is a lot like PGP's web of trust.
+      Perhaps better since it's on-line.
+
+How would one build an sfs-like web?
+  Page author puts public key of link's server in URL on page.
+    <a href="sfs://server:key/file/name">
+    So viewers talk to the server the author intended.
+  Also easy to make pages of trusted links.
+    From manufacturer's page to PC Connection's server.
+  What's the equivalent guarantee in SSL/https?
+
+What genuine services is Verisign providing?
+  Globally-agreed-on name space.
+    So we can use convenient *names*, not awkward public keys.
+  Ability for servers to change or expire keys.
+    Can't do that if built into lots of links.
+  Expiration, a substitute for revocation.
+
+How can we emulate Verisign using SFS?
+  Convention: /verisign -> /sfs/sfs.verisign.com:xxxx
+  And /verisign/cnn -> /sfs/cnn.com:yyy
+    Means "whoever Verisign thinks CNN is".
+    Nothing very unique about verisign!
+  Then I can send you e-mail saying "I read it on /verisign/cnn"
+    And you would know exactly what I meant.
+  Verisign can revoke x's key by deleting or modifying /verisign/x.
+    But the cost is Verisign processes every name lookup!
+
+Is revocation a critical part of a secure file system?
+  Under what circumstances can we do a perfect job?
+  Would we be willing to tolerate mistakes?
+  How can we know that revocations are not faked?
+    Revocation certificate.
+    Must be signed by original private key.
+
+How does SFS handle revocation in general?
+  I.e. for names that don't go through /sfs/verisign.
+  User's agent is involved in every /sfs lookup.
+    Can do whatever it likes.
+    In general, consults lists of signed revocation certificates.
+    For example, check /verisign/revocations/key.
+
+SFS implementation.
+  Not ssh-like app-to-app crypto protocol.
+  Need tricks to translate between kernel UIDs and SFS auths.
+    So server trusts client's kernel, sfsrwcd.
+  Minimization of user code running as root.
+  Factoring out tasks to make it extensible.
+  Are there Taos-like speaks-for credentials?
+
+Why use kernel NFS software?
+  Client: no other portable way to see file system system calls.
+  Server: system call interface is a loser:
+    1. Not async.
+    2. No file handles.
+    3. Requires open/close, but NFS client doesn't tell you.
+
+Temporary client workstation key speaks for known user key?
+  I.e. sfs seems to get away w/o authenticating the workstation.
+  Agent signs hash(server/client nonces) with user private key.
+    Proves possesion of user private key. Proves freshness.
+    Proves association with client session. I.e. client speaksfor user.
+  Server returns "authentication number" to client.
+    Why secure? Can't client fake these?
+    Yes, but we trust sfsrwcd, and can only fake users that that
+      client has authenticated.
+
+Sharing of client file cache.
+
+Mention sfs-ro.
+  Good for cert authorities, among others.
+
+A notion of links is important.
+  Allows you to build chains of trust.
+  Hard in a non-file-system-like context.

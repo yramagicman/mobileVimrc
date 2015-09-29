@@ -1,0 +1,118 @@
+6.824 2002 Lecture 15: Distributed Operating Systems
+
+The operating system is one of the great success stories of CS.
+  Everybody uses them.
+  Provide useful abstractions for programming single-machine systems.
+  Why not extend the idea to multi-machine systems?
+
+What's the distributed O/S vision?
+  All the convenience and unity of a single timesharing machine.
+    E.g. you type "ps" and see your processes on all workstations
+  But implemented on a LAN of workstations.
+  Example:
+    My process are automatically run on idle machines.
+    But the system hides this from.
+    So I can list, kill, debug them.
+    Programs work the same wherever they are run.
+      e.g. file system is the same.
+    Things like pipes work too.
+
+The key goal here is transparency.
+  A distributed operating system should make a collection of computers
+  behave like a single computer.
+
+Transparency can be classified in different categories:
+  1. Location : users cannot tell from the name where
+     resources are located.
+  2. Environmental : my programs see the same system regardless of where they run.
+  3. Migration : resources can move at will without changing their names.
+  4. Replication : the users cannot tell how many copies exist.
+  5. Parallelism : activities might happen in parallel without users knowing it.
+
+Naming turns out to be particularly important
+  We often do the location binding during name lookup
+    And return a special handle bound to actual location
+  Also we often do access checks during name lookup
+
+List of names for things that need to be resolved transparently?
+  File names
+  Device names (printer, X display)
+  File descriptors
+    other end-point of a pipe
+    server holding file contents, and i-number there
+    TCP socket state
+  Process IDs
+  User/group IDs
+  Shared memory addresses
+  TCP/UDP port numbers (when someone connects to one)
+
+We already know about transparency for some names/objects.
+  For each, name->location mapping? object access protocol?
+  Network file systems.
+  X window protocol.
+  Zephyr.
+  Ivy DSM.
+  Are they fully transparent?
+  Is it easy for me to move a file from one server to another?
+  Are the individual techniques re-useable?
+
+How would we implement, say, location-transparent PIDs?
+  So wait, kill and ps work no matter where a process is.
+  Process is running on a machine, so embed machine's IP addr in PID?
+  What if the process moves to a different machine?
+  Maybe old machine forwards messages to that PID?
+  Maybe we can broadcast each time we need to find a PID?
+  Maybe we need a process location database?
+    PID just an index into that database.
+    Update the database when the process moves.
+    This lets us get "ps" listings as well.
+
+Trouble:
+  Each kind of object seems to have its own naming and access plan.
+  This is confusing and a waste of effort.
+  Makes it very hard to provide meta-services.
+    I.e. get list of all resources a process is using.
+    Orthogonal techniques for backup servers.
+
+A number of people have tried to create universal solutions
+  They usually come in pairs:
+  Universal name-space, so you only have to build one name/location server
+  Universal object access protocol, so you only have to design one protocol
+
+Does Network Objects or RMI solve our problems?
+  Just make all resources/objects be Network Objects.
+  Then whether they are remote is transparent.
+  NetObj has little notion of authorization or authentication.
+    So every app would have to solve that itself.
+  NetObj severely restricts APIs.
+    Pure object-oriented.
+    Certainly cannot retrofit, maybe we could not anyway.
+  NetObj protocol isn't right for many situations.
+    Not very efficient (perhaps) for e.g. X or file access?
+  Still need to find things: NetObj assumes you know where object is.
+    What file server currently has a copy of this file?
+    Where is RTM logged in so I can zephyr him?
+
+Could we make a universal name binding system?
+  To avoid re-implementing a new name-service for each type of name?
+  Where is file/PID/page/socket/display/user XXX?
+  Define hierarchical names, general mapping to opaque values?
+    B-tree...
+  Would probably require separation of naming from object access.
+    File name maps to servername+filehandle?
+    In contrast, NFS ties them together. LOOKUP is an NFS op.
+  So perhaps each kind of object has its own NetObj access protocol.
+    Once you find it.
+  There are problems; for example:
+    FS (file system) wants to delete a file once last name has gone away.
+    FS needs atomic file/directory operations.
+    FS provides some protections at file level, some at naming level.
+    Would name system have to know about FS permissions?
+    Name system certainly has to prevent you from deleting my names.
+  The price might be total incompatibility with e.g. UNIX.
+
+How transparent is Athena?
+  Yes: files, users, e-mail, X windows, printers.
+  No: sound card, process IDs, TCP port numbers.
+
+Would Athena be more useful if it were more transparent?

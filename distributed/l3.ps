@@ -1,0 +1,954 @@
+%!PS-Adobe-3.0
+%%Title: thread.c, thread_switch.S
+%%For: Robert Morris
+%%Creator: a2ps version 4.13
+%%CreationDate: Wed Sep 18 09:11:23 2002
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 2
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontMatrix get 3 get 1000 mul
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Define these in case they're not in the FontInfo (also, here
+    % they're easier to get to.
+    /UnderlinePosition 1 def
+    /UnderlineThickness 1 def
+    
+    % Get the underline position and thickness if they're defined.
+    currentdict /FontInfo known {
+      FontInfo
+      
+      dup /UnderlinePosition known {
+	dup /UnderlinePosition get
+	0 exch FontMatrix transform exch pop
+	/UnderlinePosition exch def
+      } if
+      
+      dup /UnderlineThickness known {
+	/UnderlineThickness get
+	0 exch FontMatrix transform exch pop
+	/UnderlineThickness exch def
+      } if
+      
+    } if
+    currentdict 
+  end 
+} bind def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.060185 def
+/cw 4.236111 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 86.400000 mul
+def
+/ph
+   520.335631 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 5 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1-2) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # (#include) K
+( <stdio.h>) p n
+(2) # () S
+(#include) K
+( <sys/queue.h>) p n
+(3) # () N
+(4) # () S
+(/* Simple thread package.  It doesn't deal with any of the hard issues) c n
+(5) # ( * like blocking I/O and multiprocessors.  The scheduling policy is broken) N
+(6) # ( * too: it can starve a thread. The code is written for an Intel x86.) N
+(7) # ( * It has not been tested thoroughly.) N
+(8) # ( *) N
+(9) # ( * Written by M.F. Kaashoek \(kaashoek@mit.edu\) */) N
+(10) # () N
+(11) # (/* Possible states of a thread; */) N
+(12) # () S
+(#define) K
+() p 8 T () S 16 T (FREE) S 24 T () S 32 T (0x0) N
+(13) # () S
+(#define) K
+() p 8 T () S 16 T (RUNNING) S 24 T (        0x1) N
+(14) # () S
+(#define) K
+() p 8 T () S 16 T (RUNNABLE) S 32 T (0x2) N
+(15) # () S
+(#define) K
+() p 8 T () S 16 T (WAITING) S 24 T (        0x4) N
+(16) # () N
+(17) # () S
+(#define) K
+( ) p 16 T (STACK_SIZE) S 32 T (32768) N
+(18) # () S
+(#define) K
+(         BODY_OFFSET     200) p n
+(19) # () S
+(#define) K
+() p 8 T () S 16 T (MAX_THREAD) S 32 T (4) N
+(20) # () N
+(21) # () S
+(struct) k
+( thread {) p n
+(22) # (    ) S
+(long) k
+() p 16 T (sp;) S 24 T () S 32 T () S
+(/* current stack pointer */) c n
+(23) # () S
+(    ) p
+(char) k
+() p 16 T (stack[STACK_SIZE]; ) S
+(/* the thread's stack */) c n
+(24) # () S
+(    ) p
+(void) k
+() p 16 T (\(*func\)\(\);      ) S
+(/* thread entry point */) c n
+(25) # () S
+(    ) p
+(int) k
+() p 8 T () S 16 T (state;) S 24 T () S 32 T () S
+(/* running, runnable, waiting */) c n
+(26) # () S
+(};) p n
+(27) # () N
+(28) # () S
+(typedef) K
+( ) p
+(struct) k
+( thread thread_t, *thread_p;) p n
+(29) # () N
+(30) # (thread_p  current_thread;) N
+(31) # (thread_p  next_thread;) N
+(32) # () N
+(33) # () S
+(static) K
+( thread_t all_thread[MAX_THREAD];) p n
+(34) # () N
+(35) # () S
+(static) K
+( thread_p) p n
+(36) # (thread_find\() S
+(void) k
+(\)) p n
+(37) # ({) N
+(38) # (    thread_p t;) N
+(39) # () N
+(40) # (    ) S
+(/* Look for a free thread. */) c n
+(41) # () S
+(    ) p
+(for) K
+( \(t = all_thread; t < all_thread + MAX_THREAD; t++\) {) p n
+(42) # () S 8 T () S
+(if) K
+( \(t->state == FREE\) ) p
+(break) K
+(;) p n
+(43) # (    }) N
+(44) # () N
+(45) # (    ) S
+(return) K
+( t;) p n
+(46) # (}) N
+(47) # () N
+(48) # () S
+(void) k
+( ) p n
+(49) # (thread_init\() S
+(void) k
+(\)) p n
+(50) # ({) N
+(51) # (    current_thread = &all_thread[0];) N
+(52) # (    current_thread->state = RUNNING;) N
+(53) # (}) N
+(54) # () N
+(55) # () S
+(static) K
+( ) p
+(void) k
+( ) p n
+(56) # (thread_schedule\() S
+(void) k
+(\)) p n
+(57) # ({) N
+(58) # (    thread_p t;) N
+(59) # () N
+(60) # (    ) S
+(/* Find another runnable thread. */) c n
+(61) # () S
+(    ) p
+(for) K
+( \(t = all_thread; t < all_thread + MAX_THREAD; t++\) {) p n
+(62) # () S 8 T () S
+(if) K
+( \(t->state == RUNNABLE && t != current_thread\) {) p n
+(63) # () S 8 T (    next_thread = t;) N
+(64) # () S 8 T (    ) S
+(break) K
+(;) p n
+(65) # () S 8 T (}) N
+(66) # (    }) N
+(67) # () N
+(68) # (    ) S
+(if) K
+( \(t >= all_thread + MAX_THREAD && current_thread->state == RUNNABLE\) {) p n
+(69) # () S 8 T () S
+(/* The current thread is the only runnable thread; run it. */) c n
+(70) # () S
+() p 8 T (next_thread = current_thread;) N
+(71) # (    }) N
+(72) # () N
+(73) # (    ) S
+(if) K
+( \(next_thread == 0\) {) p n
+(thread.c) (Page 1/2) (Sep 12, 02 11:25) title
+border
+/v 1 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(74) # () p 8 T (printf\(") S
+(thread_schedule: no runnable threads; deadlock\\n) str
+("\);) p n
+(75) # () S 8 T (exit\(1\);) N
+(76) # (    }) N
+(77) # () N
+(78) # (    ) S
+(if) K
+( \(current_thread != next_thread\) { ) p 48 T () S
+(/* switch threads?  */) c n
+(79) # () S
+() p 8 T (next_thread->state = RUNNING;) N
+(80) # () S 8 T (thread_switch\(\);) N
+(81) # (    } ) S
+(else) K
+( next_thread = 0;) p n
+(82) # (}) N
+(83) # () N
+(84) # () S
+(static) K
+( ) p
+(void) k
+( ) p n
+(85) # (thread_terminate\() S
+(void) k
+(\)) p n
+(86) # ({) N
+(87) # (    ) S
+(int) k
+( i;) p n
+(88) # () N
+(89) # (    current_thread->state = FREE;) N
+(90) # (    thread_schedule\(\);) N
+(91) # (}) N
+(92) # () N
+(93) # () S
+(static) K
+( ) p
+(void) k
+( ) p n
+(94) # (thread_body\(\)) N
+(95) # ({) N
+(96) # (    thread_p t;) N
+(97) # () N
+(98) # (    t = current_thread;) N
+(99) # (    \(*\(t->func\)\)\(\);) N
+(100) # (    thread_terminate\(\);) N
+(101) # (}) N
+(102) # () N
+(103) # () S
+(void) k
+( ) p n
+(104) # (thread_create\(thread_p *thread, ) S
+(void) k
+( \(*func\)\(\)\)) p n
+(105) # ({) N
+(106) # (    thread_p t;) N
+(107) # (    ) S
+(int) k
+( *i;) p n
+(108) # (    ) S
+(/* Found a free thread; init it. */) c n
+(109) # () N
+(110) # () S
+(    t = thread_find\(\);) p n
+(111) # () N
+(112) # (    *thread = t;) N
+(113) # () N
+(114) # (    ) S
+(/*) c n
+(115) # (     * Set up stack for return from thread_switch\(\).) N
+(116) # (     * stack should have 8 words of registers as if saved by pushal,) N
+(117) # (     * then the return program counter.) N
+(118) # (     */) N
+(119) # () S
+(    t->sp = \() p
+(long) k
+(\) \(t->stack + STACK_SIZE - BODY_OFFSET\);) p n
+(120) # (    i = \() S
+(int) k
+( *\) \(t->sp\);) p n
+(121) # (    i[8] = \() S
+(long) k
+(\) thread_body;) p n
+(122) # () N
+(123) # (    t->state = RUNNABLE;) N
+(124) # (    t->func = func;) N
+(125) # (}) N
+(126) # () N
+(127) # () S
+(/*) c n
+(128) # ( * Sleep until someone sets *flag = 1 and calls thread_notify\(\).) N
+(129) # ( */) N
+(130) # () S
+(void) k n
+(131) # () S
+(thread_wait\() p
+(int) k
+( *flag\)) p n
+(132) # ({) N
+(133) # (    ) S
+(while) K
+( \(!\(*flag\)\) {) p n
+(134) # () S 8 T (current_thread->state = WAITING;) N
+(135) # () S 8 T (thread_schedule\(\);) N
+(136) # (    }) N
+(137) # (}) N
+(138) # () S 8 T () N
+(139) # () S
+(void) k n
+(140) # () S
+(thread_notify\(thread_p thread\)) p n
+(141) # ({) N
+(142) # (    ) S
+(if) K
+( \(thread->state != FREE\) ) p n
+(143) # () S 8 T (thread->state = RUNNABLE;) N
+(144) # (}) N
+(thread.c) (Page 2/2) (Sep 12, 02 11:25) title
+border
+grestore
+(Printed by Robert Morris) rhead
+(thread.c) (1/2) (Wednesday September 18, 2002) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (1) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 2.965278 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(1) # () p 8 T () S
+(.text) K n
+(2) # () N
+(3) # () S
+(/* Switch from current_thread to next thread_thread, and make) p n
+(4) # ( * next_thread the current_thread.  Use eax as a temporary register,) N
+(5) # ( * which should be caller saved. */) N
+(6) # () S 8 T () S
+(.globl) K
+( thread_switch) p n
+(7) # () S 8 T () S
+(.globl) K
+( current_thread) p n
+(8) # () S 8 T () S
+(.globl) K
+( next_thread) p n
+(9) # (thread_switch:) N
+(10) # () S 8 T (pushal) S 16 T () S 24 T () S 32 T () S 40 T (/* save registers on stack */) N
+(11) # () S 8 T (movl     current_thread, %eax  /* load addr of current_thread  */) N
+(12) # () S 8 T (movl    %esp, \(%eax\)            /* save esp reg in sp of thread */) N
+(13) # () S 8 T (movl) S 16 T (next_thread, %eax      /* load addr of next_thread */) N
+(14) # () S 8 T (movl    \(%eax\), %esp            /* load sp of thread in esp reg */) N
+(15) # () S 8 T (movl    %eax, current_thread   /* next_thread -> current_thread */) N
+(16) # () S 8 T (movl    $0, next_thread        /* clear next_thread */) N
+(17) # () S 8 T (popal) S 16 T () S 24 T () S 32 T () S 40 T (/* restore registers from stack */) N
+(18) # () S 8 T (ret) S 16 T () S 24 T () S 32 T () S 40 T (/* pop return address from stack */) N
+(thread_switch.S) (Page 1/1) (Sep 12, 02 9:59) title
+border
+grestore
+(Printed by Robert Morris) rhead
+(thread_switch.S) (2/2) (Wednesday September 18, 2002) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF

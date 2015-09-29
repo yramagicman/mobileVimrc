@@ -1,0 +1,95 @@
+6.824 2002 Lecture 4: Coordination
+
+Would Example 1 work in last week's simple threading package?
+  Umm, what does "correct" mean?
+    "What the programmer intended."
+    As if insert()s occured one at a time, in some order.
+  Yes -- no pre-emption, only one CPU.
+
+What could go wrong in a more involved environment?
+  The problem: lines E and F must execute atomically.
+  Interrupt or signal.
+  Pre-emption (explain: timer interrupt, thread switch).
+  Multiple CPUs.
+  The program might want to yield during an atomic section.
+    E.G. for memory allocation.
+
+How can we provide atomic sequences?
+  Does Example 2 work?
+    We want TestAndSet to return 0 if not locked, 1 if already locked.
+    But race between ret = *p and *p = 1.
+    Two threads could simultaneously read the old value of 0.
+    Or could be a context switch after ret = *p.
+    No good against interrupts, pre-emption, multiple CPUs.
+  Turn off interrupts.
+    Side effect is to prevent pre-emption via timer interrupts.
+    Not good in user mode, or multi-processor.
+  Kernel emulation:
+    System call to turn of interrupts around test-and-set.
+    What does it do on a multi-processor?
+  test-and-set-locked
+    Works with interrupts, pre-emption, multi-CPU.
+
+Test-and-set-locked instruction:
+  TSL mem, R:
+    R <- [mem]  /* load value at address mem */
+    [mem] <- 1  /* set value at mem to 1 */
+  Hardware locks the memory system around the two sub-operations.
+  [Picture of CPUs, bus, arbitrator, memory system]
+  Operates at motherboard clock rates, not CPU.
+  Much slower than cached load/store.
+  Prevents other uses of the bus.
+  We can wrap an interface around TSL as in Example 3.
+
+Example 3 works badly on a uniprocessor or with long critical sections.
+  Correct, but slow.
+  So put a thread_yield() in the acquire() while loop.
+
+Locks are a simple way to control interleaving of thread execution.
+  Essential building block.
+  Lots of more sophisticated ways to synchronize threads.
+  Will explain a common technique: condition variables.
+
+Example problem:
+  One thread produces data.
+  A second thread consumes that data.
+  A lot like a two-stage UNIX pipeline.
+  Consumer must wait for data.
+  Producer must wait if nowhere to put new data.
+  Don't want to busy wait!
+  Look at Example 4.
+
+What's wrong with Example 4?
+  Need to keep data structures consistent.
+  Need to avoid race between
+    while(full == 0) sleep();
+    and
+    full = 1; wakeup();
+  Want each pair to execute atomically; how about:
+    lock(l);
+    while(full == 0) sleep();
+    unlock(l);
+  Can't hold the lock while sleep()ing!
+  We want sleep() to hold the lock long enough to mark us as sleeping,
+    then release the lock to the other process.
+  So sleep/wakeup is not orthogonal to locking.
+  Can we come up with a good abstraction?
+
+Yes: Condition variable abstraction.
+  Lock l;
+  Condition c;
+  wait(c, l);
+    atomically marks caller as waiting, releases lock
+    when woken up, re-acquires lock, returns
+  signal(c);
+    wakes up anyone in wait()
+
+Look at Example 5 and its use in Example 6.
+
+Condition variable rules:
+  You must be holding the lock when you call wait().
+    Otherwise while(full == 0) wait(c, l); has a race.
+  You must be holding the lock when you call signal().
+    Otherwise while(full == 0) signal(c); has a race.
+  wait() returns with the lock held.
+    Since it's always used in that way.

@@ -1,0 +1,5 @@
+_HiStOrY_V2_
+println("hello\040world")\^J
+3.14\040*\0402.5\040*\0402.5\^J
+func\040doubler(num:Int)\040->\040Int\040{\^J\040\040\040\040return(num\040*\0402)\^J}\^J
+doubler(4)\^J

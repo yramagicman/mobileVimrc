@@ -1,0 +1,142 @@
+6.824 2002 Lecture 16: Memory Consistency (1)
+
+Derived from Adve and Gharachorloo, "Shared Memory Consistency Models:
+A Tutorial", WRL Research Report 95/7.
+
+We've seen lots of examples of distributed storage systems
+  That can be concurrently read/written by many computers or CPUs
+  multiprocessors ("SMP"), Ivy DSM, NFS, AFS, Amoeba directories, replication
+  Many involve sophisticated optimizations for performance
+    Ivy's owner, caching and copy-sets
+    NFS and AFS caching
+  How do we know if an optimization is correct?
+  We need to know how to think about correct execution of distributed programs.
+  Most of these ideas from multiprocessors 20/30 years ago.
+    So I'll talk about memory, loads, stores.
+    But ideas are similar for e.g. NFS.    
+
+How do we know what uniprocessor programs mean?
+  execute instructions one at a time
+  wait for each to finish before starting the next one
+  so LD gets value of most recent previous ST to same address
+  This is a useful definition because programmer can use it
+    to predict what program will do, and thus write correct programs
+  you can tell this is a *definition* because modern
+    CPUs don't work like this; they break this rule;
+    lots of logic to ensure they *look* like they are enforcing it
+
+Example of why CPU doesn't want to *implement* the uniprocessor rule:
+  MUL R1, R2, R3
+  ST x, R1
+  LD y, R4
+  MUL is pretty slow, ST has to wait for it.
+    Dependency via R1.
+  But LD does not need to wait: will get same result if we execute it early.
+  So generally the LD executes before the ST, for speed.
+  But CPU h/w checks if x==y, stalls LD if they are equal.
+
+Suppose we have a multiprocessor (or Ivy DSM, or whatever).
+  And are running a program on multiple CPUs.
+  Can we come up with examples where memory system behavior matters?
+
+Example 1:
+  CPU0:
+    value = compute();    ST value, R1
+    done = true;          ST done, 1
+  CPU1:
+    while(done == false)  LD R2, done
+      ;
+    use(value);           LD R3, value
+  This is a common idiom, and it ought to work.
+  We don't want CPU1 to see write to done before write to value is visible.
+  And indeed most CPUs issue stores to memory in-order.
+    So this works on an x86 multiprocessor.
+    But not all! Alpha...
+
+Example 2:
+  Simple mutual exclusion algorithm, for locking.
+  x and y start as 0.
+  CPU0:
+    x = 1;
+    if(y == 0)
+      critical section;
+  CPU1:
+    y = 1;
+    if(x == 0)
+      critical section;
+  Why should this work?
+    If CPU0 sees y == 0, CPU1 can't have reached "y = 1",
+    so CPU1 must see x == 1, so it won't execute critical section.
+  But this does not work on any modern CPU!
+    Each CPU will execute LD before ST.
+  Point: things don't just work out, you have to have well-defined rules.
+
+How can we write correct programs for multi-processors?
+  Memory system promises to behave according to certain rules.
+  We write programs assuming those rules.
+  Rules are a "consistency model"
+  Contract between memory system and programmer
+
+How about this consistency model:
+  Rule 1: LD gets value of most recent previous ST to same address
+  Rule 2: each CPU executes its own instructions in order
+  This pair of rules is called "strict consistency"
+  Essentially the same as on uniprocessor
+  What does "most recent" mean?
+    Wall-clock time at which instruction issued.
+
+Strict consistency would get correct results for Example 2.
+  If CPU0 is in critical section,
+    then LD of y returned 0,
+    and was preceded by "x = 1". (rule 2)
+  If LD of y returned 0, then "y = 1" had not executed (rule 1).
+  If "y = 1" had not executed, no other CPU1 intructions have executed. (rule 2)
+  When CPU1 reads x, it will see 1. (rule 1)
+  In general strict consistency produces intuitive behavior.
+
+How do you implement strict consistency?
+  For a multi-processor, or Ivy DSM
+  Time:  1  2  3  4
+  CPU0:  ST       ST
+  CPU1:     LD LD
+  Time between instructions << speed-of-light between CPUs!
+  How is LD@2 even aware of ST@1?
+  How does ST@4 know to pause until LD@3 has finished?
+  Too hard to implement!
+
+Sequential consistency
+  Reasonable semantics, easy to implement.
+  Rule 1: all CPUs see all operations in the same total order
+  Rule 2: each CPU executes its own instructions in order
+
+Sequential consistency gets Example 2 right.
+  Let's try to prove by contradiction.
+  Suppose both CPUs entered the critical section.
+  CPU0: ST x, 0 ; ...; ST x, 1 ; LD y
+  CPU1: ST y, 0 ; ...; ST y, 1 ; LD x
+  We need to merge these operations into a total order that results
+    in both LDs seeing zero.
+  Let's use arrows to show the partial ordering we have to preserve.
+  Arrows for instructions of each CPU (rule 2).
+  Arrow from "LD y" to before "ST y, 1" (rule 1).
+  Arrow from "LD x" to before "XT x, 1" (rule 1).
+  There's a cycle here. So we cannot produce a total order.
+  This idea of "as if in some serial order" comes up a lot.
+    Easy to understand: one at a time, as if not concurrent.
+    Easy to implement: system can choose order.
+
+Why it's not easy to implement sequential consistency.
+  Straw man (this doesn't work):
+    Each CPU keeps a local copy of all of memory.
+    Each CPU broadcasts each ST to all other CPUs.
+  This solution is very efficient: LDs are local, asynchronous STs.
+  For example 1, STs might arrive out of order.
+  For example 2, each might send ST but do local LD before other ST arrives.
+
+How can we implement sequential consistency?
+  1. Each CPU executes its instructions serially.
+     This is easy because it allows each CPU to be largely independent.
+  2. Memory system serves operations for each location serially.
+     This is easy because it allows each location to be independent.
+     But it means memory system must wait for e.g. cache invalidate ACKs.
+  3. CPU waits for ACK from memory system for each LD/ST.
