@@ -842,6 +842,3 @@ let @a = "vi<"
 let @e = "jok"
 let @v = '0/\u~hi_, '
 "}}}
-source ~/.vim/config/extensions/vundle.vim
-source ~/.vim/config/extensions/plugin-config.vim
-source ~/.vim/config/vimrc.combined.vim
