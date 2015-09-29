@@ -1,7 +1,0 @@
-#!/bin/zsh
-
-if [ "$(uname)" = "Darwin" ] ; then
-    pbpaste
-else
-    xsel -o -b
-fi
