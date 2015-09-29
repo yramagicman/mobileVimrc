@@ -1,0 +1,150 @@
+Replication in the Harp File System
+Liskov, Ghemawat, Gruber, Johnson, Shrira, Williams
+SOSP 1991
+
+Key points
+  witnesses
+  logs alone on promoted witnesses
+  impractical to recover by copying state
+    i.e. what if a backup was down for a while
+  handles simultaneous power failures
+
+Outline basic operation.
+  Client, primary, backup, witness.
+  Voting.
+  Reply message.
+  Log.
+
+What is in a typical log record?
+
+Why does Harp have so many log pointers?
+  CP commit point (real in primary, latest heard in slave)
+  AP highest record sent to disk on this node
+  LB disk has completed up to here
+  GLB all nodes have completed disk up to here?
+
+At the primary, what does it mean for an event to be before/after CP?
+    Before CP, n ACKs received, so can reply to client, apply to disk
+    After CP, still waiting for ACKs from other machines
+  How about at the slave?
+    CP is latest you have heard from the server
+  AP(slave) <= AP(primary) -- why?
+    In case applying change would cause a machine to crash
+    
+Why AP -- why not apply to disk as committed, at CP?  And why is LB not AP-1?
+  Want to issue asynchronous disk requests for better performance
+  Structured as separate processes:
+    "apply process" issues async I/O
+    separate process updates LB when I/O's finish
+
+Why do we need GLB?
+  Allows up to discard log entries.
+  Why not discard at LB?
+  In case another node lost log, but disk is OK.
+    Though doesn't UPS protect against that?
+    No: crashes due to software will lose the log.
+
+When can Harp reclaim log space?
+  Ordinarily, can clean up before GLB
+  But if witness promoted, it keeps complete log.  Why?
+    Does not have state to apply log entries to, so preserve complete history
+
+Why does Harp even need a log at all?
+  Need state of partially completed operation, i.e. being committed.
+  But mostly to allow concurrent operations.
+  Linear because operations must be ordered.
+  If OP1, then OP2, can't commit OP2 but not OP1. If crashes &c.
+
+can there be two views?
+did we miss a view?
+do we have all the operations from the last view?
+
+Scenarios
+  5 servers, 1-5, 1 is usually primary, 2-3 backups, 4-5 witnesses
+
+S2 crashes
+  S4 is promoted, logs *all* ops
+  first we need to send it log entries >= GLB
+  S2 reboots
+  S2 replays log before really joining
+  then S2 can join quickly
+
+S2 suffers a disk failure
+  needs to get complete state from S1 or S3
+
+All nodes suffer power failure just after S1 replies to a client.
+  Then they all re-start.
+  Can they continue?
+  What if they had all crashed -- could they continue?
+    Crash == lost memory contents (despite UPS).
+  How do they tell the difference?
+  
+S3, S4, and S5 crash.
+  Leaving S1 and S2.
+  Can S1 and S2 proceed?
+  What if S5 then re-boots; can S1+S2+S5 continue?
+
+S2 and S3 are partitioned (but still alive)
+  Can S1+S4+S5 continue to process operations?
+  S4 moves to S2/S3 partition
+  Can S2+S3+S4 continue?
+
+S2 and S3 are partitioned (but still alive)
+  S4 crashes, loses memory contents, reboots in S2/S3 partition
+  Can they continue?
+  Depends on what S4's on-disk view # says.
+
+Everybody suffers a power failure.
+  S4 disk and memory are lost, but it does re-start after repair.
+  S1 and S5 never recover.
+  S2 and S3 save everything on disk, re-start just fine.
+  Can S2+S3+S4 continue?
+
+In general, how do you know you can form a view?
+  1. No other view possible.
+  2. Know about most recent view.
+  3. Know all ops from most recent view.
+  #1 is true if you have n+1 nodes in new view.
+  #2 is true if you have n+1 nodes that did not lose view # since last view.
+    View # stored on disk, so they just have to know disk is OK.
+    One of them *must* have been in the previous view.
+    So just take the highest view number.
+  Now that we know last view number,
+    #3 is true if we have a backup or promoted witness w/ intact state
+    from the last view.
+
+S1 sends an op to S2, then S1 crashes
+  Will the op survive in the new view?
+  What does correctness require?
+
+S1 sends an op to S2, then S1/S2 are partitioned
+  The other nodes form a view and continue.
+  Then S1/S2 re-join.
+  What about that operation?
+  What if S1 had served a read just after sending op to S2?
+    Of the data written by the op?
+
+Do we believe the UPS story?
+  What if the UPS battery runs out?
+  They flush to disk and halt (?) when main power fails.
+  So not as vulnerable as a RAID controller battery.
+
+Why not just use one server with a UPS?
+  With a RAID array as well?
+
+Does Harp have performance benefits?
+  Yes, due to UPS, no need for sync disk writes.
+  But in general, not 3x performance.
+
+Why graph x=load y=response-time?
+  Why does this graph make sense?
+  Why not just graph total time to perform X operations?
+  One reason is that systems sometimes get more/less efficient w/ high load.
+  And we care a lot how they perform w/ overload.
+
+Why does response time go up with load?
+  Why first gradual...
+    Queuing and random bursts?
+    And some ops more expensive than others, cause temp delays.
+  Then almost straight up?
+    Probably has hard limits, like disk I/Os per second.

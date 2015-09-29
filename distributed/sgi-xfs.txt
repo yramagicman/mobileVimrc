@@ -1,0 +1,150 @@
+"Scalability in the XFS File System"
+Adam Sweeney et al.
+USENIX 1996
+
+What are XFS' goals?
+  Big files.
+  Big directories.
+  Many files.
+  Near-hardware disk performance, even on arrays.
+  Instant crash recovery of enormous disk arrays.
+
+What is a B+-Tree?
+  Contains key -> value mappings.
+  Lookup(k1) finds entry whose key is "closest" to k1.
+    So we assume an ordering of keys.
+    And we can find nearby keys easily.
+    XFS ordering is always numeric.
+  Lookup takes log(N).
+  Internal organization:
+    Each node is a fixed size disk block.
+      Fairly big, so base of log(N) is big and log(N) is small.
+    A leaf node contains just sorted key/value pairs.
+    An internal node contains:
+      P1 K1 P2 K2 ... Kn Pn+1
+      Kx is a key.
+      Px is the disk address of the sub-node containing keys between Kx-1 and Kx.
+      So keys are duplicated between interior and leaf nodes.
+    Algorithms make sure every node is at least half full.
+
+Keep a list of data structures on blackboard:
+  File extent map: file offset -> start block #, # of blocks.
+  AG free blocks: start block # -> # of contiguous blocks.
+  AG free blocks: # of free blocks -> start block #.
+  Directory contents: hash(name) -> name, i-number
+  AG i-map: starting-i-number-within-ag -> block #, free bitmap for that block of i-nodes.
+
+Support for large files: the file extent map.
+  Why not just increase FFS i-node size field to 64 bits?
+  XFS inode contains extents, not a block list.
+  Each entry: file offset, block #, # of blocks.
+  Saves space for huge files; a form of compression.
+  If small, directly in i-node; otherwise in a per-inode b-tree.
+  B-tree makes it easy to look up particular offsets.
+  What if offset we want isn't actually mentioned in b-tree?
+    b-tree lookup(key) finds us numerically closest keys!
+  Contiguous allocation of big extents makes reads and writes much faster.
+    Can read and write without seeking.
+    With 8k blocks and 10ms seek times: 0.8 MBytes/s if seek between each read.
+    As opposed to 10 MBytes/s for sequential I/O.
+  But how does XFS find large contiguous free regions when creating files?
+
+How does XFS find large chunks of free space?
+  Goals: be able to find large runs of contiguous free space.
+    Be able to find it near existing blocks of existing file.
+    Or near file's i-node, for new files.
+  Breaks up disk into Allocation Groups -- why?
+    Keeps size of AG data structures small (32-bit block #s, not 64).
+    Allows independent locking of free-space data structures.
+  To find space of a known size:
+    AG has a b-tree mapping size to start block #, # of free blocks.
+    One entry per run of free blocks.
+  To find space near the end of a file (for append),
+    Or near the end of an allocated chunk in a sparse file:
+    AG has a b-tree mapping block # to # of free blocks.
+    One entry per run of free blocks.
+  You have to keep the two b-trees in sync.
+    Every run of free space has an entry in each.
+  How do you know how much space a file is going to need?
+    Must applications pre-declare space needs?
+    No: lazy allocation:
+      write() just affects cache.
+      Wait until many write()s, then allocate, then write to disk.
+  Are there any costs to breaking space into AGs?
+    Can't find a free range that starts in one AG and ends in another.
+  
+How does XFS support huge directories?
+  What's the issue? Linear scans of FFS directories.
+    Traditional work-around: the /r/t in /afs/athena.mit.edu/user/r/t/rtm
+  XFS directory content held in a b-tree
+    hash(name) -> name, i-number
+  Why the hash?
+
+What's an i-number in XFS?
+  Want to avoid fixed pre-determined number of i-nodes, as in FFS.
+    Must be able to allocate new ones.
+    So can't be in pre-determined positions.
+    Need a level of indirection to map i-number to disk location.
+  Could have one b-tree for i-mapping
+    i-number -> disk location.
+  Why doesn't XFS do that?
+    Probably to avoid lock contention.
+  Instead, one i-map per AG.
+    How do you know what AG an i-number is in?
+      Probably 64 bits; 32 bits of AG#, 32 bits of i-number-within-ag.
+    For each block of i-nodes:
+      starting-i-number-within-ag -> block # (withing ag), bitmap of free i-nodes in block.
+
+How does XFS handle recovery?
+  Lots of delicate data structures.
+  Don't want to scan them all after crash/reboot.
+  Goal:
+    Restore disk to *some* consistent state after reboot.
+      I.e. reflect exactly the operations that happened before some time T.
+      But preserve atomicity of transactions.
+    T may not be the crash time, so may lose the last few updates.
+    But we will end up with consistent meta-data.
+    What about file contents? Why doesn't XFS care?
+  Technique: write-ahead logging.
+    Log lives (mostly) on disk.
+    For every meta-data update, append a log entry:
+      meta-data identifier (block or i-number), new value.
+      Start/end transaction markers.
+    The tail of the log is in memory.
+      Flush it (sequentially) from time to time.
+    Delay real writes until corresponding part of log is flushed.
+  After crash/reboot:
+    Replay log onto disk.
+    Don't include unfinished transactions.
+    Note we may have missed the unflushed end of the log.
+  To save time during recovery, and to reclaim log space,
+    write a "checkpoint" to the disk indicating that disk
+    consistent with log before a certain log point.
+
+Is logging likely to be faster or slower than FFS sync updates?
+  For small-file-update workloads.
+  A logging system has to write every update *twice*!
+  So won't it be slower than FFS?
+
+Large file performance.
+  Very fast! Even for today; try it on your Linux box.
+    Their FS is faster than most I/O busses...
+  Do they achieve h/w potential?
+    h/w max is 60 disks * 7 MB/s per disk = 420 MB/s
+    They only get 350.
+  Are they faster than EFS?
+    Not much for read.
+    A lot for write.
+  Why the 1 vs 4 thread gap in Figure 2?
+    Probably can't keep an array of disk busy w/ one thread.
+    Why not?
+      They're using "large" requests -- but < stripe?
+      Why doesn't read-ahead help?
+        Maybe no read-ahead with direct I/O.
+  Same 1 vs 4 thread gap in Figure 3 (writing).
+    Again, direct I/O prevents write-behind?
+    Shows that fixing locks to allow parallel access to single file is good.
+  Why is EFS slower at create than write, but not XFS?
+    They claim more efficient space allocation code.
+  Why is EFS close to XFS for read, but not for write?
+    Maybe disks do lots of read-ahead and caching for us?

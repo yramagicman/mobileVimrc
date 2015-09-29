@@ -1,0 +1,167 @@
+"The Interaction of Architecture and Operating System Design"
+Anderson, Levy, Bershad, Lazowska
+
+What are we doing here?
+  case studies
+  examples of research papers, learn how to write them
+  understand content
+  dig deeper into details than any one of us could alone
+  put work into larger context - does it matter? is it useful?
+    is it the right way to go?
+
+Discussion format
+  I'll start out by asking questions
+  Feel free to interrupt me or ask your own questions
+    Or to answer each others questions, or discuss each others points
+  If you don't understand, ask!
+  Feel free to be critical (of me or paper), or to defend
+
+Why we're reading this paper:
+  Digs into details of most important kernel abstractions.
+  Talks about how choice/design/impl of abstraction affects performance.
+
+Easy question to start: title?
+
+When was it written? 1 year ago? 10? 20?
+  1991 ASPLOS
+
+Why does it matter when it was written?
+
+What kind of people wrote it -- CPU or O/S designers?
+  O/S.
+  They have much more to say about what CPU screws up than O/S.
+
+What's the main *point* of this paper? What are the authors trying to
+convince us of?
+  O/S performance has improved less than app perf w/ faster CPUs
+  They explain why
+  They suggest what to do about it
+
+What are the main reasons they claim?
+  New RISC machines don't support microkernels well.
+  CPU designs that improve apps irrelevant to kernel speed.
+    Because kernels are different...
+    We're going to want to know how.
+
+Quick RISC overview
+  simpler instructions
+    but thus more of them; why isn't that usually a problem?
+  don't implement in hardware if could be done in s/w
+    particularly uncommon operations
+    e.g. system calls
+    use transistors to make ADD fast instead
+  how do RISC cpu designers decide what's worthwhile to put in h/w?
+    industry standard benchmarks
+    usually *not* o/s-intensive...
+
+Quick microkernel overview
+  tiny kernel, most stuff in servers
+  many more system calls
+  some tricks harder to play, since most o/s code isn't privileged
+    e.g. shared address space
+
+What kind of evidence or reasoning could we expect at this point?
+  1. year-to-year performance of apps, o/s
+     What does that tell us? Just that there's a problem, not why.
+  2. detailed CPU time breakdowns for operations
+     risc vs cisc
+     monolithic vs micro-kernel
+     to help understand why
+
+How are we going to decide if this is an important problem?
+  Suppose system calls are getting relatively slower
+  Is that actually a big deal?
+  3. So we're looking for big-picture evaluation as well.
+     They do cite "lots of time in O/S" studies.
+
+What kinds of solution might we look for?
+  Fix O/S to work better with RISC.
+  Fix RISC to work better with O/S.
+
+Let's make two tables:
+  Problems with CPUs.
+    large register sets (sparc windows)
+    deep pipelines (88000 o/s must save 30 regs of pipeline state)
+    no h/w vectoring (in MIPS)
+    limited write buffers (R2000, fixed in R3000)
+    cpu speed vs memory speed
+    i860 page fault handler must interpret to find faulting addr
+    caches that have to be flushed during address space switches
+  Problems with O/S.
+    none mentioned?
+
+Now let's look at the evidence they present.
+
+What does Table 1 tell us?
+
+Where do the the "Time" numbers come from?
+
+Where do the "Relative Speed" numbers come from?
+
+In an ideal world, what would Table 1 look like?
+
+How we can assign blame based on Table 1?
+  Are numbers fundamental to h/w?
+  Or is the point that we could optimize s/w?
+  (remember, they tuned the s/w, they think it's the best possible)
+
+Do they explain *why* Table 1 looks the way it does?
+  Or what to do about it?
+  In succeeding sections...
+
+Let's focus on
+  2.2: Local communication
+  2.3 and 2.4: System calls (this is where the real meat is)
+
+What are the steps required to send msg from P1 to P2?
+  (Table 4...)
+  P1 makes system call
+  kernel copies data from P1?
+  P1 sleeps in kernel
+  kernel switches to (waiting?) P2 kernel half
+  kernel copies data to P2?
+  return from P2 system call into P2
+
+We're looking for
+  Ways in which RISC supports this less well than CISC
+  Ways in which microkernel implements this less well than monolithic
+
+What are the problems they mention?
+  (2.3, table 5, 2.4)
+  large register sets (sparc windows)
+  deep pipelines (88000 o/s must save 30 regs of pipeline state)
+  no h/w vectoring (in MIPS)
+  limited write buffers (R2000, fixed in R3000)
+  cpu speed vs memory speed
+  caches that have to be flushed during address space switches
+
+How do they establish that the mentioned problems are actually responsible?
+  For the most part they do not!
+  Would this have been straightforward?
+
+Section 5: proof that all this matters?
+  Doesn't matter if traps are slow if they are rare.
+  Section 5 a little weak. Counts how frequent traps &c are.
+    Extrapolates w/ Mach 2.5 -> Mach 3.0. Lame.
+  Table 7 shows that maybe 20% of total CPU time in o/s primitives.
+    Is this a lot? Maybe not.
+
+They claim:
+  O/S using traps &c more (microkernels).
+  CPUs making traps &c relatively more expensive.
+  Can't continue both trends indefinitely.
+  That was 1991. Which trend won?
+
+What did we learn from this paper?
+  Lots of performance details.
+  Choice of O/S and CPU abstractions matters.
+  System-level view: combined CPU-O/S-application behavior
+
+Was it a good paper?
+  Clearly written?
+  Clear statement of goals/problem/method/ideas?
+
+Does performance matter?
+
+When does performance matter?
+  Google runs service on 10,000 PCs...

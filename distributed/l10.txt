@@ -1,0 +1,115 @@
+6.824 2002 Lecture 10: File system layout on disk
+
+- Why do we care?
+  Critical for performance and crash recovery of individual machines.
+  Interacts with distributed protocols, for both reasons.
+  Some of the fault-handling techniques will re-appear in dist systems.
+
+- Review of file representation
+  - inodes
+  - block numbers
+  - directores: files with a particular format
+  - block free list
+  - i-node free list
+
+- Simple file system:
+  - assume simple disk layout: inodes at beginning and the rest data
+  - write-through cache
+
+- Reliability: ordering of writes
+
+  - Suppose we want to write data to a new file d/f
+    (Ignoring reads, since they're probably cached.)
+    1. Update block free list
+    2. Write block full of data to disk
+    3. Update i-node free list
+    4. Write new i-node to disk
+    5. Append entry for "f" to "d"'s contents
+    6. Write "d"'s i-node, since it has a longer length
+  
+  - Suppose we just write this data to the in-memory disk block cache
+    - How fast can we create files?
+    - What if blocks written back in some random order?
+      And a crash intervenes?
+      Well, maybe fsck can detect/correct dirent -> empty i-node.
+
+  - Now let's do the same thing for deletion of file "f2" from dir "d2"
+    1. Write "d2"'s content to eliminate reference to "f2"
+    2. Write "f2"'s inode to clear it
+    3. Write inode free list, to include "f2"'s old i-node
+
+  - Suppose we delete file d/f, create file d2/f2.
+    - file d/f created a long time ago, and is on disk.
+    - we happen to re-use f's i-node for f2.
+    - we write just d2's directory block
+    - then the system crashes/reboots
+    - everything *looks* fine to fsck, but d2/f2 points to old d/f.
+
+  - Suppose we do the writes one at a time, in the above order?
+    - How fast can we create files?
+    - What happens if crash/reboot interrupts the sequence?
+    - Are we convinced that the bad create/delete thing can't occur?
+
+  - Can we cut any corners?
+    - Fewer sync writes for better performance, but still correct?
+    - We can probably avoid updating free lists.
+      - Why? Don't we risk re-using an in-use block after a crash?
+    - We can probably delay writing the application's data.
+      - Since it's not required for file system's internal consistency.
+      - Can probably see block contents from deleted files...
+
+- Goal: achieve high-performance *and* reliability
+  
+  Design approach:
+  - Reads can be made fast by exploiting big main-memory cache
+    Result: read ops can happen at the speed of main-memory
+  - Writes can be made fast by performing them in the main-memory
+    cache and asynchronously updating the disk
+    Result: 
+      - write ops can happen at the speed of main-memory (until
+        main-memory is filled by dirty blocks)
+      - a queue of dirty blocks to be written also allows us to
+        achieve high disk bandwidth (by handing them to the disk
+	together so the disk can schedule them efficiently---e.g.,
+	using a elevator algorithm).
+      - LOST RELIABILITY
+        - applications expect that the completion of some disk
+	operation (e.g., close) means that data is on the disk recoverable.
+        - writes out of order could make data unrecoverable.
+  - Approaches to making disk writes asynchronously:
+    1. Forget reliability (Linux)
+    2. Synchronously write metada (inodes etc.) and asynchronously
+       data blocks (VMS, DOS, FFS, etc.)
+    3. Use NVRAM (disadv: cannot remove disk from broken machine)
+    4. Atomic updates (group set of dependent writes as an atomic
+       operations) with write-ahead logging (journaling FS, LFS, XFS,
+       etc.)
+       - each change to metadata first writes asynch entry in the log
+       - commit ops wait until writes to log are stable
+    5. Scheduler-enforced ordering  (pass dependencies to disk driver)
+    6. The cache-write-back code enforces interbuffer dependencies
+       Problem: many circular dependencies  (e.g., between an inode
+       block and a directory block after creating a file A and
+       removing B from the same directory and whose inodes are in the
+       same inode block). 
+		 inode block I	dir block D	
+		     inode 4	 -
+		     inode 5     B
+	  if we add 4 to D, then D is dependent on I
+          if we delete 5 from D, then I is dependent on D
+    7. Soft updates
+	    - Fine-grained in memory log to break dependencies from 6.
+	    - After main-memory updates for I and D to add 4 and delete
+	      5:
+		     I		D
+		     4		F
+		     5		-
+
+	     - Writing I and D:
+	             undo adding 4 (in main memory)
+		     write D
+		     redo 4  (in main memory)
+		     write 4
+		     write D
+
+	     - Adv: No on-disk log and transaction machinery

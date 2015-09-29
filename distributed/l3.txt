@@ -1,0 +1,94 @@
+6.824 2002 Lecture 3: Threads
+
+- Intro
+
+Why use threads?
+  1. multiple CPUs. "scientific" code, like matrix multiply.
+  2. modularity. one program, many semi-independent tasks.
+     don't want them to know about each other's control flow.
+     Example? background spell checker in Microsoft word.
+     makes sense on both uni- and multi-processors.
+  3. concurrency. keep disk, cpu, net busy; avoid blocking.
+     makes sense on both uni- and multi-processors.
+
+Today: implementation, the easy part
+Next week: coordination, the hard part
+
+- Threads
+
+  if we didn't have any threads we could write blocking for the disk
+  as follows:
+
+	while (!disk_ready) ;
+
+  this is called a spin loop.
+
+  with multiplexing the processor we could write the code as follows:
+
+       while (!disk_ready) 
+	     yield();
+
+   yield() gives the processor temporarily to some other thread.  how
+   do we implement yield()?
+
+      yield() {
+	      select next thread;
+	      switch to that thread;
+      }
+
+   lets assume we have two threads.  then selecting a next thread to
+   run is easy -- it's the other thread.
+ 
+   each thread has its own stack.
+   lets assume that all state (arguments, local variables, return
+   address) of a computation are stored on a stack.  Then, switching a
+   thread means:
+     1. save current thread's stack pointer register
+     2. load next thread's saved stack pointer into the SP register
+     3. return
+
+   long threads[2]; // saved stack pointer for each thread
+   int current;     // current thread (0 or 1)
+   long SP;         // the CPU's stack pointer register
+
+   yield() {
+	   threads[current] = SP;
+	   current = !current;
+	   SP = threads[current];
+   }
+
+   to understand the code, assume we have one thread running and one
+   thread that has yielded.  now the running thread calls yield():
+     1. The call saves all the registers on the current thread's stack.
+     2. Including the program counter.
+     3. yield() switches to the new thread's stack pointer.
+     4. The return uses the *new* thread's saved program counter.
+
+   yield() provides a very simple thread package.
+   what else do we want?
+     1. thread creation. more than two threads.
+     2. a better scheduler. priority?
+     3. wait (block) for an event, signal an event to waiting threads.
+     4. locks
+
+   check out the thread package on the handout. explain it.
+   what can the thread package on the handout not do?
+	1. exploit multiprocessors
+	2. allow preemption
+        3. fork()
+
+    how would you write multifinger with our thread package?
+
+    for (each argument to multifinger)
+	thread_create (finger, argument);
+
+    finger (argument) {
+	   fd = connect(argument, FINGER_PORT);
+	   write (fd, user);
+	   read (fd, buffer);
+	   print buffer;
+    }
+
+    how does the package run another thread when a thread calls a
+    blocking system call?
+	....

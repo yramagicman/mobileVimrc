@@ -1,0 +1,168 @@
+6.824 2002 Lecture 12: Cryptographic Protocols
+
+Example system to talk about threats
+  On-line ordering system
+  Me, Internet, Amazon
+  I type my credit card number
+  Goal: I get the book I wanted, Amazon gets $20
+
+Potential problems
+  What if a bad person is tapping an Internet link?
+    Network cables typically not physically secure.
+  What if a bad person has broken into an Internet router?
+    They are just computers...
+  How do I know I'm talking to Amazon?
+  How does Amazon know I'm allowed to use that credit card?
+  What if a bad Amazon employee gets a copy of my credit card number?
+  What if Amazon sends me the wrong book by mistake?
+  What if someone steals the book out of my mail box?
+  What if someone has broken into my workstation?
+    Or my file server?
+  Where did my browser come from? Or my O/S?
+  What if my display or keyboard radiates?
+
+Example of a secure system design:
+  Secure telephone between NSA and CIA
+  Goal: only people in NSA and CIA buildings allowed to know
+  Plan:
+    Radiation-proof buildings
+    Only one entrance/exit per building
+    Armed guards at entrances
+    Guards check ID cards and record all in/out
+    Pressurized shielded cable between two buildings
+    No other cables allowed to leave the buildings
+    Pass laws to punish people who reveal government secrets
+
+General methodology for building secure systems
+  State goals or desired properties clearly
+  Structure system so it has two kinds of components:
+    Trusted and un-trusted
+  Build secure perimeter around trusted components
+    Perhaps using physical, legal, or cryptographic techniques
+  Minimize the size of the trusted components
+    "Trusted" means "could betray you"
+    Maybe we should have built a secure *room*, not building
+  Analyze the resulting system, and monitor its success
+
+Note that we're unlikely to achieve perfect security
+  No individual technique is perfect
+    Pressurized cable only raises attacker's cost
+    You can't completely shield a building
+    Anyone can be bribed or blackmailed
+  Maybe we can make penetration cost more than the information is worth
+  We could meet our stated goal but goals could be inappropriate
+    Maybe NSA and CIA have uncleared visitors in the building
+    Maybe some employees leave the building and talk in their sleep
+      Why don't we forbid employees from leaving the building?
+
+What are we going to talk about in 6.824?
+  Cryptography, since it's well understood.
+  System structure, since that's what makes systems secure.
+
+What properties can cryptography help us achieve?
+  1. Privacy / confidentiality
+  2. Integrity / authenticity
+
+What low-level crypto primitives are available?
+  There are many, we will use three.
+  We won't discuss how they work internally.
+  But we will assume they have certain properties.
+    If correctly applied...
+
+Symmetric-key ciphers.
+  Examples: DES, Idea, RC4
+  Plain text, cipher text, key.
+  Encrypt(P, K) -> C
+  Decrypt(C, K) -> P
+  Properties:
+    If all you know is C, you cannot easily derive P.
+  Typically K is kept secret, known by two communicating parties.
+  Typically used for privacy.
+  Typically pretty fast.
+  Problem: key distribution; how do two parties securely share a key?
+
+Public-key ciphers.
+  Example: RSA
+  Two keys, typically called "public" and "private".
+  Encrypt(M1, K1) -> M2
+  Decrypt(M2, K2) -> M1
+  Properties:
+    If all you know is M2 and K1, you cannot derive M1.
+    If all you know is M1 and K2, you cannot derive a matching M2.
+    If all you know is K1, you cannot derive K2.
+    If all you know is K2, you cannot derive K1.
+  Two typical uses:
+    Privacy: only I know K2, but I make K1 public.
+      Only I can read M2; private to me.
+    Integrity: only I know K1, but I make K2 public.
+      Only I can produce an M2 that decrypts to M1.
+  Typically very slow.
+
+Cryptographic hashes.
+  Examples: MD5, SHA-1.
+  Hash(X) -> Y
+  X can be as large as you like, Y is typically 128 or 160 bits.
+  Property:
+    If all you know is Y, you cannot find an X s.t. Hash(X) == Y.
+  Typical use:
+    Integrity: I give you a small hash that you can use to verify lots of data.
+  Very fast.
+
+Message Authentication Code
+  Or "keyed hash"
+  Suppose we both know a key, K.
+  If I want to send you M1 so you'll know it's from me,
+  I send you M2 = M1 + Hash(K + M1)
+
+Certificate
+  Suppose we want publically verifiable documents.
+  Example: electronic MIT ID card.
+  Registrar generates M1 = "Robert Morris works at MIT."
+  Gives me M2 = M1 + RSAEncrypt(Hash(M1), MIT's private key)
+  Anyone who knows MIT's public key can check this.
+  So *I* can carry around M2 and use it to convince anyone that I work at MIT.
+    They don't have to talk directly to MIT to verify this.
+  MIT probably wants to include expiration date, picture, ID #, &c in M1.
+
+Let's try to build a secure channel with these tools.
+  Goal: Alice and Bob want to communicate over the Internet.
+    Want to make sure that only they can read what they send.
+    Want to make sure they are really talking to each other.
+  Assume: they know each others' public keys.
+  E_A means encrypt with Alice's public key (so only Alice can read it).
+  S_A means sign with Alice's public key.
+  Straw man protocol:
+    Alice initiates.
+    K = random session key (to be used for DES and/or SHA-1).
+    T = current time
+    Alice sends E_B(S_A(K, T))
+    Bob decrypts, checks signature, checks T, uses K to talk to Alice.
+    So Alice could now send Encrypt(K, "Give Sam an A in 6.824")
+  Why does Alice sign? (so Bob knows it's really Alice)
+  Why does Alice encrypt with Bob's public key? (so Alice knows only Bob can read K)
+  What's the point of T? (so Bob knows it's not a replay from last year)
+
+Why does this protocol have a big hole?
+  After Bob sees E_B(S_A(K, T)),
+  Bob can send Carol E_C(S_A(K, T))
+  Now Carol thinks she is talking to Alice.
+  Since Bob knows K, Bob can send Carol messages as if from Alice.
+  e.g. Encrypt(K, "Buy two tickets to Cuba")
+  This is called a man-in-the-middle attack.
+
+What's the problem?
+  What exactly can Bob or Carol conclude from E_B(S_A(K, T))
+  You can't conclude anything from the E_B(...) part,
+    since anyone can encrypt with Bob's private key.
+    You can't even claim that only Bob knows the contents,
+    since you know whoever encrytped ... also knows the contents.
+  You can conclude something from S_A(K, T), but what?
+    Just that Alice recently signed it.
+    And perhaps that she meant to communicate with *somebody*.
+    But you don't know who.
+  We can fix this by making the message explicit:
+    S_A("Alice", "Bob", K, T)
+  Then Carol will know it's not for her.
+
+There are also problems with the timestamp T, and with exactly how to use K.
+

@@ -1,0 +1,91 @@
+Reimplementing the Cedar File System Using Logging and Group Commit
+Robert Hagmann
+SOSP 1987
+
+CFS == old file system
+FSD == new file system
+
+Let's talk about the old system, CFS, first.
+  In some ways it's the more interesting of the two.
+
+What were some strengths of the old design?
+  Labels provided robustness.
+
+What were the weaknesses of the old design?
+  Non-standard hardware.
+  Slow recovery.
+  Slow meta-data update.
+
+CFS file name table was a b-tree.
+  *not* consistent after a crash.
+  thus really required to duplicate names &c in headers.
+
+How did the labels work?
+  What was in a label?
+  When written? when checked?
+  What errors can the labels detect?
+  What invariants could a label help maintain?
+  Disk hardware failures:  
+    For each, detect bad data? Recover?
+    If disk scribbles onto the file name table?
+    If disk scribbles onto a header?
+    If disk scribbles onto file content?
+  Software errors:
+    If used page on free list, will we re-use it incorrectly?
+    If someone writes junk into header, will we detect? Can we recover?
+    If someone writes junk into file content, will we detect?
+
+Why was the CFS VAM just hints?
+  VAM is disk page free list.
+  How could there be no invariants?
+  What if an allocated page is on the free list?
+  Does the FSD VAM have invariants?
+
+Why is guarding against single sector errors reasonable?
+  What's the logic behind this design focus?
+  What are the alternatives?
+  What if most disk errors occured in disk electronics?
+
+Do they have hierarchical directories?
+  Only one "directory", the file name table...
+
+What are FSD's on-disk data structures?
+  File name table B-tree.
+  The log. Circular, in a fixed part of the disk.
+  File contents.
+
+What are FSD's in-memory data structures?
+  A cache of disk blocks. Some may be dirty.
+  Log records waiting to be written to disk.
+
+What happens during an FSD create?
+  What is just written to buffer cache?
+  What's appended to the log in memory?
+  What's written to disk immediately?
+
+What happens during recovery?
+  How do we find the last log record?
+  How far back in the log does recovery need to look?
+  What does recovery actually do with the log records?
+
+What if we run out of log space during normal operation?
+  How can we be sure it's safe to start re-using the log space on disk?
+  What if crash while writing blocks during switch to a new 1/3?
+
+Why does log allow atomic update to complex file name table b-tree?
+  What if we crash during the log write?
+
+Why don't they log file content updates?
+  What exactly do they do with file content writes?
+  create("a"); write("a"); create("b); CRASH;
+  Could I see b but not a's contents after recovery?
+
+Why don't they log free list (VAM) changes?
+  How do they recover the contents of the free list?
+
+How does FSD defend against bad disk blocks?
+
+How does FSD defend against software errors?
+  Is it as robust in this respect as CFS?
+
+Why is FSD faster than CFS?

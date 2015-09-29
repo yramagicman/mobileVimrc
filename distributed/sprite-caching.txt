@@ -1,0 +1,68 @@
+Caching in the Sprite Network File System
+Nelson, Welch, Ousterhout
+ToCS 1988
+
+Why do they want a file server?
+  Performance?
+  Cost?
+  Reliability?
+  Sharing?
+  Use my files from any workstation?
+  What was the alternative?
+
+What consistency model do they provide?
+  "same semantics as if all of the processes ...
+   were executing on a single ... system"
+  What does that mean?
+  Is it strict consistency?
+  Sequential consistency?
+
+What do they claim about NFS and AFS consistency?
+  Why is the NFS/AFS model good?
+  Why is it bad?
+
+What's the intuition behind the assumption that write-sharing
+  is usually sequential?
+  And rarely concurrent.
+
+How does Amoeba deal with concurrent write sharing?
+
+How does Sprite's cache consistency algorithm work?
+  They have one file server, and a bunch of client workstations.
+  Clients tell the server when they open and close each file.
+  Server keeps track of which clients have each file open.
+    And also remember whether each is open read-only, or read/write.
+  Server views a file in one of three states:
+    If no read/write opens, clients may read from caches.
+    If exactly one open and it's read/write,
+      that client may read/write locally in its cache.
+    If multiple opens and >= 1 is for writing.
+      no caching is allowed, all reads/writes go to server.
+
+How does a client make sure its cached data is fresh?
+  How does client know some other client hasn't modified the file?
+  How does client get latest copy of the data?
+
+Why is this arrangement good?
+  Common case is only one client workstation is using each file.
+    Client can keep all the files in its cache.
+    Never has to send/recv data from the file server.
+  Multiple clients writing a file is rare.
+    Sprite gets this correct, but it's slower.
+
+Look at Figure 4.
+  Caching decreases run-time and network traffic by 5x.
+  But decreases server utilization by only 1/3.
+  Why?
+
+What happens when a Sprite server crashes and restarts?  
+
+There's clearly tension among:
+  1. Durability (vs crashes)
+  2. Strictness of consistency
+  3. Amount of write traffic
+  4. Amount of cache validation traffic
+  5. Complexity (vs stateless server)
+  It's mostly #1 that makes a file system different from a DSM.
+    And maybe you have more freedom with #2.
+    Since you have a notion of open() and close().

@@ -1,0 +1,129 @@
+Scalable, Distributed Data Structures for Internet Service Construction
+Gribble, Brewer, Hellerstein, Culler
+OSDI 2000
+
+What's the API their system (library) provides to apps (services)?
+  put(key, value)
+  get(key) -> value
+
+Why is that a useful API?
+
+What interesting properties does their implementation have?
+  Highly available.
+  High performance.
+  Take care of replication and recovery.
+
+Straw man design:
+  Clients, services/DDSlibs, bricks.
+  Suppose we have 100 bricks.
+  brick = hash(key) % 100.
+  We're done.
+  Very scalable!
+
+Suppose we want to support adding new bricks?
+  Want to re-partition data over new set of bricks.
+  Need a level of indirection to map keys to bricks.
+  This is the DP (data partitioning) map.
+  The services/DDSlibs have to have the DP to choose the right brick.
+
+How do we make sure everyone agrees on the DP map?
+  Service/DDSlib checks on every operation.
+  How do bricks agree on the DP among themselves?
+  I don't think the paper says.
+
+How can we support replication?
+  Have DP map entries point to sets of bricks.
+  This is the RG (replica group) map.
+
+What consistency model do they promise?
+  They claim one-copy equivalence.
+  Presumably same as single-copy serializable.
+  So they must make sure operations happen one-at-a-time per value.
+  And they must have some all-or-nothing replica write story.
+
+Example 1:
+  Two replicas of x. Currently zero.
+  DDSlib D1 writes 1.
+
+Example 2:
+  D1 writes 2.
+  Concurrently, D2 writes 3.
+
+Example 3:
+  Concurrent: D1 writes, D2 reads.
+  D2's read happens between prepare and commit.
+
+Example 3:
+  A replica crashes during a write.
+
+Example 4:
+  A replica crashes just before a read.
+
+Example 5:
+  D1 wants to write 4.
+  D1 crashes before sending any commit.
+
+Example 6:
+  D1 wants to write 5.
+  D1 crashes after sending just one commit.
+  What does the other replica do?
+  What happens if we now read?
+
+Is this really two-phase commit?
+  2pc should block when unsure; DDS bricks never block permanently.
+  reads don't participate in the atomicity plan, i.e. aren't ordered
+
+When does the service/DDSlib ACK to the client?
+  Before or after sending commit messages?
+
+Suppose a brick reboots?
+  It assumes it missed some put()s.
+  So its replicas are worthless.
+  So act just like adding a totally new brick.
+  Pick a replica dataset.
+  Ask one of its owners to lock it (so no put()s).
+  Copy the whole replica.
+  Unlock, add to RG.
+
+What if there's a power failure?
+  Can we fix this by putting replicas in different buildings?
+
+What if the network partitions?
+
+What if one particular piece of data is popular?
+
+Why don't you need multi-object transactions?
+
+Let's build a Hotmail back-end with DDS.
+  Zillions of users.
+
+DDS/Porcupine version 1
+  Hash user name to 64-bit key.
+  Store all user's mail in one hash table entry.
+  So message arrival is get(), append new message, put().
+  What if two messages arrive at the same time?
+    No locking, no atomic multi-operation transactions.
+    So one message will be lost.
+
+DDS/Porcupine version 2
+  We can tell if we lost a put() race:
+    get() will show some other new message, but not ours.
+  In that case, retry.
+    We're depending on atomicity of put()s.
+    Does this always work?
+    Perhaps both parties' put() will fail, depending on locking order?
+  We still aren't as good as Porcupine:
+    Suppose all of my replicas crash?
+    Can't guarantee always to accept messages.
+    Can't show some messages if some bricks are down.
+
+DDS/Porcupine version 3
+  Give each user a few mailbox fragments.
+    With predictable keys.
+    hash(rtm-1), hash(rtm-2), hash(rtm-3),...
+  When a message arrives, append to a random available fragment.
+    Could start a new one if required.
+  Reading mail requires probing to see which fragments exist.
+  Now we have some soft state! The fragment list.
+  Are we as good as Porcupine now?
+    Still can't recover from a complete power failure.

@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+git fetch upstream
+git checkout master
+git up
+git checkout master
+git rebase master upstream/master
+git checkout master
+git pull
+git submodule update --init --recursive
