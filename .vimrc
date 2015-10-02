@@ -499,20 +499,6 @@ function! Knl ()
     endtry
 endfunction
 "}}}
-"{{{ Shortcut: <leader>R = Run anything with a shebang
-" Source: http://superuser.com/a/21503/48014
-if has("autocmd")
-    au BufEnter * if match( getline(1) , '^\#!') == 0 |
-    \ execute("let b:interpreter = getline(1)[2:]") |
-    \endif
-    fun! CallInterpreter()
-        if exists("b:interpreter")
-             exec ("!".b:interpreter." %")
-        endif
-    endfun
-    nmap <Leader>R :call CallInterpreter()<CR>
-endif
-" }}}
 "{{{ Check for :Error command so it can be run on save
 function! CheckErrorFn()
     if exists(':Error')
@@ -574,6 +560,7 @@ nnoremap <Leader>f :call FoldColumn()<CR>
 "}}}
 "{{{ Open in secondary editor. I use TextWrangler on OS X so tw makes sense
 function! Tw()
+    if has('python')
 python << endpython
 import sys, os, vim
 from subprocess import call
@@ -589,6 +576,7 @@ if gui_editor_defined:
 else:
     print "Please set a secondary editor by adding let g:Gui_Editor='editor command' to your vimrc"
 endpython
+endif
 endfunction
 command! Tw :call Tw()
 "}}}
