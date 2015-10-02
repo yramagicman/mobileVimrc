@@ -16,7 +16,7 @@ let g:VundleHelper_Plugin_File =  '/.vim/config/extensions/vundle.vim'
 let g:VundleHelper_Update_Frequency = 5
 "}}}
 "{{{ Defaults probably won't change... ever
-set background=light
+set background=dark
 set autoread
 set spelllang=en_us
 " best color scheme ever
