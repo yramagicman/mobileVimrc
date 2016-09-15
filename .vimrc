@@ -5,7 +5,7 @@
 "{{{ defaults
 "{{{ set secondary editor
 if has('mac')
-    let g:Gui_Editor = 'TextWrangler'
+    let g:Gui_Editor = 'Sublime Text'
 else
     let g:Gui_Editor = 'geany'
 endif
@@ -14,6 +14,11 @@ endif
 let g:VundleHelper_Setup_Folders = ['after', 'autoload', 'backup', 'bundle', 'colors', 'config', 'doc', 'snippets', 'spell', 'swaps', 'syntax', 'tags', 'undo']
 let g:VundleHelper_Plugin_File =  '/.vim/config/extensions/vundle.vim'
 let g:VundleHelper_Update_Frequency = 5
+for dir  in VundleHelper_Setup_Folders
+   if !isdirectory($HOME . '/.vim/' . dir)
+       call mkdir($HOME. '/.vim/' . dir)
+   endif
+endfor
 "}}}
 "{{{ Defaults probably won't change... ever
 set background=dark
@@ -133,11 +138,6 @@ set shiftwidth=4
 "tabs to spaces
 set expandtab
 "}}}
-"{{{ set compiler
-let g:syntastic_cpp_compiler = 'clang++'
-let g:syntastic_c_compiler = 'clang'
-let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
-"}}}
 "{{{ set status line
 " Always show status line
 let f=system('[[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"')
@@ -193,31 +193,6 @@ endif
 "}}}
 "}}}
 "{{{motions
-"{{{ kill arrow keys
-nnoremap <down> <C-d>
-nnoremap <left> <Nop>
-nnoremap <up> <C-u>
-nnoremap <right> <Nop>
-inoremap <right> <Nop>
-inoremap <down> <Nop>
-inoremap <left> <Nop>
-inoremap <up> <Nop>
-vnoremap <left> <Nop>
-vnoremap <down> <C-d>
-vnoremap <right> <Nop>
-vnoremap <up> <C-u>
-"}}}
-"{{{always center when navigating
-noremap G Gzz
-noremap { {zz
-noremap ( (zz
-noremap } }zz
-noremap ) )zz
-noremap % %zz
-noremap <Tab> <Tab>zz
-noremap n nzz
-noremap N Nzz
-"}}}
 "{{{ jump to ...
 noremap <S-j> G
 noremap <S-k> gg
@@ -508,58 +483,6 @@ function! CheckErrorFn()
     endif
 endfunction
 "}}}
-"{{{ get stuff off my screen
-let g:clean = 1
-function! CleanScreen()
-    if  g:clean == 0
-        let g:numoff = 0
-        set laststatus=2
-        set foldcolumn=2
-        set relativenumber
-        set number
-        set showmode
-        let g:clean=1
-        return g:clean
-    else
-        let g:numoff = 1
-        set laststatus=0
-        set noshowmode
-        set nonumber
-        set norelativenumber
-        set foldcolumn=12
-        let g:clean=0
-        return g:clean
-    endif
-endfunction
-command! Clean :call CleanScreen()
-"}}}
-"{{{ open scratch buffer
-function! Scratch()
-    new
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal nobuflisted
-    resize -15
-endfunction
-command! Scratch :call Scratch()
-"}}}
-"{{{ toggle fold column markers
-let g:foldon=1
-function! FoldColumn()
-    if g:foldon == 1
-        hi      FoldColumn       ctermbg=234     ctermfg=247    guifg=#1c1c1c  guibg=#1c1c1c
-        let g:foldon=0
-        return g:foldon
-    else
-        hi      FoldColumn       ctermbg=234     ctermfg=234    guifg=#1c1c1c  guibg=#1c1c1c
-        let g:foldon=1
-        return g:foldon
-    endif
-endfunction
-command! Fc :call FoldColumn()
-nnoremap <Leader>f :call FoldColumn()<CR>
-"}}}
 "{{{ Open in secondary editor. I use TextWrangler on OS X so tw makes sense
 function! Tw()
     if has('python')
@@ -676,11 +599,6 @@ set foldcolumn=2
 "}}}
 "}}}
 "{{{mappings
-"{{{file navigation shortcuts
-nnoremap <silent> <leader>ev :e ~/.vim/config/vimrc.combined.vim<CR>
-nnoremap <silent> <leader>pe :e ~/.vim/config/extensions<CR>
-noremap <leader>rl <ESC>:source ~/.vimrc<CR>:set visualbell<CR>
-"}}}
 "{{{ Make Vim work logically
 "paste in insert mode
 inoremap <leader>p <ESC>pa
@@ -704,17 +622,12 @@ nnoremap Ql gqq
 "auto-highlight current word
 nnoremap <leader>t :call AutoHighlightToggle()<CR>
 " Save a file as root ('W)
-nnoremap <c-\> :so $VIMRUNTIME/syntax/hitest.vim<CR>
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
 "delete blank lines
-noremap <localleader>db :g/^$/d<ESC>:let @/ = ""<CR>
-" delete duplicate blank lines
-noremap <leader>db mz:%!cat -s<CR>`z
-" toggle word wrap
 noremap <silent><leader>w <ESC>:set wrap!<CR>
 inoremap <silent><leader>w <ESC>:set wrap!<CR>i
 "toggle file explorer
-noremap <silent><leader>e <ESC>:FileBeagle<CR>
+noremap <silent><leader>e <ESC>:Explore<CR>
 "retab
 noremap <leader>r <ESC>:%retab<CR>
 "kill search highlighting
@@ -722,27 +635,13 @@ noremap <silent><leader><space> <ESC>:let @/ = ""<CR>
 "uppercase words
 inoremap <C-u> <ESC>mzgUiwea
 nnoremap <C-u> <ESC>mzgUiwe
-" Toggle [i]nvisible characters
-nnoremap <silent><leader>I :set list!<CR>
 " reset color scheme
 nnoremap U :syntax sync fromstart<CR>:redraw!<CR>
 " make this_style into cammelCase
 nnoremap CC 0f_x~
-nnoremap <leader>c :%!column -t<CR>
-nnoremap <leader>cs :%!column -t -s ","<CR>
-nnoremap <leader>cp :%!column -t -s "\|"<CR>
 nnoremap <leader>s :source %<CR>
 nnoremap <leader>S :source %<CR>
-nnoremap <leader>dca :!drush cc all<CR>
 nnoremap <leader>cd :lcd %:p:h<CR>
-"}}}
-"{{{ spelling mappings
-nnoremap --s :set spell!<CR>
-nnoremap -s zg
-nnoremap -d ]szo
-nnoremap -a [szo
-nnoremap -w 1z=
-nnoremap --w z=
 "}}}
 "{{{ No... I don't want to record a macro now
 "I never use replace mode anyway
@@ -759,11 +658,6 @@ nnoremap ch q:
 nnoremap  qf :execute 'vimgrep /' .@/.'/g %'<CR>:copen<CR>
 nnoremap '; ;
 nnoremap ": ,
-iabbrev JOnathan Jonathan
-"}}}
-"{{{ insert blank lines in normal mode
-nnoremap <leader>O O<ESC>j
-nnoremap <leader>o o<ESC>k
 "}}}
 "{{{ set buffer, also set foldmethod
 nnoremap <silent>-b :set buftype=<CR>
@@ -771,18 +665,6 @@ nnoremap <silent>-dh :set filetype=htmldjango<CR>
 nnoremap <silent>-fm :set foldmethod=marker<CR>
 nnoremap <silent>-fi :set foldmethod=indent<CR>
 nnoremap <silent>-fs :set foldmethod=syntax<CR>
-"}}}
-"{{{ Command line abbreviations
-cnoreabbrev clam Clam
-cnoreabbrev ack Ack
-cnoreabbrev tw Tw
-cnoreabbrev git !git
-cnoreabbrev gab !git add %
-cnoreabbrev ga !git add %
-cnoreabbrev gac !git add %
-cnoreabbrev ga% !git add %
-cnoreabbrev gcm !git commit -m
-cnoreabbrev gd !git diff
 "}}}
 "}}}
 "{{{splits
@@ -807,28 +689,4 @@ noremap <localleader>= <C-w>=
 set splitbelow
 set splitright
 "}}}
-"{{{ buffer management <c-b>
-"{{{ open all buffers vertically v
-nnoremap <c-b>v :vert sball<CR>
-vnoremap <c-b>v <ESC>:vert sball<CR>
-inoremap <c-b>v <ESC>:vert sball<CR>
-"}}}
-"{{{ open all buffers horizontally h
-nnoremap <c-b>h :sball<CR>
-vnoremap <c-b>h <ESC>:sball<CR>
-inoremap <c-b>h <ESC>:sball<CR>
-"}}}
-"}}}
-"}}}
-"{{{ Regisers
-let @r = "/returnO,mjo,m"
-let @d = "ddn"
-let @s = "vi["
-let @p = "vi("
-let @c = "vi{"
-let @q = "vi'"
-let @b = 'vi"'
-let @a = "vi<"
-let @e = "jok"
-let @v = '0/\u~hi_, '
 "}}}
