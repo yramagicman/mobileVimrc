@@ -551,10 +551,10 @@ onoremap <M <ESC>
 "}}}
 "{{{saving
 "{{{ control whitespace and tabs on save
-nnoremap <leader>ss :wa<CR>
-nnoremap ss :wa<CR>
-inoremap <leader>ss <ESC>:wa<CR>
-vnoremap <leader>ss <ESC>:wa<CR>
+nnoremap <leader>ss :w<CR>
+nnoremap ss :w<CR>
+inoremap <leader>ss <ESC>:w<CR>
+vnoremap <leader>ss <ESC>:w<CR>
 "}}}
 "{{{ close but don't save
 nnoremap <leader>cl <ESC>:close!
